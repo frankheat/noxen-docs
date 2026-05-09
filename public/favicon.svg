@@ -1,0 +1,12 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 121 162" width="121" height="162">
+	<style>
+		.s0 { fill: #767676 }
+		.s1 { fill: #00af5f }
+		.s2 { fill: #d75f87 }
+	</style>
+	<g id="Background">
+		<path id="Path 0" class="s0" d="m7 81v25h44v-50h-44zm66 0v25h44v-50h-44zm66 0v25h44v-50h-44zm66 0v25h44v-50h-44zm88 0v25h66v-50h-66zm110 0v25h88v-25h22v-25h-44v25h-22v-25h-44zm132 0v25h44v-50h-44zm66 0v25h44v-50h-44z"/>
+		<path id="Path 1" class="s1" d="m7 131v25h44v-50h-44zm66 0v25h44v-50h-44zm66-12.5v12.5h22v25h66v-25h22v-25h-110zm132 12.5v25h44v-50h-44zm66 0v25h44v-50h-44zm66-12.5v12.5h22v25h88v-25h-66v-25h-44zm132 12.5v25h44v-50h-44zm66 0v25h44v-50h-44z"/>
+		<path id="Path 2" class="s2" d="m7 31v25h110v-25h-22v-25h-88zm154-12.5v12.5h-22v25h110v-25h-22v-25h-66zm110 12.5v25h44v-50h-44zm66 0v25h44v-50h-44zm88-12.5v12.5h-22v25h44v-25h22v25h44v-25h-22v-25h-66zm110 12.5v25h110v-25h-22v-25h-88z"/>
+	</g>
+</svg>

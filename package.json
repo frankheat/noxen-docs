@@ -1,0 +1,20 @@
+{
+  "name": "noxen-docs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "ASTRO_TELEMETRY_DISABLED=1 astro dev",
+    "build": "ASTRO_TELEMETRY_DISABLED=1 astro check && ASTRO_TELEMETRY_DISABLED=1 astro build",
+    "preview": "ASTRO_TELEMETRY_DISABLED=1 astro preview"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.9",
+    "@astrojs/starlight": "^0.37.0",
+    "astro": "^5.18.1",
+    "typescript": "^5.7.2"
+  },
+  "devDependencies": {},
+  "overrides": {
+    "@astrojs/sitemap": "3.5.0"
+  }
+}
