@@ -6,6 +6,11 @@ title: "Installation"
 
 noxen requires Python 3.10 or newer.
 
+On Windows, [Windows Terminal](https://apps.microsoft.com/detail/9n0dx20hk701) is
+required. The classic console host (cmd.exe, old PowerShell window) does not support
+true color or the Unicode characters used by the TUI, so the interface will not render
+correctly.
+
 Create and activate a virtual environment if you do not already have one:
 
 ```bash
