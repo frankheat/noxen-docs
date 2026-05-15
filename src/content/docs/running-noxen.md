@@ -50,6 +50,8 @@ chosen mode. Use the refresh button (↺) to reload it.
 
 Both fields accept a file path. Use the **Browse** button to navigate the filesystem
 and select a file, or type the path directly. Use **✕** to clear the field.
+The selected paths are saved in the current project and restored when that `.noxen`
+project is reopened.
 
 - **Hook config** — additional hook definitions (JSON) loaded alongside
   the bundled default hooks. See [Hook configuration](https://frankheat.github.io/noxen-docs/hook-configuration/).
