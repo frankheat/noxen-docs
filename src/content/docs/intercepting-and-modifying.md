@@ -37,7 +37,8 @@ If no type is provided, noxen stores the extra as a string.
 ## Attack surface labels
 
 For each intercepted event, noxen queries Android's PackageManager to classify the
-event in terms of attack-surface relevance and shows a **Surface** label.
+event in terms of attack-surface relevance. Receiving-component labels are shown
+next to **Class**. Intent-resolution labels are shown next to **INTENT**.
 
 For methods where the component **receives** an intent (`getIntent`, `onNewIntent`,
 `onActivityResult`, `setResult`, `onReceive`, `onStartCommand`, `onBind`):
@@ -55,9 +56,8 @@ For methods where the component **sends** an intent (`startActivity`,
 | `Implicit` | No target component is set — Android resolves the receiver, which could be a third-party app |
 | `Explicit` | A specific component is targeted |
 
-The label appears below **Class** for receiving methods and below **Component**
-for sending methods. If the information cannot be determined (dynamic receivers,
-inner classes not registered in the manifest), the label is not shown.
+If the information cannot be determined (dynamic receivers, inner classes not
+registered in the manifest), the label is not shown.
 
 ## Passive capture
 
