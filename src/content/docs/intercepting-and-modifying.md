@@ -34,6 +34,10 @@ If you drop the intent, staged modifications are discarded with that block.
 Supported extra types are `string`, `int`, `bool`, `float`, `long`, and `double`.
 If no type is provided, noxen stores the extra as a string.
 
+Intent flags are displayed with their raw hexadecimal value and decoded Android flag
+names when known. Some bits may show multiple names because Android reuses the same
+flag value across activity, broadcast, or internal framework contexts.
+
 ## Attack surface labels
 
 For each intercepted event, noxen queries Android's PackageManager to classify the
