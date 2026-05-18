@@ -38,6 +38,11 @@ The default sort is newest first by ID.
 Use the **⊟** button to show or hide individual columns. The selection is stored in
 the project file and restored on next launch.
 
+The same dialog also lets you set optional widths for Time and long text columns:
+Method, Class, Component, and Action. Widths can be set from 5 to 150 cells.
+Empty width fields use Textual's automatic sizing. Configured widths are stored
+in the project file.
+
 ## Modified intents
 
 When an intent is changed before forwarding, History stores both views:
@@ -74,7 +79,7 @@ Project files include:
 - modified and original intent values;
 - Intercept filters.
 - History filters.
-- History column preferences.
+- History column visibility and width preferences.
 
 ## Clearing history
 
