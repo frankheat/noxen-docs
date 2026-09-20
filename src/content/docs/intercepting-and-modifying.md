@@ -38,30 +38,42 @@ Intent flags are displayed with their raw hexadecimal value and decoded Android 
 names when known. Some bits may show multiple names because Android reuses the same
 flag value across activity, broadcast, or internal framework contexts.
 
-## Attack surface labels
+## Detail layout
 
-For each intercepted event, noxen queries Android's PackageManager to classify the
-event in terms of attack-surface relevance. Receiving-component labels are shown
-next to **Class**. Intent-resolution labels are shown next to **INTENT**.
+Each intercepted event is shown as a set of plain, aligned sections rather than a
+severity badge — the facts are presented and the researcher judges them:
 
-For methods where the component **receives** an intent (`getIntent`, `onNewIntent`,
-`onActivityResult`, `setResult`, `onReceive`, `onStartCommand`, `onBind`):
+- `[HOOK]` — the hooked `Class` and `Method`.
+- `[CAPTURED INTENT PAYLOAD]` — the intent's `Type` (sends only), `Target` (sends),
+  `Action`, `Data (URI)`, `Flags`, and categories.
+- `[PENDING INTENT]` — decoded PendingIntent flags (only for `PendingIntent` captures).
+- `[EXTRAS]` — a `KEY / TYPE / VALUE` table of the intent extras.
+- `[CHANGES]` — a diff of any staged modifications (History detail, modified forwards).
 
-| Label | Meaning |
-|---|---|
-| `Exported` | The component is accessible from other apps — a direct attack surface |
-| `Not exported` | The component is only reachable within the app |
+## Component permissions and exposure
 
-For methods where the component **sends** an intent (`startActivity`,
-`sendBroadcast`, `startService`, `bindService`, `PendingIntent` variants):
+For each event noxen queries Android's PackageManager and attaches the exposed
+component's facts as a small tree under the component **whose exposure matters** —
+the hooked `Class` for receiving methods, the resolved `Target` for sending methods:
 
-| Label | Meaning |
-|---|---|
-| `Implicit` | No target component is set — Android resolves the receiver, which could be a third-party app |
-| `Explicit` | A specific component is targeted |
+```
+Target        : com.example/.Receiver2
+                ├─ Exported            : true
+                └─ Required Permission : com.example.permission.CUSTOM (normal)
+```
 
-If the information cannot be determined (dynamic receivers, inner classes not
-registered in the manifest), the label is not shown.
+- `Exported` — whether the component is reachable from other apps.
+- `Required Permission` — the permission a caller must hold to reach it (the component's
+  own `android:permission`, falling back to the application-level one), with its
+  **protection level** in parentheses (`normal` / `dangerous` / `signature` / …). The
+  line is omitted when the component requires no permission.
+
+`Type` is `EXPLICIT` or `IMPLICIT` for sends. The `Target` resolves to the addressed
+component, `… (resolved)` for implicit intents, `(resolved) N receivers` for implicit
+broadcasts matching several receivers, `(unresolved)` when nothing matches, or
+`… (couldn't read — not visible)` when Android package visibility hides a third-party
+target. When a broadcast is sent with a `receiverPermission`, that sender-enforced
+permission is shown on a separate `Enforced Perm` line.
 
 ## Passive capture
 
