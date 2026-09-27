@@ -92,6 +92,28 @@ a provider's read, write, and path permissions) narrow the list further. Compone
 are always shown in full; the detail panel has every permission name in full for
 copy-paste.
 
+## Sorting
+
+Click a column header in the Permissions or Components table to sort by that column; click
+again to reverse the order. The sorted column shows `↑` or `↓`. The Components table starts
+sorted by type; the Permissions table starts in snapshot order (requested, then defined).
+Sorting survives search, filters, and Refresh for the session, and the selected component
+stays selected.
+
+Columns with a meaning are sorted by that meaning, not alphabetically. Ascending goes from
+the most exposed to the most protected:
+
+| Column | Ascending order |
+|---|---|
+| Access | `open` → `weak` → `protected` → `—` (not exported) |
+| Level | `unresolved` → `normal` → `dangerous` → `signature` → `signatureOrSystem` → `internal` |
+| Type | activity → service → receiver → provider |
+| Exported, Enabled, Granted | `yes` → `no` |
+
+Other columns sort alphabetically. Rows with the same value are always ordered by name.
+Empty cells (`—` in Permission, Granted, or Defined by) stay at the bottom in both
+directions; the `—` in Access is a real value (not exported), so it moves with the order.
+
 ## Notes
 
 - All data is read from the app's own `PackageManager` inside the process, so the target's
