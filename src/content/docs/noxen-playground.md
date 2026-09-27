@@ -14,7 +14,7 @@ Service, PendingIntent, and attack-surface events.
 | Field | Value |
 |---|---|
 | App label | `noxen playground` |
-| Package | `com.frankheat.noxen.playground` |
+| Package | `dev.noxen.playground` |
 | Repository | `noxen-playground/` |
 
 Open `noxen-playground/` directly in Android Studio. Do not open the workspace parent
@@ -55,5 +55,5 @@ as expected.
 ## Running with noxen
 
 Launch noxen and select the playground from the Home tab. Use **Spawn** mode with
-package `com.frankheat.noxen.playground`, or **Attach** mode with name
+package `dev.noxen.playground`, or **Attach** mode with name
 `noxen playground` if the app is already running.
