@@ -66,7 +66,10 @@ Target        : com.example/.Receiver2
 - `Required Permission` — the permission a caller must hold to reach it (the component's
   own `android:permission`, falling back to the application-level one), with its
   **protection level** in parentheses (`normal` / `dangerous` / `signature` / …). The
-  line is omitted when the component requires no permission.
+  level is `unresolved` when Android cannot resolve the permission for the hooked app —
+  either no package defines it, or its defining app is hidden by package visibility (see
+  [Unresolved permissions](/noxen-docs/info-app/#unresolved-permissions)). The line is
+  omitted when the component requires no permission.
 
 `Type` is `EXPLICIT` or `IMPLICIT` for sends. The `Target` resolves to the addressed
 component, `… (resolved)` for implicit intents, `(resolved) N receivers` for implicit

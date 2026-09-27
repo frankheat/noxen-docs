@@ -42,6 +42,11 @@ The main screen contains buttons for representative Android communication paths:
 - `PendingIntent.getActivity`, `getBroadcast`, and `getService`
 - concurrent broadcasts from multiple worker threads
 - explicit and implicit examples for exported and non-exported Activity behavior
+- permission scenarios for the [Info app](/noxen-docs/info-app/) tab and the event detail:
+  a receiver guarded by a `dangerous` permission (access `weak`), a receiver guarded by a
+  permission no package defines (`unresolved`), a provider guarded by a `signature`
+  permission (`protected`), and a provider with split read/write permissions plus a
+  `/public` path permission that opens reads (`open`)
 
 These scenarios are intentionally small. Their purpose is to make it easy to verify
 that hooks, History, Intercept, filtering, stack traces, and modification handling work
