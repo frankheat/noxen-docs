@@ -35,7 +35,7 @@ Choose how to attach to the target process:
 
 | Mode | When to use |
 |---|---|
-| Spawn | Starts the app from scratch — use when you need to catch startup behavior |
+| Spawn | Starts the app from scratch; use it when you need to catch startup behavior |
 | Attach (app name) | Connects to an already-running app by visible name |
 | Attach (PID) | Connects to a process by numeric PID |
 
@@ -53,9 +53,9 @@ and select a file, or type the path directly. Use **✕** to clear the field.
 The selected paths are saved in the current project and restored when that `.noxen`
 project is reopened.
 
-- **Hook config** — additional hook definitions (JSON) loaded alongside
+- **Hook config**: additional hook definitions (JSON) loaded alongside
   the bundled default hooks. See [Hook configuration](https://frankheat.github.io/noxen-docs/hook-configuration/).
-- **Extra script** — a JavaScript file appended to the Frida agent after the bundle.
+- **Extra script**: a JavaScript file appended to the Frida agent after the bundle.
 
 ### Input ANR bypass (experimental)
 

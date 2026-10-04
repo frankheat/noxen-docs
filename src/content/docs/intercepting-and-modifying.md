@@ -41,20 +41,20 @@ flag value across activity, broadcast, or internal framework contexts.
 ## Detail layout
 
 Each intercepted event is shown as a set of plain, aligned sections rather than a
-severity badge — the facts are presented and the researcher judges them:
+severity badge. The facts are presented and the researcher judges them:
 
-- `[HOOK]` — the hooked `Class` and `Method`.
-- `[CAPTURED INTENT PAYLOAD]` — the intent's `Type` (sends only), `Target` (sends),
+- `[HOOK]`: the hooked `Class` and `Method`.
+- `[CAPTURED INTENT PAYLOAD]`: the intent's `Type` (sends only), `Target` (sends),
   `Action`, `Data (URI)`, `Package` (only when the intent has one), `Flags`, and
   categories.
-- `[PENDING INTENT]` — decoded PendingIntent flags (only for `PendingIntent` captures).
-- `[EXTRAS]` — a `KEY / TYPE / VALUE` table of the intent extras.
-- `[CHANGES]` — a diff of any staged modifications (History detail, modified forwards).
+- `[PENDING INTENT]`: decoded PendingIntent flags (only for `PendingIntent` captures).
+- `[EXTRAS]`: a `KEY / TYPE / VALUE` table of the intent extras.
+- `[CHANGES]`: a diff of any staged modifications (History detail, modified forwards).
 
 ## Component permissions and exposure
 
 For each event noxen queries Android's PackageManager and attaches the exposed
-component's facts as a small tree under the component **whose exposure matters** —
+component's facts as a small tree under the component **whose exposure matters**:
 the hooked `Class` for receiving methods, the resolved `Target` for sending methods:
 
 ```
@@ -63,29 +63,29 @@ Target        : com.example/.Receiver2
                 └─ Required Permission : com.example.permission.CUSTOM (normal)
 ```
 
-- `Exported` — whether the component is reachable from other apps.
-- `Required Permission` — the permission a caller must hold to reach it (the component's
+- `Exported`: whether the component is reachable from other apps.
+- `Required Permission`: the permission a caller must hold to reach it (the component's
   own `android:permission`, falling back to the application-level one), with its
   **protection level** in parentheses (`normal` / `dangerous` / `signature` / …). The
-  level is `unresolved` when Android cannot resolve the permission for the hooked app —
-  either no package defines it, or its defining app is hidden by package visibility (see
+  level is `unresolved` when Android cannot resolve the permission for the hooked app.
+  Either no package defines it, or its defining app is hidden by package visibility (see
   [Unresolved permissions](/noxen-docs/info-app/#unresolved-permissions)). The line is
   omitted when the component requires no permission.
 
 `Type` is `EXPLICIT` for sends that name a component. Implicit sends say who can
 receive them: `IMPLICIT (package-scoped)` when the intent is limited to one app with
 `setPackage()` (shown on the `Package` row), or `IMPLICIT (any app)` when any installed
-app with a matching filter can receive it — for a broadcast carrying sensitive extras,
+app with a matching filter can receive it. For a broadcast carrying sensitive extras,
 that is a potential data leak. Events captured before noxen recorded the package show a
 plain `IMPLICIT`.
 
 The `Target` resolves to the addressed component, `… (resolved)` for implicit intents,
 `(resolved) N receivers` for implicit broadcasts matching several receivers,
-`(unresolved)` when no activity or service matches, or `… (couldn't read — not visible)`
+`(unresolved)` when no activity or service matches, or `… (couldn't read: not visible)`
 when Android package visibility hides a third-party target. Broadcast targets are
 looked up among manifest receivers only: when none matches, the target reads
-`(no manifest receiver) — dynamic receivers are not visible`, because receivers
-registered at runtime with `registerReceiver()` — in this app or in others — may still
+`(no manifest receiver); dynamic receivers are not visible`, because receivers
+registered at runtime with `registerReceiver()`, in this app or in others, may still
 receive it. When a broadcast is sent with a `receiverPermission`, that sender-enforced
 permission is shown on a separate `Enforced Perm` line.
 

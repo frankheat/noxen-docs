@@ -38,9 +38,9 @@ The main screen contains buttons for representative Android communication paths:
 - `startActivity`, `startActivityForResult`, `onActivityResult`, and `onNewIntent`
 - `sendBroadcast` and ordered broadcasts
 - dynamically registered receivers, reached by an implicit broadcast either open to
-  any app or limited with `setPackage()` — noxen shows them as `IMPLICIT (any app)` and
+  any app or limited with `setPackage()`. noxen shows them as `IMPLICIT (any app)` and
   `IMPLICIT (package-scoped)`
-- `startService`, `startForegroundService`, and `bindService` — `startForegroundService`
+- `startService`, `startForegroundService`, and `bindService`. `startForegroundService`
   targets a dedicated, non-exported `ForegroundService1` that calls `startForeground()`
   right away (as Android requires, otherwise it raises an ANR) and then stops itself
 - `PendingIntent.getActivity`, `getBroadcast`, and `getService`

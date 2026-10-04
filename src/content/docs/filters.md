@@ -92,8 +92,8 @@ and the result of `/export filtered entries`.
 The footer bar on the Intercept and History tabs shows the number of active filters on
 the right side. The count reflects the filter set of the current tab:
 
-- `Filters: 3` — three enabled filters
-- `Filters: 2/3` — two of three filters are enabled (one is toggled off)
+- `Filters: 3`: three enabled filters
+- `Filters: 2/3`: two of three filters are enabled (one is toggled off)
 
 The indicator is hidden on other tabs.
 
