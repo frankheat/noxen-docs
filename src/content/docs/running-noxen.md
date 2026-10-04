@@ -68,7 +68,10 @@ See [Android behavior and limits](https://frankheat.github.io/noxen-docs/android
 
 ### Connect and Disconnect
 
-**Connect** starts the Frida session and switches to the Intercept tab.
+**Connect** starts the Frida session. The Home tab remains visible while the connection
+is being established, and noxen switches to Intercept only after the target agent is
+ready. If the connection fails, the Home tab shows a persistent error and a notification;
+the Log tab keeps the technical details.
 
 **Disconnect** cleans up both the target app session and the `system_server` session if
 active. The button is enabled only when a session is live.

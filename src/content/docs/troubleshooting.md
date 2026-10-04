@@ -4,6 +4,9 @@ title: "Troubleshooting"
 
 ## `Connection failed`
 
+The Home tab shows a concise error when the initial session cannot be established. Open
+the Log tab for the underlying Frida error.
+
 Check:
 
 - `frida-server` is running on the Android device.
