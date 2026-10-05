@@ -116,3 +116,6 @@ See [Filters](https://frankheat.github.io/noxen-docs/filters/) for the full rule
 | `/theme` | Toggle dark/light theme |
 | `/clear history` | Clear all stored history entries in the current project |
 
+The dark and light variants use paired noxen palettes. Borders, selections,
+status colors, logs and controls adapt together so both variants preserve
+readability and contrast.
