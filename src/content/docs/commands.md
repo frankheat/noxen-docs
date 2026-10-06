@@ -37,20 +37,51 @@ the project database.
 | `+flag <int>` | Add an integer flag |
 | `-flag <int>` | Remove an integer flag |
 | `+x [type] <key> <value>` | Add or replace an extra |
+| `+x null <key>` | Add a null String extra |
 | `-x <key>` | Remove an extra |
 
-Supported extra types:
+The type names mirror every extra form in the current Android `adb shell am`
+intent parser:
 
-```text
-int
-bool
-float
-long
-double
-string
-```
+| noxen type | adb option | Value received by the app |
+|---|---|---|
+| `string` | `--es` | `String` |
+| `null` | `--esn` | null `String` |
+| `bool` | `--ez` | `boolean` |
+| `int` | `--ei` | `int` |
+| `long` | `--el` | `long` |
+| `float` | `--ef` | `float` |
+| `double` | `--ed` | `double` |
+| `uri` | `--eu` | `Uri` |
+| `component` | `--ecn` | `ComponentName` |
+| `int[]` | `--eia` | `int[]` |
+| `long[]` | `--ela` | `long[]` |
+| `float[]` | `--efa` | `float[]` |
+| `double[]` | `--eda` | `double[]` |
+| `string[]` | `--esa` | `String[]` |
+| `int-list` | `--eial` | `ArrayList<Integer>` |
+| `long-list` | `--elal` | `ArrayList<Long>` |
+| `float-list` | `--efal` | `ArrayList<Float>` |
+| `double-list` | `--edal` | `ArrayList<Double>` |
+| `string-list` | `--esal` | `ArrayList<String>` |
 
 If no extra type is specified, `string` is used.
+
+Array and list items are comma-separated. String collections accept `\,` for a
+literal comma inside an item. Quote the full value in the command bar when it
+contains spaces:
+
+```text
++x int[] ids 10,20,30
++x string-list labels "first item,second item,comma\,inside"
++x component target dev.example/.MainActivity
++x null optional_name
+```
+
+The edit form exposes the same type set. Numeric values are checked before the
+intent is forwarded, including Android `int` and `long` ranges. For booleans,
+Android accepts `true`, `false`, `t`, `f`, or an integer (`0` is false and any
+other valid integer is true).
 
 See [Intercepting and modifying](https://frankheat.github.io/noxen-docs/intercepting-and-modifying/) for a complete
 modification flow.

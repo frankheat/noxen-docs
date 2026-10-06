@@ -31,8 +31,17 @@ If you drop the intent, staged modifications are discarded with that block.
 | Flags | Edit the flags value directly |
 | Extra | Add, replace, or remove an extra |
 
-Supported extra types are `string`, `int`, `bool`, `float`, `long`, and `double`.
-If no type is provided, noxen stores the extra as a string.
+The editor supports the complete set of extra forms exposed by the current Android
+`adb shell am` intent parser: scalar strings, null strings, booleans, integers,
+longs, floats, doubles, URIs and component names, plus primitive/string arrays and
+the corresponding `ArrayList` forms. Arrays and lists are intentionally separate
+because the receiving app observes different Java types.
+
+Collection values use commas, for example `1,2,3`. In string arrays and lists,
+escape a comma inside one item as `\,`. If no type is provided in the command bar,
+noxen stores the extra as a string. See
+[Commands](https://frankheat.github.io/noxen-docs/commands/#intent-modifications) for
+the complete type and syntax table.
 
 Intent flags are displayed with their raw hexadecimal value and decoded Android flag
 names when known. Some bits may show multiple names because Android reuses the same
