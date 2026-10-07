@@ -57,8 +57,57 @@ severity badge. The facts are presented and the researcher judges them:
   `Action`, `Data (URI)`, `Package` (only when the intent has one), `Flags`, and
   categories.
 - `[PENDING INTENT]`: decoded PendingIntent flags (only for `PendingIntent` captures).
-- `[EXTRAS]`: a `KEY / TYPE / VALUE` table of the intent extras.
+- `[EXTRAS]`: a static tree of the intent extras. Scalars stay compact, while nested
+  `Intent`, `Bundle`, array, and `ArrayList` values expand into readable child rows.
 - `[CHANGES]`: a diff of any staged modifications (History detail, modified forwards).
+
+For example:
+
+```text
+[EXTRAS] (3)
+
+  ├─ user_id [int] : 42
+  ├─ tags [String[]] (2 items)
+  │  ├─ [0] [String] : "admin"
+  │  └─ [1] [String] : "mobile"
+  └─ next [Intent]
+     ├─ Action        : com.example.OPEN
+     ├─ Data (URI)    : None
+     ├─ Component     : com.example/.DetailActivity
+     ├─ Flags         : 0x00000000
+     └─ Extras [Bundle] (1 item)
+        └─ retry [boolean] : true
+```
+
+## Structured extra values and safety
+
+Extra inspection is read-only and best effort. Android `Bundle` values can be lazy:
+reading an entry may materialize a parcelled object inside the hooked application.
+Noxen therefore uses a strict allowlist instead of reflecting over arbitrary objects.
+
+- Scalars, known Android values, `Intent`, `Bundle`, arrays, and exact `ArrayList`
+  instances receive a structured representation.
+- Nested containers use the same rules recursively, so Intents can contain further
+  Intents or Bundles without changing the layout.
+- Unknown custom `Parcelable`, `Serializable`, and other Java objects show their class
+  name and `opaque object`. Noxen does not call their `toString()`, inspect their fields,
+  or invoke custom getters.
+- Repeated object identities become reference rows instead of being traversed again.
+- One unreadable value is shown as an error row and does not discard the rest of the
+  captured Intent.
+
+Traversal has fixed safety limits: 8 nested levels, 50 entries per container, 300
+nodes per captured Intent, and 2048 characters per string. The tree reports omitted,
+truncated, unreadable, and opaque values explicitly. These limits are intentionally
+internal rather than user settings so that rendering work remains predictable.
+
+The original top-level `type`, `value`, and editable type metadata remain in the
+capture format. Existing project files remain readable, and supported top-level
+scalars and complete adb-compatible collections can still be edited. Structured or
+truncated objects are read-only in the editor, but can still be removed or replaced.
+An extra key longer than the capture limit is also truncated and read-only; its remove
+control is disabled because noxen deliberately does not retain the discarded part of
+the key.
 
 ## Component permissions and exposure
 
