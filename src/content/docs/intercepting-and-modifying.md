@@ -35,6 +35,10 @@ entered values remain available so that you can correct or retry them.
 
 If you drop the intent, staged modifications are discarded with that block.
 
+If the target process terminates or the session disconnects, noxen clears the active
+Intercept state because the blocked thread and its decision are no longer valid. The
+captured event remains available in History.
+
 ## What can be changed
 
 | Field | UI action |
