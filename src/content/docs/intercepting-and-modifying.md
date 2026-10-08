@@ -19,10 +19,15 @@ from the hooked method without delivering the intercepted intent.
 Use the edit form to change fields visually. Modifications do not immediately change
 the target intent. They are applied when you forward.
 
+The edit form and bare modification commands operate on one shared draft. A command
+entered while the editor is open updates the corresponding field or row immediately.
+Commands entered before opening the editor are also reflected when the form opens, so
+the form always represents the complete Intent that will be forwarded.
+
 While the form is open, noxen marks the captured intent as being edited. Use
 **Apply & Forward** or `Ctrl+F` to validate and apply the changes before forwarding.
-Use **Cancel edit** or `Esc` to discard the form changes and return to the captured
-intent without forwarding or dropping it.
+Use **Cancel edit** or `Esc` to discard the entire draft, including changes made from
+the command bar, and return to the captured intent without forwarding or dropping it.
 
 The form stays open while noxen waits for Frida to confirm the operation. It closes
 only after a successful forward. If the session or modification request fails, the
@@ -121,7 +126,8 @@ scalars and complete adb-compatible collections can still be edited. Structured 
 truncated objects are read-only in the editor, but can still be removed or replaced.
 An extra key longer than the capture limit is also truncated and read-only; its remove
 control is disabled because noxen deliberately does not retain the discarded part of
-the key.
+the key. Modification commands targeting that displayed key are rejected for the same
+reason.
 
 ## Component permissions and exposure
 

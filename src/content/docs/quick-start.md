@@ -41,7 +41,8 @@ shortcut.
 
 Use the edit controls in the Intercept tab to change action, data, categories, flags,
 or extras. Changes are staged and take effect only when you forward the current
-intent.
+intent. The visual editor and command bar always show and modify the same draft;
+canceling the editor discards all pending changes from both.
 
 ## Reduce noisy traffic
 

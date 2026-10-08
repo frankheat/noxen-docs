@@ -28,6 +28,11 @@ Modifications are staged. They are applied only when you forward the current int
 When the intent is forwarded, the same staged changes are reflected in History and in
 the project database.
 
+The command bar and visual editor share the same draft. When the editor is open, a
+modification command updates it immediately. Opening the editor after entering commands
+shows their combined result. **Cancel edit** or `Esc` discards every pending change,
+regardless of whether it came from a command or from the form.
+
 | Command | Meaning |
 |---|---|
 | `action <value>` | Set the intent action |
