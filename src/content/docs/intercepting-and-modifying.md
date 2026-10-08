@@ -19,6 +19,15 @@ from the hooked method without delivering the intercepted intent.
 Use the edit form to change fields visually. Modifications do not immediately change
 the target intent. They are applied when you forward.
 
+While the form is open, noxen marks the captured intent as being edited. Use
+**Apply & Forward** or `Ctrl+F` to validate and apply the changes before forwarding.
+Use **Cancel edit** or `Esc` to discard the form changes and return to the captured
+intent without forwarding or dropping it.
+
+The form stays open while noxen waits for Frida to confirm the operation. It closes
+only after a successful forward. If the session or modification request fails, the
+entered values remain available so that you can correct or retry them.
+
 If you drop the intent, staged modifications are discarded with that block.
 
 ## What can be changed
@@ -28,8 +37,13 @@ If you drop the intent, staged modifications are discarded with that block.
 | Action | Edit the action value |
 | Data URI | Edit the data value |
 | Category | Add or remove a category row |
-| Flags | Edit the flags value directly |
+| Flags | Edit a signed Java integer or unsigned 32-bit mask up to `0xFFFFFFFF` |
 | Extra | Add, replace, or remove an extra |
+
+Extra keys must be unique. The editor rejects a new extra when its key duplicates an
+extra that is still present in the captured Intent. A completely empty new row is
+ignored, while a row containing a value without a key is rejected. Validation keeps
+the editor open and focuses the first invalid field.
 
 The editor supports the complete set of extra forms exposed by the current Android
 `adb shell am` intent parser: scalar strings, null strings, booleans, integers,
@@ -176,6 +190,9 @@ See [Commands](https://frankheat.github.io/noxen-docs/commands/) for the full sy
 | `Ctrl+Q` | Quit |
 | `Ctrl+L` | Clear the active output panel |
 | `Ctrl+B` | Show or hide the active tab command input/output area |
+| `Ctrl+F` | Forward the current intent, applying editor changes when edit mode is open |
+| `Ctrl+D` | Drop the current intent |
+| `Esc` | Cancel editing without forwarding or dropping (edit mode only) |
 | `Alt+Up` | Resize the active Intercept or History panel up |
 | `Alt+Down` | Resize the active Intercept or History panel down |
 | `Left` / `Right` | Move between tabs when the tab bar has focus |
