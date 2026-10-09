@@ -31,6 +31,19 @@ nested Intents, including nested intent fields such as action, data, component,
 package, flags, and categories. Opaque, unreadable, referenced, and truncated values
 can also be found by their displayed type or status.
 
+The History command bar controls the same search field:
+
+```text
+/search MainActivity
+/search payment token
+/search
+```
+
+`/search <text>` applies a case-insensitive substring search. `/search` without
+text clears it. The command and the visual field always show the same query.
+Search is temporary; use structured `/filter` rules when a condition must be
+saved with the project.
+
 ## Sorting
 
 Click any column header to sort by that column. Click again to reverse the order.

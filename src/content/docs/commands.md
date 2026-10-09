@@ -112,6 +112,18 @@ thread is not held waiting for a manual decision.
 
 Intercept and History stack settings are independent.
 
+## History search
+
+| Command | Meaning |
+|---|---|
+| `/search <text>` | Apply the same substring search as the History search field |
+| `/search` | Clear the History search |
+
+The command is available only in History. It updates the visual search field,
+so the command and graphical control never hold different queries. Search is a
+temporary case-insensitive substring match. `/filter` remains the appropriate
+command for structured rules stored with the project.
+
 ## Filters
 
 `/filter` always operates on the active tab.
