@@ -27,6 +27,10 @@ Each hook definition has:
 - `args`: exact Java argument type list.
 - `minApi`: optional minimum Android API level.
 
+The top-level JSON value must be an array. `clazz`, `method`, and every entry in
+`args` must be non-empty strings. When present, `minApi` must be a positive
+integer. Unknown fields are ignored with a warning.
+
 Example:
 
 ```json
@@ -39,6 +43,29 @@ Example:
   }
 ]
 ```
+
+The selected file is validated before noxen starts a connection. A missing or
+unreadable file, invalid JSON, or an invalid hook definition prevents the
+connection from starting. The error is shown on the Home tab and its detailed
+location, such as `hook[3].args[1]`, is written to Log.
+
+Custom hooks are intended for methods that carry an Intent. A supported entry is
+one of the following:
+
+- a method whose `args` contains `android.content.Intent`;
+- a zero-argument `getIntent` method returning `android.content.Intent`;
+- `PendingIntent.getActivity`, `getBroadcast`, or `getService`, with the Intent
+  in the expected third argument position.
+
+Other method shapes are rejected because noxen could not extract and safely edit
+an Intent from them.
+
+## Duplicates
+
+An exact hook signature is identified by `clazz`, `method`, and `args`. If the
+same signature appears more than once, including once in the bundled defaults
+and once in a custom file, noxen keeps the first definition and reports the
+duplicate in Log.
 
 ## Default coverage
 
@@ -78,3 +105,21 @@ Check:
 - Method name.
 - Exact argument type order.
 - Inner class syntax, for example `android.content.Context$BindServiceFlags`.
+
+Static validation cannot prove that a class or overload exists in the selected
+process. After connecting, the Frida agent attempts each hook independently and
+reports a summary such as:
+
+```text
+Hooks: 27 installed, 2 skipped, 1 failed
+```
+
+An API-incompatible hook is skipped. A missing class, method, or overload fails
+only that hook and does not discard hooks that were installed successfully. Log
+identifies whether each affected entry came from the bundled defaults or the
+custom file. If no custom hook could be installed, noxen emits an explicit
+warning.
+
+The project stores the selected file path, not a copy of the JSON content. Keep
+the file available at that path when reopening the project. Paths selected with
+Browse are normalized to absolute paths.
