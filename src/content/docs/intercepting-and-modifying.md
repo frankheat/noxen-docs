@@ -45,9 +45,14 @@ captured event remains available in History.
 |---|---|
 | Action | Edit the action value |
 | Data URI | Edit the data value |
+| MIME Type | Edit or clear the content type, such as `image/*` or `application/pdf` |
 | Category | Add or remove a category row |
 | Flags | Edit a signed Java integer or unsigned 32-bit mask up to `0xFFFFFFFF` |
 | Extra | Add, replace, or remove an extra |
+
+Data URI and MIME type are applied atomically. Editing only one preserves the other,
+avoiding Android's normal `setData()` / `setType()` behavior where either setter clears
+the other field.
 
 Extra keys must be unique. The editor rejects a new extra when its key duplicates an
 extra that is still present in the captured Intent. A completely empty new row is
@@ -77,8 +82,10 @@ severity badge. The facts are presented and the researcher judges them:
 
 - `[HOOK]`: the hooked `Class` and `Method`.
 - `[CAPTURED INTENT PAYLOAD]`: the intent's `Type` (sends only), `Target` (sends),
-  `Action`, `Data (URI)`, `Package` (only when the intent has one), `Flags`, and
-  categories.
+  `Action`, `Data (URI)`, `MIME Type`, `Package` (only when the intent has one),
+  `Flags`, and categories. `MIME Type` is distinct from explicit/implicit `Type`: it
+  describes the content, such as `image/*` or `application/pdf`, and participates in
+  Android's implicit-intent resolution.
 - `[PENDING INTENT]`: decoded PendingIntent flags (only for `PendingIntent` captures).
 - `[EXTRAS]`: a static tree of the intent extras. Scalars stay compact, while nested
   `Intent`, `Bundle`, array, and `ArrayList` values expand into readable child rows.
@@ -96,6 +103,7 @@ For example:
   └─ next [Intent]
      ├─ Action        : com.example.OPEN
      ├─ Data (URI)    : None
+     ├─ MIME Type     : text/plain
      ├─ Component     : com.example/.DetailActivity
      ├─ Flags         : 0x00000000
      └─ Extras [Bundle] (1 item)

@@ -37,6 +37,8 @@ regardless of whether it came from a command or from the form.
 |---|---|
 | `action <value>` | Set the intent action |
 | `data <uri>` | Set the data URI |
+| `mime <type>` | Set the MIME type, for example `mime application/pdf` |
+| `mime clear` | Remove the MIME type |
 | `+cat <value>` | Add a category |
 | `-cat <value>` | Remove a category |
 | `+flag <int>` | Add an integer flag |
@@ -44,6 +46,10 @@ regardless of whether it came from a command or from the form.
 | `+x [type] <key> <value>` | Add or replace an extra |
 | `+x null <key>` | Add a null String extra |
 | `-x <key>` | Remove an extra |
+
+Android normally clears the MIME type when `setData()` is called and clears the data
+URI when `setType()` is called. Noxen applies these two fields together with
+`setDataAndType()`, so changing one preserves the other unless you explicitly clear it.
 
 The type names mirror every extra form in the current Android `adb shell am`
 intent parser:
