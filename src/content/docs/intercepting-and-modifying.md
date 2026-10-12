@@ -81,11 +81,15 @@ Each intercepted event is shown as a set of plain, aligned sections rather than 
 severity badge. The facts are presented and the researcher judges them:
 
 - `[HOOK]`: the hooked `Class` and `Method`.
-- `[CAPTURED INTENT PAYLOAD]`: the intent's `Type` (sends only), `Target` (sends),
-  `Action`, `Data (URI)`, `MIME Type`, `Package` (only when the intent has one),
-  `Flags`, and categories. `MIME Type` is distinct from explicit/implicit `Type`: it
-  describes the content, such as `image/*` or `application/pdf`, and participates in
-  Android's implicit-intent resolution.
+- `[CAPTURED INTENT PAYLOAD]`: the intent's `Routing` classification (sends only),
+  `Target` (sends), `Action`, `Data (URI)`, `MIME Type`, `Package` (only when the
+  intent has one), `Flags`, and categories. `MIME Type` is distinct from
+  explicit/implicit routing: it describes the content, such as `image/*` or
+  `application/pdf`, and participates in Android's implicit-intent resolution.
+- `[SELECTOR]`: the selector Intent, only when one is present. Sending captures classify
+  its routing role as `ACTIVE`, `IGNORED`, or `REDUNDANT`; all of its captured fields,
+  nested selector, and extras remain separate from the base payload. Receiving captures
+  show the selector without inferring how the sender routed it.
 - `[PENDING INTENT]`: decoded PendingIntent flags (only for `PendingIntent` captures).
 - `[EXTRAS]`: a static tree of the intent extras. Scalars stay compact, while nested
   `Intent`, `Bundle`, array, and `ArrayList` values expand into readable child rows.
@@ -162,12 +166,32 @@ Target        : com.example/.Receiver2
   [Unresolved permissions](/noxen-docs/info-app/#unresolved-permissions)). The line is
   omitted when the component requires no permission.
 
-`Type` is `EXPLICIT` for sends that name a component. Implicit sends say who can
+`Routing` is `EXPLICIT` for sends that name a component. Implicit sends say who can
 receive them: `IMPLICIT (package-scoped)` when the intent is limited to one app with
 `setPackage()` (shown on the `Package` row), or `IMPLICIT (any app)` when any installed
 app with a matching filter can receive it. For a broadcast carrying sensitive extras,
 that is a potential data leak. Events captured before noxen recorded the package show a
 plain `IMPLICIT`.
+
+When an Intent has a selector, Android consults it only if the base Intent has no
+component. Noxen marks that case as `EXPLICIT (selector)`, `IMPLICIT (selector,
+package-scoped)`, or `IMPLICIT (selector, any app)`. If the base Intent already names a
+component, that component wins and the selector is not a fallback. The selector role is
+then `IGNORED (base component takes precedence)`, or `REDUNDANT (same component as
+base)` when both directly name the same component. Selector inspection is read-only;
+the Intercept editor continues to modify the base payload only.
+
+For example, two different components remain visible without implying two destinations:
+
+```text
+[CAPTURED INTENT PAYLOAD]
+  Routing       : EXPLICIT (base component)
+  Target        : com.example/.ActivityA
+
+[SELECTOR]
+  Routing role  : IGNORED (base component takes precedence)
+  Component     : com.example/.ActivityB
+```
 
 The `Target` resolves to the addressed component, `… (resolved)` for implicit intents,
 `(resolved) N receivers` for implicit broadcasts matching several receivers,

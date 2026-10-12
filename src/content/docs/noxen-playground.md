@@ -36,6 +36,9 @@ Install and launch it from Android Studio, or use the generated debug APK.
 The main screen contains buttons for representative Android communication paths:
 
 - `startActivity`, `startActivityForResult`, `onActivityResult`, and `onNewIntent`
+- Intent selector routing with three dedicated buttons: an active selector when the base
+  Intent has no component, an ignored selector when a different base component takes
+  precedence, and a redundant selector that names the same component as the base Intent
 - `sendBroadcast` and ordered broadcasts
 - dynamically registered receivers, reached by an implicit broadcast either open to
   any app or limited with `setPackage()`. noxen shows them as `IMPLICIT (any app)` and

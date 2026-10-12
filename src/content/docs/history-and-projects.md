@@ -25,9 +25,10 @@ Common outcomes:
 ## Search
 
 Type in the search field to filter visible rows in real time. The search matches
-against class, method, action, component, data, flags, and categories. Extra keys,
-types, and values are searchable throughout structured Bundles, arrays, lists, and
-nested Intents, including nested intent fields such as action, data, component,
+against class, method, action, component, data, flags, and categories. Selector fields
+are included recursively. Extra keys, types, and values are searchable throughout
+structured Bundles, arrays, lists, and nested Intents, including nested intent fields
+such as action, data, component,
 package, flags, and categories. Opaque, unreadable, referenced, and truncated values
 can also be found by their displayed type or status.
 
