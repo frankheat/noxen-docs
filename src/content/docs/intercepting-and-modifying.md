@@ -90,6 +90,18 @@ severity badge. The facts are presented and the researcher judges them:
   its routing role as `ACTIVE`, `IGNORED`, or `REDUNDANT`; all of its captured fields,
   nested selector, and extras remain separate from the base payload. Receiving captures
   show the selector without inferring how the sender routed it.
+- `[CLIP DATA]`: when present, its label, declared MIME types, and items. Each item
+  shows its raw text, HTML, URI, and nested Intent when available. Nested Intents can
+  contain further ClipData. Noxen reads the metadata and values already in the Intent;
+  it does not open URIs or query their content providers. When a captured ClipData item
+  contains a URI, including through a nested Intent or ClipData, `Grant flags`
+  summarizes the outer Intent's URI flags (`READ`, `WRITE`, `PERSISTABLE`, `PREFIX`, or `none`).
+  The row is omitted for ClipData containing only text, HTML, or Intents without URIs. Those
+  flags also govern URI grants through ClipData nested inside its items; grant flags
+  on the nested Intents do not govern that propagation. The summary describes declared
+  flags, not whether a grant was applied or a URI was accessed.
+  The top-level section shows its item count, label, and MIME types as aligned rows;
+  the tree begins with the individual items.
 - `[PENDING INTENT]`: decoded PendingIntent flags (only for `PendingIntent` captures).
 - `[EXTRAS]`: a static tree of the intent extras. Scalars stay compact, while nested
   `Intent`, `Bundle`, array, and `ArrayList` values expand into readable child rows.
@@ -180,6 +192,11 @@ component, that component wins and the selector is not a fallback. The selector 
 then `IGNORED (base component takes precedence)`, or `REDUNDANT (same component as
 base)` when both directly name the same component. Selector inspection is read-only;
 the Intercept editor continues to modify the base payload only.
+
+ClipData inspection is also read-only. Captured items have fixed depth, item-count,
+node-count, and text-length limits. Omitted or unreadable values are indicated in the
+detail instead of being silently discarded. History search includes captured ClipData
+fields, including nested Intents.
 
 For example, two different components remain visible without implying two destinations:
 
