@@ -26,7 +26,8 @@ A collapsible vertical rail on the left switches between three sub-views:
   provider, with its type, exported flag, [access](#access), enabled state, and required
   permission (and level) in the last column. Selecting a row shows a detail panel with the
   full names; providers additionally list their authority, read and write permissions, path
-  permissions, and URI grants.
+  permissions, and URI grants. Use `Alt+Up` / `Alt+Down` to enlarge or shrink the detail
+  panel; these shortcuts appear only in Components when a snapshot is available.
 
 ## Access
 

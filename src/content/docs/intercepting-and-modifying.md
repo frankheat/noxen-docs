@@ -252,8 +252,8 @@ See [Commands](https://frankheat.github.io/noxen-docs/commands/) for the full sy
 | `Ctrl+F` | Forward the current intent, applying editor changes when edit mode is open |
 | `Ctrl+D` | Drop the current intent |
 | `Esc` | Cancel editing without forwarding or dropping (edit mode only) |
-| `Alt+Up` | Resize the active Intercept or History panel up |
-| `Alt+Down` | Resize the active Intercept or History panel down |
+| `Alt+Up` | Enlarge the active detail/command panel in Intercept, History, or Info app > Components |
+| `Alt+Down` | Shrink the active detail/command panel in Intercept, History, or Info app > Components |
 | `Left` / `Right` | Move between tabs when the tab bar has focus |
 
 Depending on terminal focus and Textual behavior, arrow tab switching works when the tab
