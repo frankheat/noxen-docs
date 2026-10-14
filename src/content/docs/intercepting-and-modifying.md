@@ -29,9 +29,13 @@ While the form is open, noxen marks the captured intent as being edited. Use
 Use **Cancel edit** or `Esc` to discard the entire draft, including changes made from
 the command bar, and return to the captured intent without forwarding or dropping it.
 
-The form stays open while noxen waits for Frida to confirm the operation. It closes
-only after a successful forward. If the session or modification request fails, the
-entered values remain available so that you can correct or retry them.
+The form stays open while noxen waits for Frida to resume the blocked thread and
+report the resulting Intent. If the resume request fails, the entered values remain
+available so that you can correct or retry them. After resume, History records the
+Intent observed by the agent, not merely the requested changes. If a modification
+fails partway through, or its result cannot be confirmed, noxen shows a warning in
+History and the Log. A `!` appears beside the History outcome; the detail explains
+the uncertainty. A partially changed Intent may still reach the app.
 
 If you drop the intent, staged modifications are discarded with that block.
 
@@ -105,7 +109,8 @@ severity badge. The facts are presented and the researcher judges them:
 - `[PENDING INTENT]`: decoded PendingIntent flags (only for `PendingIntent` captures).
 - `[EXTRAS]`: a static tree of the intent extras. Scalars stay compact, while nested
   `Intent`, `Bundle`, array, and `ArrayList` values expand into readable child rows.
-- `[CHANGES]`: a diff of any staged modifications (History detail, modified forwards).
+- `[CHANGES]`: a diff of changes observed on the resulting Intent (History detail,
+  modified forwards), rather than a list of requested changes.
 
 For example:
 

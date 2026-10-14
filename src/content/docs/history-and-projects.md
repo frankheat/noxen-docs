@@ -17,10 +17,14 @@ Common outcomes:
 
 | Outcome | Meaning |
 |---|---|
-| `forwarded` | Delivered unchanged |
-| `modified_forwarded` | Modified and then delivered |
+| `forwarded` | Forwarded with no confirmed modification |
+| `modified_forwarded` | Forwarded with at least one observed modification |
 | `dropped` | Blocked |
 | empty/pending | No final decision was recorded |
+
+A `!` beside the outcome marks a modification warning. The detail explains whether
+the agent reported a partial failure or the resulting Intent could not be verified.
+In these cases, do not infer that every requested change reached the app.
 
 ## Search
 
