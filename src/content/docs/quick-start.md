@@ -26,6 +26,14 @@ python -m noxen
 The Home tab opens. Select your device, choose a mode (Spawn, Attach by name, or
 Attach by PID), pick the target app from the dropdown, and press **Connect**.
 
+noxen waits for the agent's hook registration report before marking the session
+connected. If no hook can be registered, connection setup fails and the reason appears
+in the Log tab. If only some hooks register, the session remains usable but the top
+bar shows a persistent warning; check the Log tab for the affected methods. The
+top bar reports how many hooks registered. A registration report does not prove
+that every hook will fire on a particular Android runtime, so validate important
+custom hooks with a known test call.
+
 If you want a controlled target while learning or testing changes, use the companion
 [noxen playground](https://frankheat.github.io/noxen-docs/noxen-playground/) app.
 

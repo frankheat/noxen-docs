@@ -92,6 +92,14 @@ src/noxen/runtime/agent/
 
 ## Version troubleshooting
 
+noxen treats the agent's hook registration report as part of connection setup. It
+does not show a ready connection if the report is missing, reports a fatal error,
+or contains no installed hooks. Partial registration remains available with a
+persistent warning and per-hook details in Log. "Installed" describes registration,
+not a guarantee that ART will dispatch that hook: some Java bridge versions can
+silently miss methods on classes that have not yet been initialized. Verify the
+first invocation of any hook whose coverage is critical to your analysis.
+
 If the session fails before hooks are installed:
 
 - Confirm the Android `frida-server` version.
