@@ -29,6 +29,13 @@ A collapsible vertical rail on the left switches between three sub-views:
   permissions, and URI grants. Use `Alt+Up` / `Alt+Down` to enlarge or shrink the detail
   panel; these shortcuts appear only in Components when a snapshot is available.
 
+The component inventory includes components disabled in the manifest or at runtime.
+They remain visible with **Enabled: no** rather than disappearing from the list.
+The enabled state reflects the component setting at snapshot time; an explicit
+runtime override takes precedence over its default. Use **Refresh** after enabling
+or disabling a component to update its state. Disabled components remain included
+in the summary counts.
+
 ## Access
 
 Every exported component gets an **Access** class that describes how hard it is for another
@@ -87,8 +94,12 @@ uninstalled the permission stops existing.
 ## Finding the attack surface
 
 The Components view is the app's attack surface at rest. Use the **Exposed only** switch to
-keep just the components whose access is `open`: exported and reachable with little or no
-barrier. The type filter and the search box (which also matches permission names, including
+keep just exported components whose guarding permissions yield Access `open`.
+This classification is independent of **Enabled**: a disabled
+component can still appear with Access `open` and Enabled `no`, because the app
+might enable it later. It is not a claim that the component is currently reachable.
+Enabled `yes` alone is not proof of reachability either; other platform conditions
+can apply. The type filter and the search box (which also matches permission names, including
 a provider's read, write, and path permissions) narrow the list further. Component names
 are always shown in full; the detail panel has every permission name in full for
 copy-paste.
