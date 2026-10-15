@@ -55,14 +55,73 @@ project is reopened.
 
 - **Hook config**: additional hook definitions (JSON) loaded alongside
   the bundled default hooks. See [Hook configuration](https://frankheat.github.io/noxen-docs/hook-configuration/).
-- **Extra script**: a JavaScript file appended to the Frida agent after the bundle.
+- **Extra script**: an optional JavaScript file executed in the agent's runtime
+  before noxen requests installation of its own hooks. See the contract below.
   Messages sent with `send()` are routed to Log. The `[*]`, `[+]`, `[~]`, and `[!]`
   string prefixes retain their usual log levels; unprefixed strings, ordinary
   objects, and other values appear as DEBUG entries when **Verbose logs** is
-  enabled. These messages
-  do not create History entries or control a held intent. The `noxenEvent` field
+  enabled. These messages do not create History entries or control a held intent. The `noxenEvent` field
   is reserved for the agent's internal protocol. Extra scripts run with the same
   privileges as the agent; this message separation is not a script sandbox.
+
+### Extra script contract
+
+Use an extra script for target-specific instrumentation, such as a protection
+bypass or a behavior change needed for analysis. Only run scripts you trust.
+
+**Reading and execution:** noxen reads the selected file before starting a
+connection or replacing the current session. A missing, unreadable, or non-UTF-8 file
+blocks the connection and shows an error in Home. Paths support `~`; UTF-8 files
+with a BOM are accepted. An empty file is a valid no-op. The connection uses the
+content already read, even if the file changes afterward. Projects remember the
+path, not a copy of the script; each new connection reads the file again.
+
+The agent is loaded first, then the extra script is evaluated with its file path
+as its source name. Syntax errors and uncaught synchronous exceptions stop session
+startup; Log includes the technical details. A successful initial execution is
+reported separately from file reading. Do not interpret it as proof that a bypass
+is effective.
+
+**JavaScript format:** supply a plain JavaScript script or a compatible standalone
+bundle. Raw TypeScript, static `import` statements, and unresolved package imports
+are not compiled or resolved by noxen. The agent already exposes `Java`, including
+on Frida 17; do not import or bundle a second Java bridge unnecessarily.
+Place initial setup in the script body, or schedule it explicitly; noxen does not
+call user-defined `init` RPC methods.
+
+For example, a script can schedule Java-specific setup as follows:
+
+```javascript
+Java.perform(function () {
+    // Install target-specific Java hooks here.
+    send("[+] Extra Java setup callback reached");
+});
+```
+
+**Timing:** in Spawn, initial script execution happens while the process is
+suspended, before noxen requests its hooks and resumes the process. However,
+`Java.perform()` may defer its callback until the app class loader is available.
+Timers, promises, and module-load callbacks may also run later. noxen does not wait
+for these callbacks or for a returned Promise; waiting before resume could prevent
+the app from reaching the state the callback needs. Avoid blocking waits during
+initial execution. In Attach, earlier application behavior has already happened
+and cannot be undone by loading the script.
+
+**Shared runtime:** `rpc.exports` and existing noxen RPC methods are reserved.
+Replacing them during initial execution fails startup. Adding a uniquely named
+export is allowed, but noxen does not provide a UI for calling it. Do not modify
+the agent's Java bridge or shared class-loader configuration unless you understand
+the effects. Hooking the same Java overload as noxen can replace one implementation
+with another; noxen does not automatically chain conflicting hooks. The RPC check
+is an initial compatibility check, not ongoing enforcement or a security sandbox.
+
+**Later errors and cleanup:** uncaught errors from asynchronous callbacks appear
+in Log with their stack trace. They do not automatically disconnect a running
+session. A script may have applied some changes before an error. Disconnecting
+removes instrumentation but does not guarantee reversal of memory patches,
+application state changes, or external side effects; restart the target when a
+clean process is needed. A connected state confirms noxen's hook registration,
+not that the extra script's asynchronous setup or bypass succeeded.
 
 ### Input ANR bypass (experimental)
 

@@ -52,8 +52,9 @@ bridge loading should be expected to fail without the bundle.
 
 ## Extra scripts
 
-Extra scripts selected from the Home tab are appended after the main Frida agent
-bundle.
+Extra scripts selected from the Home tab are evaluated in the main agent's runtime
+after its bundle is loaded and before noxen requests its own hooks. They share the
+agent's Java bridge, but have their own source filename for error reporting.
 
 That means custom scripts can use:
 
@@ -64,6 +65,11 @@ Java.perform(function () {
 ```
 
 without importing `frida-java-bridge` themselves.
+
+`Java.perform()` can defer its callback until the app class loader is available.
+Successful initial execution does not confirm asynchronous setup or bypass success.
+See the [extra script contract](../running-noxen/#extra-script-contract) for timing,
+error handling, supported script formats, and reserved RPC exports.
 
 ## Developer rule
 
