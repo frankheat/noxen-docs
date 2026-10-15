@@ -121,6 +121,12 @@ devices discards the previous device's pending holds. This lifecycle isolation
 does not change the experimental hooks or provide automatic reconnection after a
 detach.
 
+Within each connection, hold RPCs are serialized. Before sending a queued start,
+noxen checks that the same hold is still active locally, including starts replayed
+after initialization. An end notification with a PID must match both that PID and
+the hold ID, so a delayed or duplicate end cannot cancel a newer hold on the same
+process. The fixed hold window and Android hook paths are unchanged.
+
 ## Recommended default
 
 For Android 11 and newer, the portable default is:
