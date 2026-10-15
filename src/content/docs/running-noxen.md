@@ -56,6 +56,13 @@ project is reopened.
 - **Hook config**: additional hook definitions (JSON) loaded alongside
   the bundled default hooks. See [Hook configuration](https://frankheat.github.io/noxen-docs/hook-configuration/).
 - **Extra script**: a JavaScript file appended to the Frida agent after the bundle.
+  Messages sent with `send()` are routed to Log. The `[*]`, `[+]`, `[~]`, and `[!]`
+  string prefixes retain their usual log levels; unprefixed strings, ordinary
+  objects, and other values appear as DEBUG entries when **Verbose logs** is
+  enabled. These messages
+  do not create History entries or control a held intent. The `noxenEvent` field
+  is reserved for the agent's internal protocol. Extra scripts run with the same
+  privileges as the agent; this message separation is not a script sandbox.
 
 ### Input ANR bypass (experimental)
 
