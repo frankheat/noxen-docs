@@ -102,6 +102,12 @@ Project files include:
 - History filters.
 - History column visibility and width preferences.
 
+The outer Intent's `Package` restriction is preserved when a project is reopened,
+including for modified intents. A captured absent package is kept distinct from
+a field that was never recorded. Existing projects are migrated automatically,
+but package values missing from older captures are not reconstructed from routing
+metadata: that metadata may describe a selector instead of the outer Intent.
+
 ## Clearing history
 
 Use the History clear action when you want to remove the current session rows.
