@@ -113,6 +113,14 @@ when you need hook-by-hook diagnostics, skipped paths, or active hold lifecycle
 details. If no supported hook can be installed, noxen warns the user and continues
 without relying on the bypass.
 
+Each bypass connection keeps its own device, session, and queued RPC destinations.
+Callbacks from a cancelled or superseded connection cannot invalidate a replacement
+session. Queued RPCs are dropped when found stale; an RPC already in progress may
+finish on its original script but is never redirected to a new one. Changing
+devices discards the previous device's pending holds. This lifecycle isolation
+does not change the experimental hooks or provide automatic reconnection after a
+detach.
+
 ## Recommended default
 
 For Android 11 and newer, the portable default is:
