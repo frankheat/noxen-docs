@@ -139,6 +139,11 @@ is being established, and noxen switches to Intercept only after the target agen
 ready. If the connection fails, the Home tab shows a persistent error and a notification;
 the Log tab keeps the technical details.
 
+If a Spawn attempt fails or is cancelled before the new process is resumed, noxen
+tries to terminate that process. If termination fails, it tries to resume it so it
+is not left suspended. Attach failures or cancellations do not terminate the
+existing target app. Callbacks from an old connection cannot clear a newer session.
+
 **Disconnect** cleans up both the target app session and the `system_server` session if
 active. The button is enabled only when a session is live.
 
