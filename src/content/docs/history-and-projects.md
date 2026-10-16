@@ -108,6 +108,18 @@ a field that was never recorded. Existing projects are migrated automatically,
 but package values missing from older captures are not reconstructed from routing
 metadata: that metadata may describe a selector instead of the outer Intent.
 
+### Storage errors
+
+If a capture cannot be saved, noxen keeps it in memory with a temporary negative
+ID and shows a notification and a **Storage warning** in its detail. Intercept
+actions and editing still refer to that capture, not to a previous History row.
+Temporary IDs are never used to update database rows, even if saving later recovers.
+
+If a later update fails, the in-memory capture keeps its latest values and outcome,
+but the project may still contain earlier values. The detail identifies this too.
+Export History before closing noxen to retain these in-memory records; unsaved
+captures are not automatically retried or restored when reopening the project.
+
 ## Clearing history
 
 Use the History clear action when you want to remove the current session rows.
