@@ -60,14 +60,15 @@ the other field.
 
 The editor modifies the **base Intent**. If a selector or ClipData is present, its
 captured tree remains visible in a read-only section; its values are not reconstructed
-or edited. The selector's routing role is shown when captured, including when it
-is active rather than the base payload. Editing the base Action, Data URI or MIME
+or edited. A separate Routing section shows the captured classification and the
+selector's role when available. Editing the base Action, Data URI or MIME
 type does not edit the selector or change ClipData's declared MIME types.
-Only an observed `ACTIVE` selector gets an additional routing note in the editor.
-Ignored, redundant and unavailable roles do not show that note; the editor never
-assumes a selector is active merely because it is present.
+Routing is labelled **Derived from capture**: it describes the intercepted Intent,
+not a fresh resolution of the editor draft. Changing Action, Data URI or MIME type
+does not re-query PackageManager or predict a new target. The editor never assumes
+a selector is active merely because it is present.
 
-The editable Base Intent, Categories and Extras sections are grouped first, followed
+After Routing, the editable Base Intent, Categories and Extras sections are grouped together, followed
 by separate read-only Selector and ClipData sections when present. Section headings
 share one style, and top-level labels and values use aligned columns. Indentation
 is reserved for nested objects, not for the selector's own fields.
@@ -105,13 +106,17 @@ Each intercepted event is shown as a set of plain, aligned sections rather than 
 severity badge. The facts are presented and the researcher judges them:
 
 - `[HOOK]`: the hooked `Class` and `Method`.
-- `[CAPTURED INTENT PAYLOAD]`: the intent's `Routing` classification (sends only),
-  `Target` (sends), `Action`, `Data (URI)`, `MIME Type`, `Package` (only when the
+- `[ROUTING]`: derived metadata, separate from Android object fields. Sending
+  captures show `Mode`, `Source` when recorded, `Target` and any `Enforced Perm`.
+  The selector's role is shown here as `ACTIVE`, `IGNORED`, or `REDUNDANT` when
+  recorded. Resolution is not proof of delivery, and older captures do not acquire
+  inferred source or selector-role metadata.
+- `[CAPTURED INTENT PAYLOAD]`: the captured `Component` (when non-null),
+  `Action`, `Data (URI)`, `MIME Type`, `Package` (only when the
   intent has one), `Flags`, and categories. `MIME Type` is distinct from
   explicit/implicit routing: it describes the content, such as `image/*` or
   `application/pdf`, and participates in Android's implicit-intent resolution.
-- `[SELECTOR]`: the selector Intent, only when one is present. Sending captures classify
-  its routing role as `ACTIVE`, `IGNORED`, or `REDUNDANT`; all of its captured fields,
+- `[SELECTOR]`: the selector Intent, only when one is present. Its captured fields,
   nested selector, and extras remain separate from the base payload. Receiving captures
   show the selector without inferring how the sender routed it.
 - `[CLIP DATA]`: when present, its label, declared MIME types, and items. Each item
@@ -203,7 +208,7 @@ Target        : com.example/.Receiver2
   [Unresolved permissions](/noxen-docs/info-app/#unresolved-permissions)). The line is
   omitted when the component requires no permission.
 
-`Routing` is `EXPLICIT` for sends that name a component. Implicit sends say who can
+Routing `Mode` is `EXPLICIT` for sends that name a component. Implicit sends say who can
 receive them: `IMPLICIT (package-scoped)` when the intent is limited to one app with
 `setPackage()` (shown on the `Package` row), or `IMPLICIT (any app)` when any installed
 app with a matching filter can receive it. For a broadcast carrying sensitive extras,
@@ -211,8 +216,8 @@ that is a potential data leak. Events captured before noxen recorded the package
 plain `IMPLICIT`.
 
 When an Intent has a selector, Android consults it only if the base Intent has no
-component. Noxen marks that case as `EXPLICIT (selector)`, `IMPLICIT (selector,
-package-scoped)`, or `IMPLICIT (selector, any app)`. If the base Intent already names a
+component. Noxen shows `Source: selector` and a `Mode` of `EXPLICIT`,
+`IMPLICIT (package-scoped)`, or `IMPLICIT (any app)`. If the base Intent already names a
 component, that component wins and the selector is not a fallback. The selector role is
 then `IGNORED (base component takes precedence)`, or `REDUNDANT (same component as
 base)` when both directly name the same component. Selector inspection is read-only;
@@ -226,12 +231,16 @@ fields, including nested Intents.
 For example, two different components remain visible without implying two destinations:
 
 ```text
-[CAPTURED INTENT PAYLOAD]
-  Routing       : EXPLICIT (base component)
+[ROUTING]
+  Mode          : EXPLICIT
+  Source        : base component
+  Selector      : IGNORED (base component takes precedence)
   Target        : com.example/.ActivityA
 
+[CAPTURED INTENT PAYLOAD]
+  Component     : com.example/.ActivityA
+
 [SELECTOR]
-  Routing role  : IGNORED (base component takes precedence)
   Component     : com.example/.ActivityB
 ```
 
