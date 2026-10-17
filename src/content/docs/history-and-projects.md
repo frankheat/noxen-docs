@@ -126,6 +126,14 @@ Use the History clear action when you want to remove the current session rows.
 
 This clears both the in-memory history and the stored intent rows in the current project.
 
+The project deletion must succeed before the in-memory History and its pending
+table updates are cleared. If deletion fails, noxen reports the error and keeps
+the History unchanged. Concurrent captures are registered either before or after
+the clear operation, consistently in memory and in the project.
+
+Clearing History does not forward or drop an Intent currently blocked in Intercept,
+nor discard its editor draft. Resolve that Intent separately in Intercept.
+
 ## Export
 
 Use the export action to write History entries to JSON. You can export the full

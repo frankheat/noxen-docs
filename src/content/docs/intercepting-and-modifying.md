@@ -58,6 +58,26 @@ Data URI and MIME type are applied atomically. Editing only one preserves the ot
 avoiding Android's normal `setData()` / `setType()` behavior where either setter clears
 the other field.
 
+The editor modifies the **base Intent**. If a selector or ClipData is present, its
+captured tree remains visible in a read-only section; its values are not reconstructed
+or edited. The selector's routing role is shown when captured, including when it
+is active rather than the base payload. Editing the base Action, Data URI or MIME
+type does not edit the selector or change ClipData's declared MIME types.
+Only an observed `ACTIVE` selector gets an additional routing note in the editor.
+Ignored, redundant and unavailable roles do not show that note; the editor never
+assumes a selector is active merely because it is present.
+
+The editable Base Intent, Categories and Extras sections are grouped first, followed
+by separate read-only Selector and ClipData sections when present. Section headings
+share one style, and top-level labels and values use aligned columns. Indentation
+is reserved for nested objects, not for the selector's own fields.
+
+The Flags field also shows the requested URI grant bits (`READ`, `WRITE`,
+`PERSISTABLE`, `PREFIX`) when relevant. This hint follows the editor draft and command
+changes, not just the initial capture. Invalid flag input is marked unavailable
+and cannot be applied. These bits belong to the base Intent, not ClipData, and do
+not prove that Android granted access. No URI is opened to populate these sections.
+
 Extra keys must be unique. The editor rejects a new extra when its key duplicates an
 extra that is still present in the captured Intent. A completely empty new row is
 ignored, while a row containing a value without a key is rejected. Validation keeps
@@ -196,7 +216,7 @@ package-scoped)`, or `IMPLICIT (selector, any app)`. If the base Intent already 
 component, that component wins and the selector is not a fallback. The selector role is
 then `IGNORED (base component takes precedence)`, or `REDUNDANT (same component as
 base)` when both directly name the same component. Selector inspection is read-only;
-the Intercept editor continues to modify the base payload only.
+the Intercept editor shows it for context and continues to modify the base payload only.
 
 ClipData inspection is also read-only. Captured items have fixed depth, item-count,
 node-count, and text-length limits. Omitted or unreadable values are indicated in the
