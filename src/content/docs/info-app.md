@@ -10,6 +10,8 @@ The snapshot is requested automatically when you connect to a target and can be 
 **Refresh** (`Ctrl+R` in the footer). **Panel** (`Ctrl+T`) toggles the navigation rail.
 It is session-only (not stored in the project) and is cleared on disconnect. Until you connect,
 the tab shows a short "connect to a target" message.
+Late responses from a disconnected session or a superseded Refresh are ignored;
+they cannot restore cleared data or replace the current app's snapshot.
 If the app is not ready to provide it after startup, noxen logs a warning; use Refresh
 after the app has initialized. The snapshot is not continuously monitored.
 
