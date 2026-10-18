@@ -72,6 +72,16 @@ by separate read-only Selector and ClipData sections when present. Section headi
 share one style, and top-level labels and values use aligned columns. Indentation
 is reserved for nested objects, not for the selector's own fields.
 
+Extra keys wrap within a shared, bounded-width column; Type, Value and the remove
+button stay aligned at the top of each row. Existing keys longer than 96 characters
+show a shortened preview ending in a theme-muted ellipsis, with a separate
+**View full key** button below it. The ellipsis is not part of the key.
+Use this button, click a wrapped or truncated key, or focus it and press Enter, to
+read its full text, then use **Close** or Escape to return to the editor.
+Fully visible single-line keys are plain text, without a keyboard focus stop.
+This read-only view never changes the key or the draft. Newly added keys remain
+editable inputs with horizontal scrolling.
+
 The Flags field also shows the requested URI grant bits (`READ`, `WRITE`,
 `PERSISTABLE`, `PREFIX`) when relevant. This hint follows the editor draft and command
 changes, not just the initial capture. Invalid flag input is marked unavailable
