@@ -60,15 +60,12 @@ the other field.
 
 The editor modifies the **base Intent**. If a selector or ClipData is present, its
 captured tree remains visible in a read-only section; its values are not reconstructed
-or edited. Activity and broadcast events also show the base Component as a read-only field, with
+or edited. Activity, broadcast, and service events also show the base Component as a read-only field, with
 available exported and permission metadata. They do not show a Routing section.
-For service events, a separate Routing section shows the captured classification and the
-selector's role when available. Editing the base Action, Data URI or MIME
+Editing the base Action, Data URI or MIME
 type does not edit the selector or change ClipData's declared MIME types.
-Routing is labelled **Derived from capture**: it describes the intercepted Intent,
-not a fresh resolution of the editor draft. Changing Action, Data URI or MIME type
-does not re-query PackageManager or predict a new target. The editor never assumes
-a selector is active merely because it is present.
+Changing Action, Data URI or MIME type does not re-query PackageManager or predict
+a new target. The editor never assumes a selector is active merely because it is present.
 
 The editable Base Intent, Categories and Extras sections are grouped together, followed
 by separate read-only Selector and ClipData sections when present. Section headings
@@ -109,12 +106,7 @@ severity badge. The facts are presented and the researcher judges them:
 
 - `[HOOK]`: the hooked `Class` and `Method`. Broadcast sends also show `Receiver Perm`,
   the permission argument restricting recipients, when recorded (`None` when absent).
-- `[ROUTING]`: derived metadata for service sending events, separate from Android object fields.
-  These captures show `Mode`, `Source` when recorded, and `Target`.
-  The selector's role is shown here as `ACTIVE`, `IGNORED`, or `REDUNDANT` when
-  recorded. Resolution is not proof of delivery, and older captures do not acquire
-  inferred source or selector-role metadata.
-- `[CAPTURED INTENT PAYLOAD]`: the captured `Component` (including `None` for new Activity and broadcast captures),
+- `[CAPTURED INTENT PAYLOAD]`: the captured `Component` (including `None` for new Activity, broadcast, and service captures),
   `Action`, `Data (URI)`, `MIME Type`, `Package` (only when the
   intent has one), `Flags`, and categories. `MIME Type` is distinct from
   explicit/implicit routing: it describes the content, such as `image/*` or
@@ -194,8 +186,8 @@ reason.
 
 For each event noxen queries Android's PackageManager and attaches the exposed
 component's facts as a small tree under the component **whose exposure matters**:
-the hooked `Class` for receiving methods, the captured `Component` for Activity
-and broadcast events, or the resolved `Target` for service sends:
+the hooked `Class` for receiving methods and each captured `Component` for Activity,
+broadcast, and service events:
 
 ```
 Component     : com.example/.Receiver2
@@ -213,18 +205,11 @@ Component     : com.example/.Receiver2
   [Unresolved permissions](/noxen-docs/info-app/#unresolved-permissions)). The line is
   omitted when the component requires no permission.
 
-For service sends, routing `Mode` is `EXPLICIT` for sends that name a
-component. Implicit sends describe the package scope, not guaranteed delivery:
-`IMPLICIT (package-scoped)` when the intent is limited to one app with
-`setPackage()` (shown on the `Package` row), or `IMPLICIT (any app)` when any installed
-app with a matching filter can handle it. Events captured before noxen recorded the package show a
-plain `IMPLICIT`.
-
-For Activity and broadcast events, noxen shows the base Intent and selector as separate objects,
+For Activity, broadcast, and service events, noxen shows the base Intent and selector as separate objects,
 without classifying the selector as active or ignored or predicting a destination.
 Each explicitly named Component has its own exported and permission metadata when
 PackageManager can read it. `Details: unavailable` means the lookup failed; it does
-not assert why. An absent Component stays `None`, and no implicit Activity or broadcast target
+not assert why. An absent Component stays `None`, and no implicit target
 is queried. Older captures reuse stored target metadata only when its component
 matches the actual captured Component. No new resolution is performed on old data.
 Selector inspection remains read-only in the editor.
@@ -246,9 +231,32 @@ For example, two different components remain visible without implying two destin
                   └─ Exported            : true
 ```
 
-For service events, `Target` shows the addressed component, `… (resolved)` for implicit intents,
-`(unresolved)` when no service matches, or `… (couldn't read: not visible)`
-when Android package visibility hides a third-party target.
+### Service requests and callbacks
+
+`startService`, `startForegroundService`, `bindService`, `PendingIntent.getService`,
+`onStartCommand`, and `onBind` show the base and immediate selector's named service
+components with independent exported and permission metadata. There is no predicted
+`Target`, `Mode`, `Source`, or selector role, including for older service captures.
+Lookup failures do not hide the captured component names.
+
+The component in a selector does not by itself make a base Intent valid for ordinary
+service calls. Noxen does not simulate Android's validation, foreground restrictions,
+or permission enforcement. Forwarding means allowing the intercepted call to continue,
+not proving that Android accepted it or that a service started.
+
+`getService` captures a PendingIntent creation/retrieval request, not an actual service
+start. The requested Intent and PendingIntent flags stay visible, but do not prove the
+contents of an existing token or a future invocation. The editor modifies the request's
+base payload only; it does not rewrite an existing token's selector.
+
+For `onStartCommand` and `onBind`, manifest metadata remains attached to the hooked
+Class separately from any Component in the payload. A sticky restart can call
+`onStartCommand` with a null Intent; no component lookup is attempted on that absent
+object. The existing payload format does not yet distinguish null from an empty
+captured payload. No Intent is created to replace it.
+
+Unknown custom methods are not assigned Android routing semantics or implicit target
+lookups merely because one argument is an Intent.
 
 ### Broadcast permissions and captured components
 
