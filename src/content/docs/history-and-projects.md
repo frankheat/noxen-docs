@@ -39,6 +39,12 @@ A `!` beside the outcome marks a modification warning. The detail explains wheth
 the agent reported a partial failure or the resulting Intent could not be verified.
 In these cases, do not infer that every requested change reached the app.
 
+Newly saved captures preserve an Intent flag value of `0`, including after editing
+and forwarding. Zero means no flags were set; JSON exports keep it as a number,
+not `null`. Older versions stored zero as `NULL`, so an old `null` value cannot
+reliably distinguish zero from an unavailable field. Opening an older project
+does not guess or rewrite those values.
+
 ## Search
 
 Type in the search field to filter visible rows in real time. The search matches
