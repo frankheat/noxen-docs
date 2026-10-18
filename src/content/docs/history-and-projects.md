@@ -112,6 +112,7 @@ Project files include:
 - captured intents;
 - final outcome;
 - modified and original intent values;
+- capture completeness metadata, including omitted extra counts and read errors;
 - Intercept filters;
 - History filters;
 - History column visibility and width preferences;
@@ -126,6 +127,13 @@ including for modified intents. A captured absent package is kept distinct from
 a field that was never recorded. Existing projects are migrated automatically,
 but package values missing from older captures are not reconstructed from routing
 metadata: that metadata may describe a selector instead of the outer Intent.
+
+Newly saved captures also retain the total/captured extra counts, omission and
+read-error markers, and category truncation/read-error markers. These remain
+available after reopening and in JSON exports. A post-edit completeness warning
+is saved even when no field change could be confirmed. Older projects are
+migrated automatically, but completeness metadata already lost by an older
+version cannot be recovered; absence of a warning is not proof of a complete capture.
 
 ### Storage errors
 

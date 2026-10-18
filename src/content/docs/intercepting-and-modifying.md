@@ -194,6 +194,9 @@ Traversal has fixed safety limits: 8 nested levels, 50 entries per container, 30
 nodes per captured Intent, and 2048 characters per string. The tree reports omitted,
 truncated, unreadable, and opaque values explicitly. These limits are intentionally
 internal rather than user settings so that rendering work remains predictable.
+Top-level extra counts, omissions, and read errors are saved with new captures,
+so reopening a project does not remove these warnings. This does not recover
+values omitted during capture or metadata not saved by older versions.
 
 The original top-level `type`, `value`, and editable type metadata remain in the
 capture format. Existing project files remain readable, and supported top-level
