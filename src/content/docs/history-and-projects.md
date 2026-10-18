@@ -15,6 +15,12 @@ longer to render. While History is hidden, its table is refreshed when you retur
 to the tab. Search and exports use the captured records, not a delayed screen
 snapshot. A blocked Intent in Intercept is displayed independently of this timer.
 
+The table prepares cells only for the rows and columns currently on screen. This
+does not limit the captured events or search results, and scrolling does not require
+loading another page. Search, filters, sorting, and exports still use the complete
+captured history. Automatic column widths consider all matching rows, including
+off-screen values, so widths do not change just because you scroll.
+
 ## What History shows
 
 Each row represents one captured event and includes the hooked class/method, intent
@@ -68,6 +74,11 @@ saved with the project.
 
 Click any column header to sort by that column. Click again to reverse the order.
 The default sort is newest first by ID.
+
+Sorting keeps the same event selected even when its position changes or the ID
+column is hidden. Search and filters keep that selection while the event still
+matches; otherwise the first result is selected. If there are no results, the
+detail panel is cleared. The table and detail always refer to the same selection.
 
 ## Column selection
 
