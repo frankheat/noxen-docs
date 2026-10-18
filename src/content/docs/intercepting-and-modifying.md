@@ -60,9 +60,9 @@ the other field.
 
 The editor modifies the **base Intent**. If a selector or ClipData is present, its
 captured tree remains visible in a read-only section; its values are not reconstructed
-or edited. Activity events also show the base Component as a read-only field, with
+or edited. Activity and broadcast events also show the base Component as a read-only field, with
 available exported and permission metadata. They do not show a Routing section.
-For other events, a separate Routing section shows the captured classification and the
+For service events, a separate Routing section shows the captured classification and the
 selector's role when available. Editing the base Action, Data URI or MIME
 type does not edit the selector or change ClipData's declared MIME types.
 Routing is labelled **Derived from capture**: it describes the intercepted Intent,
@@ -70,7 +70,7 @@ not a fresh resolution of the editor draft. Changing Action, Data URI or MIME ty
 does not re-query PackageManager or predict a new target. The editor never assumes
 a selector is active merely because it is present.
 
-After Routing, the editable Base Intent, Categories and Extras sections are grouped together, followed
+The editable Base Intent, Categories and Extras sections are grouped together, followed
 by separate read-only Selector and ClipData sections when present. Section headings
 share one style, and top-level labels and values use aligned columns. Indentation
 is reserved for nested objects, not for the selector's own fields.
@@ -107,13 +107,14 @@ flag value across activity, broadcast, or internal framework contexts.
 Each intercepted event is shown as a set of plain, aligned sections rather than a
 severity badge. The facts are presented and the researcher judges them:
 
-- `[HOOK]`: the hooked `Class` and `Method`.
-- `[ROUTING]`: derived metadata, separate from Android object fields. Broadcast and service sending
-  captures show `Mode`, `Source` when recorded, `Target` and any `Enforced Perm`.
+- `[HOOK]`: the hooked `Class` and `Method`. Broadcast sends also show `Receiver Perm`,
+  the permission argument restricting recipients, when recorded (`None` when absent).
+- `[ROUTING]`: derived metadata for service sending events, separate from Android object fields.
+  These captures show `Mode`, `Source` when recorded, and `Target`.
   The selector's role is shown here as `ACTIVE`, `IGNORED`, or `REDUNDANT` when
   recorded. Resolution is not proof of delivery, and older captures do not acquire
   inferred source or selector-role metadata.
-- `[CAPTURED INTENT PAYLOAD]`: the captured `Component` (including `None` for new Activity captures),
+- `[CAPTURED INTENT PAYLOAD]`: the captured `Component` (including `None` for new Activity and broadcast captures),
   `Action`, `Data (URI)`, `MIME Type`, `Package` (only when the
   intent has one), `Flags`, and categories. `MIME Type` is distinct from
   explicit/implicit routing: it describes the content, such as `image/*` or
@@ -194,10 +195,10 @@ reason.
 For each event noxen queries Android's PackageManager and attaches the exposed
 component's facts as a small tree under the component **whose exposure matters**:
 the hooked `Class` for receiving methods, the captured `Component` for Activity
-events, or the resolved `Target` for broadcast and service sends:
+and broadcast events, or the resolved `Target` for service sends:
 
 ```
-Target        : com.example/.Receiver2
+Component     : com.example/.Receiver2
                 ├─ Exported            : true
                 └─ Required Permission : com.example.permission.CUSTOM (normal)
 ```
@@ -212,19 +213,18 @@ Target        : com.example/.Receiver2
   [Unresolved permissions](/noxen-docs/info-app/#unresolved-permissions)). The line is
   omitted when the component requires no permission.
 
-For broadcast and service sends, routing `Mode` is `EXPLICIT` for sends that name a
+For service sends, routing `Mode` is `EXPLICIT` for sends that name a
 component. Implicit sends describe the package scope, not guaranteed delivery:
 `IMPLICIT (package-scoped)` when the intent is limited to one app with
 `setPackage()` (shown on the `Package` row), or `IMPLICIT (any app)` when any installed
-app with a matching filter can receive it. For a broadcast carrying sensitive extras,
-that is a potential data leak. Events captured before noxen recorded the package show a
+app with a matching filter can handle it. Events captured before noxen recorded the package show a
 plain `IMPLICIT`.
 
-For Activity events, noxen shows the base Intent and selector as separate objects,
+For Activity and broadcast events, noxen shows the base Intent and selector as separate objects,
 without classifying the selector as active or ignored or predicting a destination.
 Each explicitly named Component has its own exported and permission metadata when
 PackageManager can read it. `Details: unavailable` means the lookup failed; it does
-not assert why. An absent Component stays `None`, and no implicit Activity target
+not assert why. An absent Component stays `None`, and no implicit Activity or broadcast target
 is queried. Older captures reuse stored target metadata only when its component
 matches the actual captured Component. No new resolution is performed on old data.
 Selector inspection remains read-only in the editor.
@@ -246,15 +246,37 @@ For example, two different components remain visible without implying two destin
                   └─ Exported            : true
 ```
 
-For broadcast and service events, `Target` shows the addressed component, `… (resolved)` for implicit intents,
-`(resolved) N receivers` for implicit broadcasts matching several receivers,
+For service events, `Target` shows the addressed component, `… (resolved)` for implicit intents,
 `(unresolved)` when no service matches, or `… (couldn't read: not visible)`
-when Android package visibility hides a third-party target. Broadcast targets are
-looked up among manifest receivers only: when none matches, the target reads
-`(no manifest receiver); dynamic receivers are not visible`, because receivers
-registered at runtime with `registerReceiver()`, in this app or in others, may still
-receive it. When a broadcast is sent with a `receiverPermission`, that sender-enforced
-permission is shown on a separate `Enforced Perm` line.
+when Android package visibility hides a third-party target.
+
+### Broadcast permissions and captured components
+
+Broadcasts have no predicted `Target`, `Mode`, `Source`, or selector role. Noxen does
+not query implicit manifest candidates or enumerate dynamically registered receivers.
+A selector's named component is not presented as the complete recipient list.
+Flags such as `FLAG_RECEIVER_REGISTERED_ONLY` remain visible as captured data;
+component metadata does not assert that the component will receive the broadcast.
+
+Two independent permissions can appear:
+
+- `Required Permission`, below a named Component: its manifest permission, restricting
+  which senders can call it. For receiving hooks, metadata under Class describes the
+  manifest declaration when found, not proof of how that receiver was registered.
+- `Receiver Perm`, under Hook: the `receiverPermission` argument of `sendBroadcast`
+  or `sendOrderedBroadcast`, restricting which recipients can receive this send.
+  Its name survives lookup failures; an unreadable protection level is `unresolved`.
+
+These permissions can differ. Neither belongs to the Intent itself. A recorded null
+argument appears as `Receiver Perm: None`; an empty string is shown explicitly as
+`"" (empty permission name)`, not as absence. Old captures without the field do not
+invent it. `PendingIntent.getBroadcast` is a creation/retrieval request, not an actual
+broadcast send, and has no such argument. Its requested Intent does not prove the
+contents of an existing token or its future delivery.
+
+In the editor, Receiver Perm is read-only context above Base Intent. The base Component
+and selector remain read-only too; editing the payload does not recalculate recipients
+or change the permission argument. No new registration hooks are installed.
 
 ## Passive capture
 

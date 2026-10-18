@@ -43,9 +43,16 @@ The main screen contains buttons for representative Android communication paths:
   text, HTML, and an Intent with its own ClipData. These buttons exercise the
   `[CLIP DATA]` detail and nested rendering in Intercept and History
 - `sendBroadcast` and ordered broadcasts
+- three broadcast permission examples: **protected receiver** (`Receiver2`, sender
+  needs `SEND_TO_RECEIVER`), **receiver permission** (`Receiver1`, recipient needs
+  `RECEIVE_BROADCAST`), and **both permissions** (`Receiver2`, both restrictions).
+  Both permissions use the `dev.noxen.playground.permission.` prefix and protection
+  level `signature`; the playground declares and requests them. Compare
+  `Required Permission` below Component with `Receiver Perm` under Hook. These same-app
+  examples demonstrate configuration and capture, not rejection of an unauthorized app
 - dynamically registered receivers, reached by an implicit broadcast either open to
-  any app or limited with `setPackage()`. noxen shows them as `IMPLICIT (any app)` and
-  `IMPLICIT (package-scoped)`
+  any app or limited with `setPackage()`. Compare the captured Package field;
+  noxen does not predict or enumerate the recipients
 - `startService`, `startForegroundService`, and `bindService`. `startForegroundService`
   targets a dedicated, non-exported `ForegroundService1` that calls `startForeground()`
   right away (as Android requires, otherwise it raises an ANR) and then stops itself
