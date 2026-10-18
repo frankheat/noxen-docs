@@ -8,6 +8,13 @@ they are auto-forwarded by filters or observed while interception is off.
 You can open a project without attaching to an app. This is useful when you only want
 to review a previous session, inspect captured component communication, or export data.
 
+Captures and outcomes are saved as they arrive. Only the table display is batched:
+while History is visible, a 100 ms timer checks for changes and refreshes it when
+needed. This is not a maximum display delay; large tables or a busy UI can take
+longer to render. While History is hidden, its table is refreshed when you return
+to the tab. Search and exports use the captured records, not a delayed screen
+snapshot. A blocked Intent in Intercept is displayed independently of this timer.
+
 ## What History shows
 
 Each row represents one captured event and includes the hooked class/method, intent
