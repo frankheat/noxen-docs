@@ -6,8 +6,8 @@ title: "APK analysis"
 definitions. It does not run Frida and it does not connect to a device. Its job is to
 produce a JSON hook file that can later be loaded from noxen's Home tab.
 
-Use it when the default framework hooks are too broad and you want to focus on entry
-points implemented by the target app.
+Use it to add receiver and service entry points implemented by the target app.
+It complements the framework hooks; loading its output does not remove them.
 
 ## Install the analyzer
 
@@ -79,17 +79,21 @@ For services, it emits hooks for:
 
 Use APK analysis when:
 
-- You want less framework noise than the default broad hooks.
+- You want app-specific callback captures alongside the default framework hooks.
 - You want to inspect receiver or service entry points implemented by the target app.
 - You already know the APK and want a starting hook file before runtime testing.
 
 The generated hooks are especially useful together with Intercept filters: the hook
-file narrows what noxen observes, while filters decide what should stop for manual
-review.
+file adds app-specific observation points, while filters decide what should stop
+for manual review. Filters do not uninstall hooks or remove captures from History.
 
 ## Limitations
 
 Static APK analysis cannot guarantee that every runtime path is covered.
+The analyzer follows superclass chains found in the APK's DEX files. It emits the
+known callback signatures for matching subclasses; it does not prove that each
+callback is declared by that class, available at runtime, or actually invoked.
+Validate the installation report and exercise the behavior you need to observe.
 
 It may miss:
 

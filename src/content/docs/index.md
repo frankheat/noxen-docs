@@ -7,8 +7,9 @@ to help you map how an app's components communicate at runtime and how that
 communication can become an attack surface.
 
 It uses Frida to hook selected Java methods such as `getIntent()` and related
-intent-handling APIs, allowing you to observe how intent fields are read, propagated,
-and used during execution.
+intent-handling APIs, allowing you to inspect Intent snapshots at those interception
+points and test how field changes affect application behavior. It does not trace
+every field read or perform automatic taint analysis.
 
 ## Attack-surface mapping
 
@@ -26,10 +27,10 @@ compare the result with the original runtime behavior.
 Used together with manifest review, static analysis, or manual testing, this gives you
 a practical map of component communication:
 
-- which components exchange intents;
-- which fields are trusted;
-- which extras or URIs influence execution;
-- which flows are reachable from exported entry points;
+- which components appear in captured communication;
+- how the app responds to changes in selected fields;
+- which extras or URIs are worth investigating;
+- which exported entry points deserve reachability testing;
 - which runtime interactions are framework noise and which deserve deeper testing.
 
 noxen is intended for controlled testing on apps, devices, and environments you are

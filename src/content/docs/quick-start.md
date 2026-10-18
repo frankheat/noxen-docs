@@ -47,10 +47,13 @@ shortcut.
 
 ## Modify an intent
 
-Use the edit controls in the Intercept tab to change action, data, categories, flags,
+Use the edit controls in the Intercept tab to change action, data, MIME type, categories, flags,
 or extras. Changes are staged and take effect only when you forward the current
 intent. The visual editor and command bar always show and modify the same draft;
 canceling the editor discards all pending changes from both.
+Selector and ClipData are shown read-only; editing the base Intent does not edit
+their nested contents. A recorded null Intent can be forwarded or dropped but
+cannot be edited.
 
 ## Reduce noisy traffic
 

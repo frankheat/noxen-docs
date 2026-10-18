@@ -15,8 +15,11 @@ In the source tree, the default configuration is stored at:
 config/hooks.json
 ```
 
-Installed packages use the bundled runtime copy, so normal users do not need to run
-noxen from the source checkout.
+Installed packages use the bundled runtime copy at `runtime/config/hooks.json`
+inside the Python package (`src/noxen/runtime/config/hooks.json` in the checkout).
+The source copy is preferred when available. Normal users do not need to run noxen
+from the source checkout. Selecting a custom file adds hooks; it does not replace
+or disable the bundled defaults.
 
 ## Format
 
@@ -59,6 +62,10 @@ one of the following:
 
 Other method shapes are rejected because noxen could not extract and safely edit
 an Intent from them.
+For an argument-based hook, noxen captures the first parameter declared exactly as
+`android.content.Intent`, including a null value or an Intent subclass passed there.
+It does not capture every argument or every return value of an arbitrary method.
+Argument type names in the JSON must match the actual overload exactly.
 
 ## Duplicates
 

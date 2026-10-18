@@ -18,6 +18,11 @@ python -m venv .venv
 source .venv/bin/activate
 ```
 
+On Windows PowerShell, activate it with `.\.venv\Scripts\Activate.ps1` instead.
+Run the installation commands below inside the activated environment. If Linux
+reports `externally-managed-environment`, check that environment first; noxen
+does not require modifying the system Python installation.
+
 First install the Frida Python package that matches the `frida-server` version running
 on your Android device. For example:
 

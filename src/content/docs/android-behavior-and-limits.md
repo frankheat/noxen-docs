@@ -19,6 +19,11 @@ for too long. Common cases include:
 
 If noxen hooks a method running on one of those paths and interception is enabled,
 the JavaScript agent can hold that thread until the user forwards or drops the intent.
+Not every timeout produces an ANR dialog. A foreground service that fails to call
+`startForeground()` promptly after `startForegroundService()` can instead fail
+startup and terminate the process. The optional input ANR bypass does not prevent
+that foreground-service failure. See
+[Android's foreground-service troubleshooting guide](https://developer.android.com/develop/background-work/services/fgs/troubleshooting).
 
 ## What noxen can control
 
@@ -27,7 +32,7 @@ noxen can control:
 - Which Java methods are hooked.
 - Whether interception is blocking or passthrough.
 - Whether matching intents are auto-forwarded by filters.
-- Whether broad framework hooks or narrower app-specific hooks are used.
+- Which app-specific hooks are added to the bundled framework hooks.
 - Whether to enable the optional `system_server` input ANR bypass from the Home tab.
 
 ## What noxen cannot make universal
@@ -54,7 +59,7 @@ For stable sessions:
 1. Start broad only during exploration.
 2. Identify noisy or timeout-sensitive methods.
 3. Add Intercept filters to auto-forward uninteresting intents.
-4. Move to narrower app-specific hooks where possible.
+4. Add app-specific hooks when they expose the behavior you need more directly.
 5. Turn interception off when you only need passive capture.
 6. Use spawn mode only when startup interception is required.
 7. Avoid leaving a main-thread intent blocked while analyzing unrelated data.
@@ -65,14 +70,19 @@ When interception is off, the agent still observes and reports intents, but it d
 wait for a manual decision. This reduces ANR risk significantly, but the hook overhead
 still exists.
 
-For the lowest runtime impact, remove unnecessary hooks from the hook configuration.
+Custom hook files are added to the bundled defaults; choosing a smaller custom file
+does not remove framework hooks. Intercept filters reduce blocking, not capture or
+hook overhead. Removing bundled hooks currently requires changing the default
+configuration in a development checkout and rebuilding the packaged runtime assets.
 
 ## Hook selection and timeout risk
 
 Framework-level hooks provide broad visibility, but they can run in sensitive paths.
 
-App-specific hooks can be safer because they may run after Android has already completed
-some timeout-sensitive framework work. They also produce less noise.
+An app-specific hook may run at a more useful point, but it can still block the main
+thread or a timeout-sensitive receiver or service callback. Its class being
+app-specific does not make it safe from ANRs, and adding it does not reduce the
+framework captures already enabled by the bundled defaults.
 
 Prefer app-specific hooks when you know the target code path.
 

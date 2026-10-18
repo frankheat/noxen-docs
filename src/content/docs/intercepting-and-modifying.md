@@ -3,16 +3,26 @@ title: "Intercepting and modifying"
 ---
 
 The Intercept tab is where blocking decisions happen. When a hooked intent reaches
-Python and is not hidden by Intercept filters, noxen waits for you to forward, modify,
-or drop it.
+Python, requests a blocking decision, and is not hidden by Intercept filters, noxen
+waits for you to forward, modify, or drop it. Events observed with interception off,
+or while another event is already held, are recorded in History without becoming
+another active Intercept decision.
 
 The UI provides the normal workflow through buttons and edit controls. The command bar
 is optional and can be hidden when you do not need keyboard-driven shortcuts.
 
 ## Forward or drop
 
-Use **Forward** to continue execution with the current intent. Use **Drop** to return
-from the hooked method without delivering the intercepted intent.
+Use **Forward** to let the intercepted operation continue. This is not confirmation
+that the method succeeded or that Android delivered the Intent.
+
+For methods accepting an Intent argument, **Drop** skips the intercepted method
+and returns a type-appropriate default (`null`, `false`, zero, or no value).
+For `getIntent()`, the original getter has already run: Drop returns `null` in place
+of its result. Dropping a receiving callback does not undo delivery or earlier
+application work, and skipping a call can change or break the app's control flow.
+Exceptions raised by the original method are propagated to the app, not converted
+into a successful return by noxen.
 
 ## Stage modifications
 
@@ -81,6 +91,8 @@ read its full text, then use **Close** or Escape to return to the editor.
 Fully visible single-line keys are plain text, without a keyboard focus stop.
 This read-only view never changes the key or the draft. Newly added keys remain
 editable inputs with horizontal scrolling.
+The view shows the full key retained in the capture, not characters already omitted
+by the agent's separate capture limits described below.
 
 The Flags field also shows the requested URI grant bits (`READ`, `WRITE`,
 `PERSISTABLE`, `PREFIX`) when relevant. This hint follows the editor draft and command
@@ -264,6 +276,25 @@ Class separately from any Component in the payload. A sticky restart can call
 `onStartCommand` with a null Intent; no component lookup is attempted on that absent
 object. No Intent is created to replace it.
 
+### PendingIntent requests
+
+The bundled hooks cover `PendingIntent.getActivity`, `getBroadcast`, and `getService`.
+All three show the requested base Intent and selector without inferred routing,
+selector roles, or a predicted Target, including when reviewing older captures.
+Component metadata describes only the components explicitly named in those objects.
+
+These are creation/retrieval requests, not calls to `PendingIntent.send()` or proof
+of a future delivery. Android may return an existing token, and `FLAG_NO_CREATE`
+may return `null` instead of creating one. Noxen captures the factory arguments,
+not the returned token's stored Intent or the result of its later use. Editing
+changes the request's base Intent only. See the
+[Android PendingIntent reference](https://developer.android.com/reference/android/app/PendingIntent)
+for token reuse and update semantics.
+
+The default hook set does not cover `getActivities` (an Intent array),
+`getForegroundService`, or token `send` calls. Do not infer complete PendingIntent
+coverage from the presence of the `[PENDING INTENT]` section.
+
 ### Null Intent versus empty Intent
 
 New captures explicitly record whether an Intent object was present. An absent object
@@ -348,14 +379,19 @@ See [Commands](https://frankheat.github.io/noxen-docs/commands/) for the full sy
 |---|---|
 | `Ctrl+C` | Quit |
 | `Ctrl+Q` | Quit |
-| `Ctrl+L` | Clear the active output panel |
-| `Ctrl+B` | Show or hide the active tab command input/output area |
+| `Ctrl+L` | Clear History (including stored rows) or Log, only in those tabs |
+| `Ctrl+B` | Show or hide the Intercept or History command input/output area |
 | `Ctrl+F` | Forward the current intent, applying editor changes when edit mode is open |
 | `Ctrl+D` | Drop the current intent |
 | `Esc` | Cancel editing without forwarding or dropping (edit mode only) |
+| `Ctrl+R` | Refresh the snapshot (Info app only) |
+| `Ctrl+T` | Show or hide the navigation panel (Info app only) |
 | `Alt+Up` | Enlarge the active detail/command panel in Intercept, History, or Info app > Components |
 | `Alt+Down` | Shrink the active detail/command panel in Intercept, History, or Info app > Components |
 | `Left` / `Right` | Move between tabs when the tab bar has focus |
 
 Depending on terminal focus and Textual behavior, arrow tab switching works when the tab
 bar has focus rather than while typing in the command input.
+Forward, Drop, and Cancel shortcuts are shown only when usable for the current
+blocked event. Intercept resizing requires its command area to be visible. Terminal
+or desktop shortcuts can consume key combinations before noxen receives them.

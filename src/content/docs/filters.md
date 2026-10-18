@@ -43,7 +43,7 @@ Multiple key/value pairs in the same rule are AND-ed together.
 | `data` | Intent data URI |
 | `flags` | Intent flags |
 | `category` | Any category in the intent |
-| `component` | Target component |
+| `component` | Component field of the base captured Intent, not a resolved destination |
 
 Values use glob matching through `fnmatch`, so `*` is supported:
 
@@ -74,6 +74,15 @@ Examples:
 /filter add focus component=explicit
 /filter add focus component=implicit
 ```
+
+These aliases test only whether the base Intent has a Component. They do not
+classify the selector or predict Android routing. An Intent with no base Component
+but a selector naming a component still matches `component=implicit`. A recorded
+null Intent also has no Component, so it matches `component=unset` / `implicit`.
+
+Structured rules do not inspect selector fields, ClipData, or nested extras. Use
+History search to find captured values in those structures. MIME type and package
+are not dedicated filter keys.
 
 ## Intercept filter behavior
 

@@ -6,9 +6,12 @@ The Info app tab is a snapshot of the **hooked target app**, covering its identi
 configuration, signing, permissions, and the full roster of its components. It complements
 the live event stream with a static picture of the app's attack surface.
 
-The snapshot is taken automatically when you connect to a target and can be re-taken with
-the **Refresh** button. It is session-only (not stored in the project). Until you connect,
+The snapshot is requested automatically when you connect to a target and can be re-taken with
+**Refresh** (`Ctrl+R` in the footer). **Panel** (`Ctrl+T`) toggles the navigation rail.
+It is session-only (not stored in the project) and is cleared on disconnect. Until you connect,
 the tab shows a short "connect to a target" message.
+If the app is not ready to provide it after startup, noxen logs a warning; use Refresh
+after the app has initialized. The snapshot is not continuously monitored.
 
 ## Layout
 
@@ -35,19 +38,30 @@ The enabled state reflects the component setting at snapshot time; an explicit
 runtime override takes precedence over its default. Use **Refresh** after enabling
 or disabling a component to update its state. Disabled components remain included
 in the summary counts.
+This column describes the component's own setting; it is not a combined check of
+application enabled state, caller access, or whether Android can currently start it.
 
 ## Access
 
-Every exported component gets an **Access** class that describes how hard it is for another
-app to reach it. It follows from the protection level of the permission guarding the component:
+Every exported component gets an **Access** class for review, based on the base
+protection level of the permission guarding the component. It is not a reachability
+test or a vulnerability verdict:
 
 | Access | Permission guarding the component |
 |---|---|
-| `open` | none, `normal` (granted to any app that asks), or `unresolved` |
-| `weak` | `dangerous`; any app can hold it once the user grants it |
+| `open` | none, `normal`, `unresolved`, or `unknown` |
+| `weak` | `dangerous` |
 | `protected` | `signature`, `signatureOrSystem`, or `internal` |
 
-Components that are not exported have no access class because other apps cannot reach them.
+`unknown` means the reported base protection level is not mapped by noxen. It is
+kept in `open` conservatively, not because access was verified. Permission flags,
+caller-specific grants, component state, platform restrictions, and checks performed
+by application code are not combined into this classification.
+
+Components that are not exported have no access class. This is not a statement
+that every form of access is impossible: for example, Android can grant access to
+specific URIs on a non-exported provider. See the
+[Android provider documentation](https://developer.android.com/guide/topics/manifest/provider-element).
 
 ### Providers
 
@@ -63,7 +77,8 @@ In the table, a provider guarded by one permission for both reads and writes (th
 `android:permission` case) shows it like any other component. Otherwise the cell stays short
 and summarises the protection level of each direction plus the number of path permissions.
 For example, it can report signature-level reads, unrestricted writes, and one path rule.
-The permission names are in the detail panel.
+The permission names are in the detail panel. This is a weakest-direction/path
+summary, not the effective access for every URI; no URI is opened or tested.
 
 ### Unresolved permissions
 
@@ -74,7 +89,7 @@ two possible reasons, and they cannot be told apart from inside the app:
   request it, and reach the component;
 - **the app that defines it is hidden** from the target by Android 11+ package visibility.
 
-Because the first case leaves the component reachable, noxen counts `unresolved` as `open`
+Because the first case can leave a weak permission boundary, noxen counts `unresolved` as `open`
 so it is not hidden from review. Check which one applies on the device:
 
 ```bash
@@ -82,14 +97,16 @@ adb shell pm list permissions -f
 ```
 
 A permission defined by a package listed there (with its `protectionLevel`) exists; a
-permission missing from the list is not defined by any installed package.
+permission missing from a complete, successful listing was not found in that device
+snapshot. Check the actual device/user and any command errors before drawing a conclusion.
 
 ### Defined by
 
 The Permissions table shows the package that defines each permission. In the component
 detail, a permission defined by **another** app (not the target itself or the platform) is
-marked `defined by <package>`: the protection then depends on that app, and if it is
-uninstalled the permission stops existing.
+marked `defined by <package>`. That identifies a dependency on another package's
+permission declaration at snapshot time; it does not predict what will happen
+after installing or uninstalling packages. Refresh and verify the device state.
 
 ## Finding the attack surface
 
@@ -118,7 +135,7 @@ the most exposed to the most protected:
 | Column | Ascending order |
 |---|---|
 | Access | `open` → `weak` → `protected` → not exported |
-| Level | `unresolved` → `normal` → `dangerous` → `signature` → `signatureOrSystem` → `internal` |
+| Level | `unresolved` → `unknown` → `normal` → `dangerous` → `signature` → `signatureOrSystem` → `internal` |
 | Type | activity → service → receiver → provider |
 | Exported, Enabled, Granted | `yes` → `no` |
 
@@ -128,7 +145,9 @@ directions. The not-exported Access state is a real value, so it moves with the 
 
 ## Notes
 
-- All data is read from the app's own `PackageManager` inside the process, so the target's
-  own components and permissions are always complete. Permissions defined by other apps are
+- The inventory is read from the target's `PackageManager`; process and runtime
+  information is collected inside that process. It describes manifest components,
+  not dynamically registered receivers or a live reachability scan. Failed or
+  unavailable lookups must not be interpreted as proof of absence. Permissions defined by other apps are
   subject to package visibility (see [Unresolved permissions](#unresolved-permissions)).
 - Intent-filters are not shown here (they are not reliably enumerable at runtime).

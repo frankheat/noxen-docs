@@ -55,7 +55,8 @@ The main screen contains buttons for representative Android communication paths:
   noxen does not predict or enumerate the recipients
 - `startService`, `startForegroundService`, and `bindService`. `startForegroundService`
   targets a dedicated, non-exported `ForegroundService1` that calls `startForeground()`
-  right away (as Android requires, otherwise it raises an ANR) and then stops itself
+  promptly and then stops itself. Missing that foreground-service startup deadline
+  can cause Android to terminate the process; it is not necessarily an ANR dialog
 - `PendingIntent.getActivity`, `getBroadcast`, and `getService`
 - concurrent broadcasts from multiple worker threads
 - explicit and implicit examples for exported and non-exported Activity behavior
@@ -68,6 +69,25 @@ The main screen contains buttons for representative Android communication paths:
 These scenarios are intentionally small. Their purpose is to make it easy to verify
 that hooks, History, Intercept, filtering, stack traces, and modification handling work
 as expected.
+
+The selector buttons exercise known Activity scenarios. Noxen displays the captured
+objects and each explicitly named component's metadata; it does not display an
+inferred active/ignored role. The PendingIntent buttons request factory tokens;
+they do not themselves demonstrate a later token send.
+
+## Check a null Intent callback
+
+1. Connect noxen and start with Intercept off for a simple History-only check.
+2. Press **startActivityForResult()**, which opens `Activity2`.
+3. Press Android **Back**. This Activity does not set a result Intent.
+4. Inspect `onActivityResult()` in History: new captures show
+   `Intent: null (no Intent object)`.
+
+Repeat with Intercept on to verify blocking, forwarding the launch events as needed.
+At the null callback, Edit is disabled and Forward and Drop remain available.
+The separate **onActivityResult()** button opens `Activity4`, which supplies a result
+Intent; it is not the null-result example. Filters or an event already held can
+prevent a new active block even though the callback appears in History.
 
 ## Running with noxen
 

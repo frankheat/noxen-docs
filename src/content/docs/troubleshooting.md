@@ -83,9 +83,21 @@ Try spawn mode from the Home tab and check:
 
 ## Too many intents appear
 
-Add Intercept filters from the filter UI, or reduce hook coverage with a narrower
-custom hook file. See [Filters](https://frankheat.github.io/noxen-docs/filters/) for
-rule examples.
+Add Intercept filters to reduce manual blocking, or History filters to reduce the
+rows displayed. Custom hook files are appended to the defaults: selecting a smaller
+file does not disable framework hooks. See [Filters](https://frankheat.github.io/noxen-docs/filters/)
+for rule examples.
+
+## An event appears in History but not Intercept
+
+The hook captured the event. Check whether interception was enabled at that moment,
+whether an Intercept filter auto-forwarded it, and whether another event was already
+held. While one event is held, additional hooked events are recorded without waiting
+for another decision. History and Intercept filters are independent.
+
+A null Intent is not intentionally hidden: new captures show
+`Intent: null (no Intent object)`. Edit is disabled for that event, but Forward and
+Drop remain available when it is the active block.
 
 ## App becomes not responding
 
@@ -96,8 +108,8 @@ Immediate actions:
 - Forward or drop the active intent.
 - Turn interception off from the Intercept toggle.
 - Add filters to auto-forward noisy events.
-- Use fewer hooks.
-- Prefer app-specific hooks.
+- Avoid unnecessary custom hooks; they are added to the defaults.
+- Use app-specific hooks when useful, but do not assume their callbacks are free of timeouts.
 - On rooted test devices, the optional `Input ANR bypass (experimental)` switch can
   reduce input-dispatch ANRs while noxen holds an event, but it cannot guarantee a
   later ANR dialog on every Android build.
@@ -146,3 +158,12 @@ Try:
 - Use a modern terminal emulator.
 - Toggle the theme from the UI or command bar.
 - Restart the session if the terminal was resized aggressively.
+
+If `Alt+Up` / `Alt+Down` resize the terminal window rather than a noxen panel, the
+terminal or desktop is consuming the shortcut before it reaches noxen. Adjust that
+external binding if desired; noxen cannot handle a key event it never receives.
+Its panel-resize shortcuts are offered only in relevant views, including Info app
+> Components, not Permissions.
+
+If a command bar is missing, press `Ctrl+B` in Intercept or History. Visibility is
+saved independently for the two tabs in the user's settings, including across restarts.

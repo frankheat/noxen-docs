@@ -6,8 +6,9 @@ noxen is intended to work across current Frida versions that support the require
 instrumentation APIs. It has been tested with Frida 16.6.6 and 17.7.3 because Frida 17
 introduced a compatibility boundary that older scripts often fail to cross.
 
-Those tested versions are not the only supported versions. The important distinction is
-the behavior before and after Frida 17.
+Those tested versions are not an exhaustive compatibility matrix. The Frida 17
+loading change is one boundary, but Android ART, OEM changes, and the Java bridge
+also affect whether hooks can be installed and invoked on a particular device.
 
 ## The Frida 17 change
 
@@ -40,6 +41,12 @@ src/noxen/runtime/agent/script_bundle.js
 
 The installed wheel stores the same file inside the `noxen` Python package. The
 bundle includes what is needed for Frida 17-style Java bridge loading.
+
+The current source dependency pins `frida-java-bridge` to `7.0.10`; the committed
+bundles embed that dependency. Changing the host Python `frida` version alone does
+not replace the bridge embedded in these bundles. A host/server version match is
+necessary for a reliable setup but does not establish Java bridge compatibility
+with every Android runtime.
 
 If the bundle is missing, the tool falls back to:
 
@@ -111,5 +118,6 @@ If the session fails before hooks are installed:
 - Confirm the Android `frida-server` version.
 - Confirm the Python `frida` package version.
 - If running from the source tree, confirm `agent/script_bundle.js` exists.
-- Try the same command with a known working pre-17 or 17+ Frida environment.
+- Compare with a known working host/server pair on a controlled test device; do
+  not assume that downgrading is safe or fixes every OEM runtime issue.
 - Check the Log tab for JavaScript initialization errors.

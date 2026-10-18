@@ -2,7 +2,7 @@
 title: "The interface"
 ---
 
-noxen is a terminal UI with five tabs. This page describes how to connect to an app
+noxen is a terminal UI with six tabs. This page describes how to connect to an app
 and what each tab does.
 
 ## Launching noxen
@@ -27,7 +27,9 @@ The Home tab is where you select a target and connect.
 ### Device
 
 noxen scans for connected Frida-compatible devices on startup. The first USB device
-found is selected automatically. Use the refresh button (↺) to rescan.
+found is selected automatically when no valid selection is retained. USB and remote
+devices are preferred to the local host. Use the refresh button (↺) to rescan,
+including after starting an emulator that was not running when noxen opened.
 
 ### Mode
 
@@ -36,7 +38,7 @@ Choose how to attach to the target process:
 | Mode | When to use |
 |---|---|
 | Spawn | Starts the app from scratch; use it when you need to catch startup behavior |
-| Attach (app name) | Connects to an already-running app by visible name |
+| Attach (app name) | Connects to an already-running process by its Frida-reported name |
 | Attach (PID) | Connects to a process by numeric PID |
 
 Spawn is the default.
@@ -165,6 +167,18 @@ search, sorting, column selection, and detail view.
 
 See [History and projects](https://frankheat.github.io/noxen-docs/history-and-projects/).
 
+## Info app tab
+
+Shows a session-only snapshot of the hooked app: identity, build flags, signing,
+permissions, and manifest components. Overview, Permissions, and Components are
+separate sub-views, with search, filters, and sorting in the tables.
+
+Use **Refresh** (`Ctrl+R`) to request a new snapshot and **Panel** (`Ctrl+T`) to
+toggle the navigation rail. These shortcuts appear only in Info app. The snapshot
+is cleared on disconnect and is not restored from a project file.
+
+See [Info app](../info-app/) for access classification and its limitations.
+
 ## Log tab
 
 Displays Frida and system messages. Includes:
@@ -192,6 +206,10 @@ per-user config directory for the operating system, not in the project checkout:
 - Linux: `$XDG_CONFIG_HOME/noxen/settings.txt`, or `~/.config/noxen/settings.txt`
 - macOS: `~/Library/Application Support/noxen/settings.txt`
 - Windows: `%APPDATA%\noxen\settings.txt`
+
+Command-bar visibility is also a user preference: `Ctrl+B` saves the Intercept and
+History visibility states independently in this settings file. It is not stored
+in the project. A hidden command bar can be restored with `Ctrl+B` in its tab.
 
 ## Common startup problems
 

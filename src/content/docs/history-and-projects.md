@@ -19,7 +19,7 @@ Common outcomes:
 |---|---|
 | `forwarded` | Forwarded with no confirmed modification |
 | `modified_forwarded` | Forwarded with at least one observed modification |
-| `dropped` | Blocked |
+| `dropped` | The hook suppressed the call or the getter result; not proof that earlier delivery was undone |
 | empty/pending | No final decision was recorded |
 
 A `!` beside the outcome marks a modification warning. The detail explains whether
@@ -29,12 +29,20 @@ In these cases, do not infer that every requested change reached the app.
 ## Search
 
 Type in the search field to filter visible rows in real time. The search matches
-against class, method, action, component, data, flags, and categories. Selector fields
+against class, method, action, component, data, MIME type, flags, and categories. Selector fields
 are included recursively. Extra keys, types, and values are searchable throughout
 structured Bundles, arrays, lists, and nested Intents, including nested intent fields
 such as action, data, component,
 package, flags, and categories. Opaque, unreadable, referenced, and truncated values
 can also be found by their displayed type or status.
+
+ClipData labels, declared MIME types, item text, HTML, URIs, and nested Intents are
+also included. An explicitly recorded absent Intent matches `null` and
+`no Intent object`. Search uses a bounded local index of captured data; it never
+opens a URI, re-reads a Java object, or recovers content omitted at capture time.
+Index limits can also exclude part of a very large capture, so a search miss is
+not proof that a value is absent. This is substring search, not a regular expression
+or a query language; stack traces and component permission metadata are not indexed.
 
 The History command bar controls the same search field:
 
@@ -68,10 +76,13 @@ in the project file.
 
 When an intent is changed before forwarding, History stores both views:
 
-- the final values that were delivered;
+- the resulting values observed by the agent after applying modifications;
 - the original values captured before modification.
 
 This lets you review what changed without losing the original evidence.
+It does not prove that the original method completed successfully or that Android
+delivered the Intent to another component. If the result could not be captured,
+the modification warning identifies that uncertainty.
 
 ## Project files
 
@@ -89,7 +100,10 @@ Open an existing project:
 noxen --project session.noxen
 ```
 
-If no project option is used, a temporary project is created for the running session.
+If no project option is used, noxen creates a persistent
+`project_YYYYMMDD_HHMMSS.noxen` file in the current working directory. It is not
+deleted on exit and can be reopened with `--project`. Creating a project at an
+existing path is refused; opening a missing project does not silently create one.
 
 ## Stored state
 
@@ -98,9 +112,14 @@ Project files include:
 - captured intents;
 - final outcome;
 - modified and original intent values;
-- Intercept filters.
-- History filters.
-- History column visibility and width preferences.
+- Intercept filters;
+- History filters;
+- History column visibility and width preferences;
+- the selected Hook config and Extra script paths (not their file contents).
+
+Info app snapshots, Log messages, the current search query, and unforwarded editor
+drafts are not restored from a project. A pending History outcome after reopening
+is a historical record, not a blocked thread that can still be resumed.
 
 The outer Intent's `Package` restriction is preserved when a project is reopened,
 including for modified intents. A captured absent package is kept distinct from
@@ -140,3 +159,6 @@ Use the export action to write History entries to JSON. You can export the full
 history or only the currently filtered History view.
 
 The export is JSON and is suitable for later review, reporting, or external analysis.
+Exports and project databases can contain credentials, tokens, personal data, and
+other captured secrets. Noxen does not redact them automatically; review files before
+sharing them.
