@@ -252,8 +252,33 @@ base payload only; it does not rewrite an existing token's selector.
 For `onStartCommand` and `onBind`, manifest metadata remains attached to the hooked
 Class separately from any Component in the payload. A sticky restart can call
 `onStartCommand` with a null Intent; no component lookup is attempted on that absent
-object. The existing payload format does not yet distinguish null from an empty
-captured payload. No Intent is created to replace it.
+object. No Intent is created to replace it.
+
+### Null Intent versus empty Intent
+
+New captures explicitly record whether an Intent object was present. An absent object
+appears in Intercept and History as:
+
+```text
+[CAPTURED INTENT PAYLOAD]
+  Intent        : null (no Intent object)
+```
+
+Action, URI, MIME type, flags, selector, ClipData, and extras are not displayed as if
+they belonged to an empty object. Hook Class, Method, available component metadata,
+stack trace, and any PendingIntent flags remain visible.
+
+The Edit button is disabled for a recorded null Intent, and modification commands
+return an error without staging changes. The agent also rejects modifications to
+that hold. Forward and Drop remain available: forwarding preserves the original
+null argument or return value, while dropping retains the existing method-specific
+behavior of skipping the call or suppressing the returned Intent.
+
+An existing empty Intent remains editable. The presence indicator is preserved in
+project metadata and JSON exports without a database schema change. Old captures
+without it retain their previous display and behavior; an empty legacy payload is
+not retroactively classified as null. History search includes `null` and
+`no Intent object` for explicitly absent Intents.
 
 Unknown custom methods are not assigned Android routing semantics or implicit target
 lookups merely because one argument is an Intent.
