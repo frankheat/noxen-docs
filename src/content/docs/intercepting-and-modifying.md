@@ -60,7 +60,9 @@ the other field.
 
 The editor modifies the **base Intent**. If a selector or ClipData is present, its
 captured tree remains visible in a read-only section; its values are not reconstructed
-or edited. A separate Routing section shows the captured classification and the
+or edited. Activity events also show the base Component as a read-only field, with
+available exported and permission metadata. They do not show a Routing section.
+For other events, a separate Routing section shows the captured classification and the
 selector's role when available. Editing the base Action, Data URI or MIME
 type does not edit the selector or change ClipData's declared MIME types.
 Routing is labelled **Derived from capture**: it describes the intercepted Intent,
@@ -106,12 +108,12 @@ Each intercepted event is shown as a set of plain, aligned sections rather than 
 severity badge. The facts are presented and the researcher judges them:
 
 - `[HOOK]`: the hooked `Class` and `Method`.
-- `[ROUTING]`: derived metadata, separate from Android object fields. Sending
+- `[ROUTING]`: derived metadata, separate from Android object fields. Broadcast and service sending
   captures show `Mode`, `Source` when recorded, `Target` and any `Enforced Perm`.
   The selector's role is shown here as `ACTIVE`, `IGNORED`, or `REDUNDANT` when
   recorded. Resolution is not proof of delivery, and older captures do not acquire
   inferred source or selector-role metadata.
-- `[CAPTURED INTENT PAYLOAD]`: the captured `Component` (when non-null),
+- `[CAPTURED INTENT PAYLOAD]`: the captured `Component` (including `None` for new Activity captures),
   `Action`, `Data (URI)`, `MIME Type`, `Package` (only when the
   intent has one), `Flags`, and categories. `MIME Type` is distinct from
   explicit/implicit routing: it describes the content, such as `image/*` or
@@ -191,7 +193,8 @@ reason.
 
 For each event noxen queries Android's PackageManager and attaches the exposed
 component's facts as a small tree under the component **whose exposure matters**:
-the hooked `Class` for receiving methods, the resolved `Target` for sending methods:
+the hooked `Class` for receiving methods, the captured `Component` for Activity
+events, or the resolved `Target` for broadcast and service sends:
 
 ```
 Target        : com.example/.Receiver2
@@ -199,7 +202,8 @@ Target        : com.example/.Receiver2
                 └─ Required Permission : com.example.permission.CUSTOM (normal)
 ```
 
-- `Exported`: whether the component is reachable from other apps.
+- `Exported`: the component's exported flag. This alone does not prove that another
+  app can reach it; permissions and other Android checks still apply.
 - `Required Permission`: the permission a caller must hold to reach it (the component's
   own `android:permission`, falling back to the application-level one), with its
   **protection level** in parentheses (`normal` / `dangerous` / `signature` / …). The
@@ -208,20 +212,22 @@ Target        : com.example/.Receiver2
   [Unresolved permissions](/noxen-docs/info-app/#unresolved-permissions)). The line is
   omitted when the component requires no permission.
 
-Routing `Mode` is `EXPLICIT` for sends that name a component. Implicit sends say who can
-receive them: `IMPLICIT (package-scoped)` when the intent is limited to one app with
+For broadcast and service sends, routing `Mode` is `EXPLICIT` for sends that name a
+component. Implicit sends describe the package scope, not guaranteed delivery:
+`IMPLICIT (package-scoped)` when the intent is limited to one app with
 `setPackage()` (shown on the `Package` row), or `IMPLICIT (any app)` when any installed
 app with a matching filter can receive it. For a broadcast carrying sensitive extras,
 that is a potential data leak. Events captured before noxen recorded the package show a
 plain `IMPLICIT`.
 
-When an Intent has a selector, Android consults it only if the base Intent has no
-component. Noxen shows `Source: selector` and a `Mode` of `EXPLICIT`,
-`IMPLICIT (package-scoped)`, or `IMPLICIT (any app)`. If the base Intent already names a
-component, that component wins and the selector is not a fallback. The selector role is
-then `IGNORED (base component takes precedence)`, or `REDUNDANT (same component as
-base)` when both directly name the same component. Selector inspection is read-only;
-the Intercept editor shows it for context and continues to modify the base payload only.
+For Activity events, noxen shows the base Intent and selector as separate objects,
+without classifying the selector as active or ignored or predicting a destination.
+Each explicitly named Component has its own exported and permission metadata when
+PackageManager can read it. `Details: unavailable` means the lookup failed; it does
+not assert why. An absent Component stays `None`, and no implicit Activity target
+is queried. Older captures reuse stored target metadata only when its component
+matches the actual captured Component. No new resolution is performed on old data.
+Selector inspection remains read-only in the editor.
 
 ClipData inspection is also read-only. Captured items have fixed depth, item-count,
 node-count, and text-length limits. Omitted or unreadable values are indicated in the
@@ -231,22 +237,18 @@ fields, including nested Intents.
 For example, two different components remain visible without implying two destinations:
 
 ```text
-[ROUTING]
-  Mode          : EXPLICIT
-  Source        : base component
-  Selector      : IGNORED (base component takes precedence)
-  Target        : com.example/.ActivityA
-
 [CAPTURED INTENT PAYLOAD]
   Component     : com.example/.ActivityA
+                  └─ Exported            : false
 
 [SELECTOR]
   Component     : com.example/.ActivityB
+                  └─ Exported            : true
 ```
 
-The `Target` resolves to the addressed component, `… (resolved)` for implicit intents,
+For broadcast and service events, `Target` shows the addressed component, `… (resolved)` for implicit intents,
 `(resolved) N receivers` for implicit broadcasts matching several receivers,
-`(unresolved)` when no activity or service matches, or `… (couldn't read: not visible)`
+`(unresolved)` when no service matches, or `… (couldn't read: not visible)`
 when Android package visibility hides a third-party target. Broadcast targets are
 looked up among manifest receivers only: when none matches, the target reads
 `(no manifest receiver); dynamic receivers are not visible`, because receivers
