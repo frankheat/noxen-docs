@@ -132,6 +132,19 @@ editable inputs with horizontal scrolling.
 The view shows the full key retained in the capture, not characters already omitted
 by the agent's separate capture limits described below.
 
+Values containing line breaks, tabs, control characters or bidirectional overrides
+show a quoted, escaped preview marked **Read-only · escaped value**. This is only
+a display representation: opening the editor or forwarding unchanged preserves
+the original characters, line endings and Java type. These values cannot be edited
+inline, but can still be removed or explicitly replaced. This also applies to
+string array/list values containing these characters.
+
+Pasting such text into an editable Value field is rejected with **Value not
+inserted**, leaving the field and its selection unchanged. Both terminal paste and
+the internal clipboard use this rule; no first-line-only paste or automatic
+replacement of line breaks with spaces takes place. Ordinary one-line strings,
+including quotes, backslashes and printable Unicode, retain their literal meaning.
+
 The Flags field also shows the requested URI grant bits (`READ`, `WRITE`,
 `PERSISTABLE`, `PREFIX`) when relevant. This hint follows the editor draft and command
 changes, not just the initial capture. Invalid flag input is marked unavailable
