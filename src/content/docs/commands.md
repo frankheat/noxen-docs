@@ -36,6 +36,8 @@ regardless of whether it came from a command or from the form.
 | Command | Meaning |
 |---|---|
 | `action <value>` | Set the intent action |
+| `component <package/class>` | Set the base Intent Component, for example `component dev.example/.MainActivity` |
+| `component clear` | Remove the base Intent Component; leave its selector and package unchanged |
 | `data <uri>` | Set the data URI |
 | `mime <type>` | Set the MIME type, for example `mime application/pdf` |
 | `mime clear` | Remove the MIME type |

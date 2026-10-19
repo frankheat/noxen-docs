@@ -58,6 +58,7 @@ captured event remains available in History.
 | Field | UI action |
 |---|---|
 | Action | Edit the action value |
+| Component | Edit `package/class`, or empty the field to remove it |
 | Data URI | Edit the data value |
 | MIME Type | Edit or clear the content type, such as `image/*` or `application/pdf` |
 | Category | Add or remove a category row |
@@ -70,8 +71,8 @@ the other field.
 
 The editor modifies the **base Intent**. If a selector or ClipData is present, its
 captured tree remains visible in a read-only section; its values are not reconstructed
-or edited. Activity, broadcast, and service events also show the base Component as a read-only field, with
-available exported and permission metadata. They do not show a Routing section.
+or edited. The base Component is editable, with available exported and permission
+metadata below it. Activity, broadcast, and service events do not show a Routing section.
 Editing the base Action, Data URI or MIME
 type does not edit the selector or change ClipData's declared MIME types.
 Changing Action, Data URI or MIME type does not re-query PackageManager or predict
@@ -81,6 +82,43 @@ The editable Base Intent, Categories and Extras sections are grouped together, f
 by separate read-only Selector and ClipData sections when present. Section headings
 share one style, and top-level labels and values use aligned columns. Indentation
 is reserved for nested objects, not for the selector's own fields.
+
+### Changing Component
+
+Commands are applied to the draft before its resulting values are validated. A
+valid `component` command can therefore replace an invalid Component field;
+removing or replacing an extra can likewise repair its invalid value or duplicate
+key. If another invalid field remains, the command is rejected without changing
+the editor's contents. Relative flag commands still require a valid starting mask.
+
+Use `package/class`, either `dev.example/.Activity2` or
+`dev.example/dev.example.Activity2`. A class may also belong to a different Java
+package, such as `dev.example/other.package.Activity2`. Relative class names are
+expanded before applying. The component does not have to appear in Info app's
+inventory; syntax validation does not prove that it exists or is accessible.
+
+The command bar accepts `component dev.example/.Activity2` and `component clear`.
+Inside the editor, these commands update the same draft as the Component field.
+Emptying that field removes the component. Cancel edit discards the change.
+Selector, ClipData and the base Intent's package restriction remain unchanged.
+
+Before an outgoing call, modifying Component can change the requested recipient,
+subject to Android's normal access checks. In receiving hooks such as `getIntent()`
+or `onReceive()`, delivery has already been selected: the modification changes the
+field read or reused by the app, not the component currently executing. Class and
+its captured permissions therefore continue to describe the original receiving
+component. PendingIntent hooks edit the factory's input Intent, not the contents
+of an already existing PendingIntent token.
+
+Exported and Required Permission are captured metadata, not live lookups while
+typing. A different Component never inherits the old component's permissions:
+its details are unavailable unless matching captured metadata exists. History's
+modified payload, Component change and JSON export use the agent-observed result,
+not a prediction from the requested name. Previous projects need no migration.
+
+Android reference: [Intent.setComponent](https://developer.android.com/reference/android/content/Intent#setComponent(android.content.ComponentName)).
+
+### Extra editing
 
 Extra keys wrap within a shared, bounded-width column; Type, Value and the remove
 button stay aligned at the top of each row. Existing keys longer than 96 characters
@@ -233,8 +271,8 @@ Component     : com.example/.Receiver2
 For Activity, broadcast, and service events, noxen shows the base Intent and selector as separate objects,
 without classifying the selector as active or ignored or predicting a destination.
 Each explicitly named Component has its own exported and permission metadata when
-PackageManager can read it. `Details: unavailable` means the lookup failed; it does
-not assert why. An absent Component stays `None`, and no implicit target
+PackageManager can read it. `Details: unavailable` means matching readable component
+metadata is not available; it does not assert why. An absent Component stays `None`, and no implicit target
 is queried. Older captures reuse stored target metadata only when its component
 matches the actual captured Component. No new resolution is performed on old data.
 Selector inspection remains read-only in the editor.
@@ -352,8 +390,8 @@ broadcast send, and has no such argument. Its requested Intent does not prove th
 contents of an existing token or its future delivery.
 
 In the editor, Receiver Perm is read-only context above Base Intent. The base Component
-and selector remain read-only too; editing the payload does not recalculate recipients
-or change the permission argument. No new registration hooks are installed.
+is editable; the selector remains read-only. Changing Component does not change the
+permission argument or predict delivery. No new registration hooks are installed.
 
 ## Passive capture
 
