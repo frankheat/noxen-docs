@@ -45,6 +45,12 @@ not `null`. Older versions stored zero as `NULL`, so an old `null` value cannot
 reliably distinguish zero from an unavailable field. Opening an older project
 does not guess or rewrite those values.
 
+Intent details distinguish an observed empty string (`""`) from an absent field
+(`None`), including selector and nested Intent fields. Newly saved captures preserve
+an empty MIME string across project reopen and JSON export. Older project versions
+stored empty and absent MIME values identically; that lost distinction cannot be
+recovered and existing rows are not guessed or rewritten.
+
 ## Search
 
 Type in the search field to filter visible rows in real time. The search matches

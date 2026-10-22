@@ -118,6 +118,21 @@ not a prediction from the requested name. Previous projects need no migration.
 
 Android reference: [Intent.setComponent](https://developer.android.com/reference/android/content/Intent#setComponent(android.content.ComponentName)).
 
+### Categories and empty fields
+
+Opening the editor does not normalize captured categories: leading/trailing spaces,
+whitespace-only categories and existing empty categories are preserved exactly.
+An empty captured category shows an `"" (empty category)` placeholder and can be
+removed with its remove control. A new category row left empty is ignored; clearing
+a previously non-empty row removes that category. Duplicate checks compare exact
+values, so `example.CUSTOM` and ` example.CUSTOM ` are distinct categories.
+
+Leaving a captured empty Action, Data URI or MIME field unchanged preserves its
+empty string, including when another field is edited. Commands keep their existing
+syntax and clearing behavior; for example, `mime clear` explicitly clears an empty
+MIME string to `null`. Quotation marks used to display empty strings are not inserted
+into the Intent.
+
 ### Extra editing
 
 Extra keys wrap within a shared, bounded-width column; Type, Value and the remove
