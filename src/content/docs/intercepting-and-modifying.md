@@ -274,6 +274,8 @@ and categories containing controls are also read-only escaped previews in the
 editor; forwarding or changing another field does not rewrite those previews into
 the Intent. Modification commands can explicitly replace or remove supported
 values, with exact Java string construction when a NUL is present.
+The native string type check keeps its Java class reference alive until the check
+returns and releases it on success or failure.
 
 Malformed UTF-16 (an unpaired surrogate) is reported as a read error instead of
 being sent as raw text through Frida. A malformed extra value does not prevent
