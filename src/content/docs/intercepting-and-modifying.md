@@ -121,7 +121,9 @@ Android reference: [Intent.setComponent](https://developer.android.com/reference
 ### Extra editing
 
 Extra keys wrap within a shared, bounded-width column; Type, Value and the remove
-button stay aligned at the top of each row. Existing keys longer than 96 characters
+button stay aligned at the top of each row. Type uses a compact shared column,
+leaving more space for Value; its open menu is slightly wider so all type names
+remain readable. Existing keys longer than 96 characters
 show a shortened preview ending in a theme-muted ellipsis, with a separate
 **View full key** button below it. The ellipsis is not part of the key.
 Use this button, click a wrapped or truncated key, or focus it and press Enter, to
