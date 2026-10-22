@@ -244,12 +244,29 @@ Noxen therefore uses a strict allowlist instead of reflecting over arbitrary obj
   captured Intent.
 
 Traversal has fixed safety limits: 8 nested levels, 50 entries per container, 300
-nodes per captured Intent, and 2048 characters per string. The tree reports omitted,
+nodes per captured Intent, and 2048 UTF-16 code units per string. A valid surrogate
+pair, such as an emoji, is never split at the capture limit. The tree reports omitted,
 truncated, unreadable, and opaque values explicitly. These limits are intentionally
 internal rather than user settings so that rendering work remains predictable.
 Top-level extra counts, omissions, and read errors are saved with new captures,
 so reopening a project does not remove these warnings. This does not recover
 values omitted during capture or metadata not saved by older versions.
+
+Embedded NUL characters do not end a captured string: keys and values retain the
+text after them, including inside arrays, lists, nested Intents, and ClipData.
+Terminal controls are displayed as escapes, not executed. Captured base fields
+and categories containing controls are also read-only escaped previews in the
+editor; forwarding or changing another field does not rewrite those previews into
+the Intent. Modification commands can explicitly replace or remove supported
+values, with exact Java string construction when a NUL is present.
+
+Malformed UTF-16 (an unpaired surrogate) is reported as a read error instead of
+being sent as raw text through Frida. A malformed extra value does not prevent
+reading other entries. If a Bundle key cannot be represented safely, inspection of
+that Bundle stops with an explicit warning rather than inventing an editable key.
+Unreadable or truncated base string fields carry warnings saved with the project.
+Malformed replacement strings are rejected rather than silently shortened. These
+capture safeguards do not change the original Java values on an unmodified Forward.
 
 The original top-level `type`, `value`, and editable type metadata remain in the
 capture format. Existing project files remain readable, and supported top-level
