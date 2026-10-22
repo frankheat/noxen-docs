@@ -50,6 +50,10 @@ Spawn is the default.
 
 The target dropdown lists processes or packages available on the selected device for the
 chosen mode. Use the refresh button (↺) to reload it.
+Changing the device or mode, or refreshing the list, clears the previous targets
+while the new list loads. Only the latest request can update the dropdown or its
+error message. A failed or empty lookup leaves no stale targets to connect to;
+refresh the list to retry. These changes do not disconnect an active session.
 
 ### Hook config and Extra script
 
