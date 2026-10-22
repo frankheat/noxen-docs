@@ -30,6 +30,9 @@ noxen scans for connected Frida-compatible devices on startup. The first USB dev
 found is selected automatically when no valid selection is retained. USB and remote
 devices are preferred to the local host. Use the refresh button (↺) to rescan,
 including after starting an emulator that was not running when noxen opened.
+Each rescan starts a fresh discovery context, so an initially unavailable ADB
+server does not require restarting noxen. Connections keep their own discovery
+context: refreshing the device list does not disconnect an active session.
 
 ### Mode
 
