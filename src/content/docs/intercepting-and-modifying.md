@@ -8,6 +8,17 @@ waits for you to forward, modify, or drop it. Events observed with interception 
 or while another event is already held, are recorded in History without becoming
 another active Intercept decision.
 
+Only the thread reaching the hook waits; the rest of the app and other processes
+can continue running. A notification alone does not release that thread: it waits
+for an explicit Forward, Drop, or Intercept Off decision. If application code
+interrupts the waiting thread, noxen continues waiting and restores its interrupt
+status when the hold ends. The first accepted decision cannot be replaced by a
+later request for the same interception.
+
+Pausing a thread does not pause Android's deadlines for input, broadcast receivers,
+or services. Long holds can cause an ANR even if the thread resumes successfully.
+The optional Input ANR bypass is experimental and does not cover all these deadlines.
+
 The UI provides the normal workflow through buttons and edit controls. The command bar
 is optional and can be hidden when you do not need keyboard-driven shortcuts.
 
@@ -52,6 +63,12 @@ If you drop the intent, staged modifications are discarded with that block.
 If the target process terminates or the session disconnects, noxen clears the active
 Intercept state because the blocked thread and its decision are no longer valid. The
 captured event remains available in History.
+
+A normal noxen disconnect attempts to release the held call. If the controller
+crashes or communication is lost abruptly, release is not guaranteed: noxen does
+not automatically forward or drop after a timeout. The target may remain blocked
+and require a restart. Clearing the local Intercept view is not proof that the
+target thread was released.
 
 ## What can be changed
 
