@@ -12,11 +12,13 @@ The built-in **WebView** profile observes `loadUrl` (both overloads), `postUrl`,
 and `removeJavascriptInterface`.
 
 The built-in **Content Provider** profile observes `ContentResolver.query`,
-`call`, `openInputStream` and `openFileDescriptor`, including their public
-overloads. Details label the URI or authority, command, and mode where applicable.
-Known framework URI types display their string values. Bundles, cursors, streams
-and descriptors stay opaque. A returned cursor or descriptor says the call
-returned an object. Monitor does not read its contents.
+`call`, `insert`, `update`, `delete`, `openInputStream`, `openOutputStream`,
+`openFileDescriptor` and `openTypedAssetFileDescriptor`, including their public
+overloads where available. Details show the URI or authority, command, mode or
+MIME filter where applicable. An insert shows its returned URI. Updates and
+deletes show the reported row count. Known framework URI types display their
+string values. ContentValues, bundles, cursors, streams and descriptors stay
+opaque.
 
 Known forwarding calls between overloads on the same resolver and thread appear
 once in this profile, with the outer call's arguments and outcome. A custom
@@ -33,14 +35,15 @@ A normal return records that the call completed. Monitor does not check the
 resulting permissions or infer grants issued during Intent or ClipData delivery.
 
 The built-in **File** profile observes path-based constructors of
-`FileInputStream`, `FileOutputStream` and `RandomAccessFile`. Details show the
-path supplied by the app, the opening mode, the append option when applicable,
-and the outcome. A standard `File` object contributes its stored path without
-filesystem lookup or canonicalization. Known constructor delegation on the same
-instance and thread is folded into the outer event. Independent calls to the same
-path are recorded separately.
+`FileInputStream`, `FileOutputStream` and `RandomAccessFile`, plus `File.delete`,
+`File.renameTo` and the path-to-path variants of `Files.copy` and `Files.move`.
+Details show paths, opening mode or copy options when applicable, and the
+returned value or exception. Standard Android `File` and `Path` objects
+contribute their stored paths without filesystem lookup or canonicalization.
+Known constructor delegation on the same instance and thread is folded into
+the outer event. Independent calls to the same path are recorded separately.
 
-This profile observes opening a path. Read and write operations, constructors
+Stream reads and writes, constructors
 that wrap an existing descriptor, and native file access are outside its scope.
 A successful non-append opening can truncate an existing file before the
 application writes any bytes.
@@ -131,7 +134,8 @@ saved in the current project, including enabled selections.
 When a built-in profile is missing default hooks, **Restore missing hooks** above
 the hook table shows how many it can add and asks for confirmation. It keeps the
 existing hooks, their capture options, their order, and the profile's enabled
-state.
+state. Use it on existing projects to add newly shipped hooks to a built-in
+profile.
 If you delete an entire built-in profile, open **Profiles → ⋯ → Restore profiles** and
 choose it from the list. The restored profile starts disabled with its default
 hooks. The menu is also available from **All hooks** when built-in profiles are
