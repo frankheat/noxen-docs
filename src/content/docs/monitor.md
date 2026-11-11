@@ -180,39 +180,28 @@ termination can therefore leave no event. A normal return does not prove an
 asynchronous operation completed. Callbacks and WebView navigation results are
 not part of the initial profile.
 
-The live view keeps the latest 2,000 Monitor events in memory while noxen is
-open, including across connections. Search covers those events, and the table
-shows the latest 200 matches. **Clear events** clears the live view.
+## Project history
 
-The agent queues up to 512 events and sends up to 32 every 100 ms. Events that
-exceed the agent or UI queue capacity count as lost. The status counts older
-events removed from the 2,000-event collection separately. A disconnected
-process can lose its final unflushed batch without a loss report.
+Monitor automatically saves received events in the `.noxen` project, including
+captured arguments and return values. Reopen the project to browse previous
+events alongside newly captured calls. Details show the target when it was
+recorded.
 
-## Record in a project
+Search covers all saved Monitor events. The table shows the latest 200 matches
+first. Use **Older** and **Newer** to move between pages. **Clear events**
+deletes the Monitor history for the current project. Intent History has its
+own clear action.
 
-Select **Record to project** in **Monitor → Events** to save newly received events
-automatically in the `.noxen` file. Recording is off by default, and the project
-remembers your choice. Arguments and return values may contain sensitive data.
-The status line indicates when recording is active or paused.
+The agent queues up to 512 events and sends up to 32 every 100 ms. The status
+line reports known losses when the agent or UI queue overflows. A disconnected
+process can lose its final unflushed batch.
 
-Use the selector next to **Record to project** to open a saved recording.
-Search covers the entire recording and displays results in pages of up to 200
-events. Choose **Live events** to return to the current feed. A recording can
-span several target connections, and details show the target of each event.
-Use **Stop recording** to finish the current recording, or **Delete** to
-remove a selected recording from the project.
-
-Monitor writes events in batches in the background. On **Quit**, noxen asks the
-connected agent for its remaining events and commits the pending batches before
-exiting. If a write fails, you can retry or exit with the data already saved.
-A crash or forced exit can lose events still in memory. The saved portion of an
-interrupted recording is marked **Incomplete**, and known capture losses and
-events that could not be saved are shown separately.
-
-Saved Monitor event data is limited to 32 MiB per project. When the limit is
-reached, recording pauses and the live view continues. Delete a saved recording
-to free capacity, then select **Retry save** in the live view.
+Monitor writes batches in the background. On **Quit**, noxen asks the agent for
+its remaining events and commits the pending batches. If a write fails, noxen
+reports the error and retries automatically while the app stays open. During
+Quit, you can retry or exit with the data already saved. A crash or forced exit
+can lose events still in memory. The status line reports incomplete captures
+when you reopen the project.
 
 Monitoring changes timing and adds overhead, especially with stack capture.
 Enable only relevant profiles. Temporal proximity to an Intent is not evidence
