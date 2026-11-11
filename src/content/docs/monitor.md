@@ -107,6 +107,8 @@ Select **All hooks** at the top for a read-only list of methods across all
 profiles, including disabled profiles. Each row shows its profile, hook state
 and full Java signature. Scroll horizontally with **Left** and **Right** when
 a signature extends beyond the window. Select a profile to edit its hooks.
+Click a hook table column heading to sort by that column. Click it again to
+reverse the order. The arrow shows the current direction.
 Open **Events** to search and inspect captured calls. Select a hook in **Profiles**
 and choose **Details** to see its full signature and any installation error. Profiles
 can be prepared before connecting. Enabled profiles are requested during session
