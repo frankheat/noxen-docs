@@ -189,7 +189,8 @@ event within the project. Details show the target when it was recorded.
 
 Search covers all saved Monitor events. The table shows the newest events first
 and loads more as you scroll. Click a column heading to sort the full result
-set, or click it again to reverse the order. Press **Ctrl+L** in
+set, or click it again to reverse the order. Use **Alt+↑** to expand the event
+detail pane and **Alt+↓** to shrink it. Press **Ctrl+L** in
 **Monitor → Events** to clear the Monitor history for the current project.
 The shortcut applies to Intent History when that tab is active.
 
