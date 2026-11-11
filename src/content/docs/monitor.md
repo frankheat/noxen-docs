@@ -123,12 +123,17 @@ past calls. Configuration controls are disabled while a connection is starting.
   such as `int[]` and `java.lang.String[]`, and Frida descriptors, are accepted.
 - Whether to capture arguments, return values and a stack of up to 16 frames.
 
-Use **Edit** and **Remove** above the hook table. The **⋯** menu above the
-profile list contains **Rename** and **Delete profile**. Changes are saved in the
-current project, including enabled selections.
-When a built-in profile is missing default hooks, **Restore missing hooks** in the same menu
-shows how many it can add and asks for confirmation. It keeps the existing
-hooks, their capture options, their order, and the profile's enabled state.
+Use **Edit** and **Remove** above the hook table. The **⋯** menu
+above the profile list contains **Rename** and **Delete profile**. Changes are
+saved in the current project, including enabled selections.
+When a built-in profile is missing default hooks, **Restore missing hooks** above
+the hook table shows how many it can add and asks for confirmation. It keeps the
+existing hooks, their capture options, their order, and the profile's enabled
+state.
+If you delete an entire built-in profile, open **Profiles → ⋯ → Restore profiles** and
+choose it from the list. The restored profile starts disabled with its default
+hooks. The menu is also available from **All hooks** when built-in profiles are
+missing.
 Opening a project does not connect automatically. There is currently no profile
 import/export dialog. Limits: 32 profiles and 128 configured hooks.
 
