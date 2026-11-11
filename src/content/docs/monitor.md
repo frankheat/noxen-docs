@@ -101,7 +101,12 @@ Built-in profiles start disabled. Other API families can be added as custom prof
 
 **Monitor → Profiles** lists every profile on the left. A check mark in the
 **On** column identifies enabled profiles. Select a row to see its hooks on the
-right. Use **Enable**, **Disable**, or press **Space** while the list has focus.
+right. Click the profile's **On** cell, press **Space** while the list has
+focus, or use **Enable** or **Disable** in the **⋯** menu.
+Select **All hooks** at the top for a read-only list of methods across all
+profiles, including disabled profiles. Each row shows its profile, hook state
+and full Java signature. Scroll horizontally with **Left** and **Right** when
+a signature extends beyond the window. Select a profile to edit its hooks.
 Open **Events** to search and inspect captured calls. Select a hook in **Profiles**
 and choose **Details** to see its full signature and any installation error. Profiles
 can be prepared before connecting. Enabled profiles are requested during session
@@ -109,7 +114,7 @@ startup, but installation may wait for the Java runtime and app class loader.
 This does not guarantee capture of every early startup call. Attach cannot recover
 past calls. Configuration controls are disabled while a connection is starting.
 
-**New profile** creates a named profile. **Add hook** asks for:
+**New profile** creates a named profile. **+ Add** above the hook table asks for:
 
 - The full Java class name.
 - The method name, or `$init` for a constructor.
@@ -118,9 +123,10 @@ past calls. Configuration controls are disabled while a connection is starting.
   such as `int[]` and `java.lang.String[]`, and Frida descriptors, are accepted.
 - Whether to capture arguments, return values and a stack of up to 16 frames.
 
-Use **Edit hook**, **Remove hook**, **Rename** and **Delete profile** to maintain
-profiles. Changes are saved in the current project, including enabled selections.
-When a built-in profile is missing default hooks, **Restore missing hooks**
+Use **Edit** and **Remove** above the hook table. The **⋯** menu above the
+profile list contains **Rename** and **Delete profile**. Changes are saved in the
+current project, including enabled selections.
+When a built-in profile is missing default hooks, **Restore missing hooks** in the same menu
 shows how many it can add and asks for confirmation. It keeps the existing
 hooks, their capture options, their order, and the profile's enabled state.
 Opening a project does not connect automatically. There is currently no profile
@@ -134,7 +140,7 @@ import/export dialog. Limits: 32 profiles and 128 configured hooks.
 - **Error**: installation failed or a detectable hook conflict exists.
 - **Pending**, **Disabled**, **Not connected** describe configuration/session state.
 
-**Retry hooks** retries the enabled configuration, useful after loading another
+**Retry hooks** in the **⋯** menu retries the enabled configuration, useful after loading another
 module. Custom class-loader selection and automatic discovery of subclasses are
 not supported. Hooking a base method does not observe overriding implementations
 that do not call it. A method in another process is outside this session.
