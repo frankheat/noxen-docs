@@ -184,13 +184,13 @@ not part of the initial profile.
 
 Monitor automatically saves received events in the `.noxen` project, including
 captured arguments and return values. Reopen the project to browse previous
-events alongside newly captured calls. Details show the target when it was
-recorded.
+events alongside newly captured calls. The **ID** column identifies each saved
+event within the project. Details show the target when it was recorded.
 
 Search covers all saved Monitor events. The table shows the latest 200 matches
-first. Use **Older** and **Newer** to move between pages. **Clear events**
-deletes the Monitor history for the current project. Intent History has its
-own clear action.
+first. Use **Older** and **Newer** to move between pages. Press **Ctrl+L** in
+**Monitor → Events** to clear the Monitor history for the current project.
+The shortcut applies to Intent History when that tab is active.
 
 The agent queues up to 512 events and sends up to 32 every 100 ms. The status
 line reports known losses when the agent or UI queue overflows. A disconnected
