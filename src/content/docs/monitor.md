@@ -314,7 +314,7 @@ Monitor writes batches in the background. On **Quit**, noxen asks the agent for
 its remaining events and commits the pending batches. If a write fails, noxen
 reports the error and retries automatically while the app stays open. During
 Quit, you can retry or exit with the data already saved. A crash or forced exit
-can lose events still in memory. The status line reports incomplete captures
+can lose events still in memory. The Events footer reports incomplete recordings
 when you reopen the project.
 
 Monitoring changes timing and adds overhead, especially with stack capture.
