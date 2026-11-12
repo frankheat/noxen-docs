@@ -2,21 +2,18 @@
 title: "Troubleshooting"
 ---
 
+Use this page to diagnose connection failures, missing captures, or an
+unresponsive target. Start with the symptom you see in noxen.
+
 ## `Connection failed`
 
-The Home tab shows a concise error when the initial session cannot be established. Open
-the Log tab for the underlying Frida error.
+If Home reports a failed connection, open Log to read the Frida error. Check
+that `frida-server` is running, that noxen can reach the device, and that the
+host and device versions match. For Attach, also check that the process is
+still running and that you selected the correct name or PID.
 
-Check:
-
-- `frida-server` is running on the Android device.
-- The device is reachable.
-- The app name, package name, or PID is correct.
-- Host and device Frida versions are compatible.
-- The target process is alive.
-
-Try spawn mode if attach mode misses early startup behavior: select **Spawn** in the
-Mode dropdown on the Home tab before connecting.
+If Attach succeeds but you miss an early startup call, reconnect in **Spawn**
+mode and trigger the behavior again.
 
 ## `noxen` command is not found
 
@@ -99,6 +96,10 @@ A null Intent is not intentionally hidden: new captures show
 `Intent: null (no Intent object)`. Edit is disabled for that event, but Forward and
 Drop remain available when it is the active block.
 
+If Log reports **Auto-forward failed** and the target stays blocked, turn interception
+off to attempt release. If the connection has already been lost, the target may need
+a restart.
+
 ## App becomes not responding
 
 This usually means a hooked thread was blocked too long.
@@ -159,11 +160,8 @@ Try:
 - Toggle the theme from the UI or command bar.
 - Restart the session if the terminal was resized aggressively.
 
-If `Alt+Up` / `Alt+Down` resize the terminal window rather than a noxen panel, the
-terminal or desktop is consuming the shortcut before it reaches noxen. Adjust that
-external binding if desired; noxen cannot handle a key event it never receives.
-Its panel-resize shortcuts are offered only in relevant views, including Info app
-> Components, not Permissions.
+If a key combination acts on the terminal window, check the terminal or desktop
+keyboard bindings. They may be intercepting it before it reaches noxen.
 
 If a command bar is missing, press `Ctrl+B` in Intercept or History. Visibility is
 saved independently for the two tabs in the user's settings, including across restarts.

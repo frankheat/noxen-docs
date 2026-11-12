@@ -2,84 +2,66 @@
 title: "Quick start"
 ---
 
-This page shows a short path to a live interception session.
+This guide walks you through connecting to an Android app, inspecting an Intent,
+and reviewing the capture in History. You can use noxen playground as a test
+target. [noxen playground](../noxen-playground/)
 
 ## Before you start
 
-Make sure the host dependencies are installed and `frida-server` is running on the
-Android device or emulator. See [Installation](https://frankheat.github.io/noxen-docs/installation/) if this is not ready.
+Install noxen and start `frida-server` on your Android device or emulator.
+[Installation](../installation/)
 
 ## Start a live session
 
-Launch noxen:
+Run `noxen` in your terminal. If the command is unavailable, try `python -m noxen`
+in the environment where you installed it.
 
-```bash
-noxen
-```
+1. On the Home tab, select your device.
+2. Choose **Spawn** to start the app, or an **Attach** mode to connect to a running process.
+3. Select the target and press **Connect**.
 
-If the shell cannot find the installed command, run:
-
-```bash
-python -m noxen
-```
-
-The Home tab opens. Select your device, choose a mode (Spawn, Attach by name, or
-Attach by PID), pick the target app from the dropdown, and press **Connect**.
-
-noxen waits for the agent's hook registration report before marking the session
-connected. If no hook can be registered, connection setup fails and the reason appears
-in the Log tab. If only some hooks register, the session remains usable but the top
-bar shows a persistent warning; check the Log tab for the affected methods. The
-top bar reports how many hooks registered. A registration report does not prove
-that every hook will fire on a particular Android runtime, so validate important
-custom hooks with a known test call.
-
-If you want a controlled target while learning or testing changes, use the companion
-[noxen playground](https://frankheat.github.io/noxen-docs/noxen-playground/) app.
+noxen opens Intercept when the agent is ready. If a connection fails or a hook
+warning appears, open Log to see which methods registered and which failed.
+[Connection troubleshooting](../troubleshooting/#connection-failed)
 
 ## Handle the first intercepted intent
 
-When noxen intercepts an intent, the Intercept tab becomes the decision point.
-
-Use **Forward** to let the app continue, or **Drop** to suppress the intercepted
-event. The buttons are the normal workflow; the command bar is only an optional
-shortcut.
+Trigger an action in the target app. When an Intent appears in Intercept, choose
+**Forward** to continue or **Drop** to suppress the hooked call or result.
+[Forward or drop](../intercepting-and-modifying/#forward-or-drop)
 
 ## Modify an intent
 
-Use the edit controls in the Intercept tab to change action, data, MIME type, categories, flags,
-or extras. Changes are staged and take effect only when you forward the current
-intent. The visual editor and command bar always show and modify the same draft;
-canceling the editor discards all pending changes from both.
-Selector and ClipData are shown read-only; editing the base Intent does not edit
-their nested contents. A recorded null Intent can be forwarded or dropped but
-cannot be edited.
+Open the editor on a held Intent and change a field, such as the action or data
+URI. Choose **Apply & Forward** to apply your changes and let the call continue.
+Choose **Cancel edit** to discard the draft and keep the Intent held.
+[Intercepting and modifying](../intercepting-and-modifying/)
 
 ## Reduce noisy traffic
 
-Add Intercept filters from the filter UI when framework traffic produces too many
-blocks. Filters have their own rule syntax, so they are documented separately with
-examples:
-
-[Filters](https://frankheat.github.io/noxen-docs/filters/)
-
-Intercept filters decide whether a captured intent is stopped in the Intercept tab.
-History still records captured intents before Intercept filtering.
+If framework calls keep interrupting your test, add an Intercept filter. For
+example, a focus rule for `method=onReceive` lets you stop matching receiver calls
+while other captured events proceed. You can still review those events in History.
+[Filter rules and examples](../filters/)
 
 ## Review captured intents
 
-Open the History tab to inspect everything captured by the Python side, including
-intents auto-forwarded by filters or observed while interception was off.
+Open History and select a capture to inspect its payload and outcome. If you
+forwarded an edited Intent, the detail shows the changes the agent observed.
 
 ## Use a project file
 
-Use a project file when you want the session history and UI state to survive restart.
-Pass `--project` or `--new-project` when launching:
+To give a new project a recognizable name, run:
 
 ```bash
 noxen --new-project session
+```
+
+To review the same project later, run:
+
+```bash
 noxen --project session.noxen
 ```
 
-Continue with [Intercepting and modifying](https://frankheat.github.io/noxen-docs/intercepting-and-modifying/), [Filters](https://frankheat.github.io/noxen-docs/filters/),
-or [History and projects](https://frankheat.github.io/noxen-docs/history-and-projects/) depending on what you need next.
+You can browse saved captures without connecting to the target again.
+[History and projects](../history-and-projects/)

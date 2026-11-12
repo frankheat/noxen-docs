@@ -2,16 +2,9 @@
 title: "Commands"
 ---
 
-The command input is optional. The TUI also provides buttons, filters, edit controls,
-and dialogs for the same workflow.
-
-Use this page as a reference when you prefer keyboard-driven testing, want faster
-repetition, or need exact command syntax.
-
-Commands are divided into two groups:
-
-- bare commands affect the current intercepted intent;
-- slash commands affect app state, tab state, filters, exports, or settings.
+Use the command bar to edit a held Intent, filter captures, or export results.
+Enter an Intent command such as `forward` while Intercept is holding an event.
+Commands that control noxen, such as `/search` and `/export`, start with a slash.
 
 ## Intent actions
 
@@ -24,9 +17,9 @@ These commands are available when an intent is actively blocked in the Intercept
 
 ## Intent modifications
 
-Modifications are staged. They are applied only when you forward the current intent.
-When the intent is forwarded, the same staged changes are reflected in History and in
-the project database.
+Modification commands update the draft. noxen applies your edits when you
+forward the Intent. History shows the result the agent observed and reports
+partial or unconfirmed edits.
 
 The command bar and visual editor share the same draft. When the editor is open, a
 modification command updates it immediately. Opening the editor after entering commands

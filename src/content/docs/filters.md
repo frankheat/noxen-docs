@@ -2,14 +2,13 @@
 title: "Filters"
 ---
 
-Filters reduce noise without changing the data stored in History. noxen has two
-independent filter sets:
+Use filters to decide which events to stop during a test or which captures to
+show in History. Each tab has its own set of rules.
 
 - Intercept filters decide whether a captured intent stops in the Intercept tab.
 - History filters decide which stored rows are displayed in the History tab.
 
-Filters can be managed from the UI or from the command input. The examples below use
-commands because they are compact and easy to copy.
+You can add rules from the **Filters** dialog or enter the commands below.
 
 ## Rule types
 
@@ -23,15 +22,15 @@ a focus rule to be shown. Ignore rules do not matter in that case.
 
 ## Rule format
 
-Each rule is made of one or more `key=value` pairs:
+A rule contains one or more `key=value` pairs. The last example matches only
+calls to `getIntent` on `com.example.MainActivity`, because an event must satisfy
+every pair in a rule.
 
 ```text
 /filter add ignore class=*ContextThemeWrapper
 /filter add focus method=sendBroadcast
 /filter add ignore class=com.example.MainActivity method=getIntent
 ```
-
-Multiple key/value pairs in the same rule are AND-ed together.
 
 ## Valid keys
 
@@ -89,22 +88,10 @@ are not dedicated filter keys.
 When an Intercept filter hides an intent, the tool auto-forwards it. The intent is still
 stored in History before the filter decision is applied.
 
-This design preserves the audit trail while keeping the active Intercept tab focused.
-
 ## History filter behavior
 
 History filters never affect the target app. They only change the rows shown in the UI
 and the result of `/export filtered entries`.
-
-## Filter count indicator
-
-The footer bar on the Intercept and History tabs shows the number of active filters on
-the right side. The count reflects the filter set of the current tab:
-
-- `Filters: 3`: three enabled filters
-- `Filters: 2/3`: two of three filters are enabled (one is toggled off)
-
-The indicator is hidden on other tabs.
 
 ## Saving filters
 

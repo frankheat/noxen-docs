@@ -127,6 +127,11 @@ identifies whether each affected entry came from the bundled defaults or the
 custom file. If no custom hook could be installed, noxen emits an explicit
 warning.
 
+Hooks observe the attached process. A component running in a separate process needs
+its own attachment. An override that skips a hooked base method, or a call that
+takes a different overload or a native path, can bypass that hook. Verify coverage
+with a known call on the target device.
+
 The project stores the selected file path, not a copy of the JSON content. Keep
 the file available at that path when reopening the project. Paths selected with
 Browse are normalized to absolute paths.

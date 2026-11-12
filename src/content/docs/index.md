@@ -2,60 +2,26 @@
 title: "Overview"
 ---
 
-noxen is an Android runtime interception tool for security research. Its main goal is
-to help you map how an app's components communicate at runtime and how that
-communication can become an attack surface.
-
-It uses Frida to hook selected Java methods such as `getIntent()` and related
-intent-handling APIs, allowing you to inspect Intent snapshots at those interception
-points and test how field changes affect application behavior. It does not trace
-every field read or perform automatic taint analysis.
+noxen is a tool for inspecting how Android app components communicate at runtime.
+It uses Frida to hook selected Java methods. You can inspect an Intent when it
+reaches a hook, change its fields before forwarding it, or drop the intercepted
+call or result.
 
 ## Attack-surface mapping
 
-Android apps often expose behavior through component boundaries: activities, services,
-receivers, pending intents, and internal routing code. noxen helps you observe those
-boundaries while the app is running.
+Suppose an exported activity reads an Intent with `getIntent()`. You can inspect
+the action, URI, and extras that reach the activity, then change one value and
+observe how the app responds. Use manifest review or static analysis to identify
+entry points, and runtime tests to see which code paths the app takes.
 
-For example, if an exported component reads attacker-controlled data through APIs such
-as `getIntent()`, that execution path becomes a candidate attack surface. The
-interesting question is not only that `getIntent()` is used, but what the component
-reads from the intent and how those values affect the flow. noxen lets you inspect
-that interaction, modify intent fields before forwarding, drop intercepted events, and
-compare the result with the original runtime behavior.
+noxen observes the methods you hook. To investigate what the app does with a
+captured value, compare the Intent with related Java calls in Monitor. You
+trace the value yourself across the captured calls.
+[Correlating History and Monitor events](./monitor/#correlating-history-and-monitor-events)
 
-Used together with manifest review, static analysis, or manual testing, this gives you
-a practical map of component communication:
+## Get started
 
-- which components appear in captured communication;
-- how the app responds to changes in selected fields;
-- which extras or URIs are worth investigating;
-- which exported entry points deserve reachability testing;
-- which runtime interactions are framework noise and which deserve deeper testing.
-
-noxen is intended for controlled testing on apps, devices, and environments you are
-authorized to inspect.
-
-## Typical workflow
-
-1. Install the host dependencies and run `frida-server` on the device.
-2. Run `noxen`. Select device, mode, and target from the Home tab.
-3. Inspect captured communication in the Intercept and History tabs.
-4. Use filters to reduce framework noise.
-5. Modify, forward, or drop events when active testing is needed.
-
-## Important behavior
-
-- Intercept filters decide what stops for manual action.
-- History records captured intents before Intercept filters are applied.
-- Buttons, forms, and commands are alternative ways to control the same workflow.
-- Turning interception off makes capture passive, but hooks are still installed.
-
-Start with [Installation](https://frankheat.github.io/noxen-docs/installation/), then follow [Quick start](https://frankheat.github.io/noxen-docs/quick-start/).
-
-## Operational limit
-
-noxen can block a hooked application thread while waiting for a decision. Android
-can report an Application Not Responding condition if a timeout-sensitive path is held
-too long. Read [Android behavior and limits](https://frankheat.github.io/noxen-docs/android-behavior-and-limits/) before
-long blocking sessions.
+- [Installation](./installation/) explains how to set up noxen and Frida.
+- [Quick start](./quick-start/) walks you through your first interception.
+- [noxen playground](./noxen-playground/) provides a target app for controlled tests.
+- [Android behavior and limits](./android-behavior-and-limits/) explains when holding an Intent can make the app unresponsive.

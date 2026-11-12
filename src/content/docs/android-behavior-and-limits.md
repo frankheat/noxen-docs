@@ -2,147 +2,20 @@
 title: "Android behavior and limits"
 ---
 
-noxen can intentionally pause the target app while the researcher decides what
-to do with an intercepted intent. That behavior is powerful, but it interacts directly
-with Android's timeout model.
-
 ## Why ANR can happen
 
-Android reports Application Not Responding when an app blocks a timeout-sensitive path
-for too long. Common cases include:
+A held Intent pauses the hooked thread. Android can report an Application Not Responding (ANR) if that thread delays input dispatch, a broadcast receiver, a service callback, or another timed operation.
 
-- Main thread blocked too long.
-- Broadcast receiver work exceeding the allowed time.
-- Service startup or foreground service paths taking too long.
-- Input dispatch waiting while the UI thread is blocked.
-- Binder calls waiting on a blocked app thread.
+A foreground service that misses its deadline to call `startForeground()` can fail startup and terminate the process. The input ANR bypass does not cover this deadline. [Android foreground-service troubleshooting](https://developer.android.com/develop/background-work/services/fgs/troubleshooting)
 
-If noxen hooks a method running on one of those paths and interception is enabled,
-the JavaScript agent can hold that thread until the user forwards or drops the intent.
-Not every timeout produces an ANR dialog. A foreground service that fails to call
-`startForeground()` promptly after `startForegroundService()` can instead fail
-startup and terminate the process. The optional input ANR bypass does not prevent
-that foreground-service failure. See
-[Android's foreground-service troubleshooting guide](https://developer.android.com/develop/background-work/services/fgs/troubleshooting).
+## Keeping sessions responsive
 
-## What noxen can control
+Resolve held Intents promptly, especially on the main thread. Use [Intercept filters](../filters/) to auto-forward events you do not need to stop. With interception off, noxen still captures events without holding the target thread.
 
-noxen can control:
-
-- Which Java methods are hooked.
-- Whether interception is blocking or passthrough.
-- Whether matching intents are auto-forwarded by filters.
-- Which app-specific hooks are added to the bundled framework hooks.
-- Whether to enable the optional `system_server` input ANR bypass from the Home tab.
-
-## What noxen cannot make universal
-
-noxen cannot universally disable Android's ANR system from inside the target app
-process.
-
-Android framework and system_server enforce timeouts in different places depending on:
-
-- Android version.
-- Component type.
-- Foreground/background state.
-- Broadcast type.
-- Service type.
-- Target SDK behavior.
-- OEM modifications.
-
-Any attempt to bypass timeouts globally is fragile and device-specific.
-
-## Practical strategy for stable sessions
-
-For stable sessions:
-
-1. Start broad only during exploration.
-2. Identify noisy or timeout-sensitive methods.
-3. Add Intercept filters to auto-forward uninteresting intents.
-4. Add app-specific hooks when they expose the behavior you need more directly.
-5. Turn interception off when you only need passive capture.
-6. Use spawn mode only when startup interception is required.
-7. Avoid leaving a main-thread intent blocked while analyzing unrelated data.
-
-## Intercept off is not the same as no hooks
-
-When interception is off, the agent still observes and reports intents, but it does not
-wait for a manual decision. This reduces ANR risk significantly, but the hook overhead
-still exists.
-
-Custom hook files are added to the bundled defaults; choosing a smaller custom file
-does not remove framework hooks. Intercept filters reduce blocking, not capture or
-hook overhead. Removing bundled hooks currently requires changing the default
-configuration in a development checkout and rebuilding the packaged runtime assets.
-
-## Hook selection and timeout risk
-
-Framework-level hooks provide broad visibility, but they can run in sensitive paths.
-
-An app-specific hook may run at a more useful point, but it can still block the main
-thread or a timeout-sensitive receiver or service callback. Its class being
-app-specific does not make it safe from ANRs, and adding it does not reduce the
-framework captures already enabled by the bundled defaults.
-
-Prefer app-specific hooks when you know the target code path.
+Filters reduce blocking. They do not remove hooks or their overhead. Custom hook files add to the bundled framework hooks. An app-specific hook can still run on a thread subject to an Android deadline.
 
 ## System ANR bypass
 
-noxen includes an optional Home-tab switch named `Input ANR bypass (experimental)`. When enabled, noxen
-opens a second Frida session against `system_server` and injects a small agent focused
-on input-dispatch ANRs.
+**Input ANR bypass (experimental)** in Home attaches to Android's `system_server` on a rooted research device. It attempts to postpone matching input-dispatch ANRs for the target while an Intent is held. Other Android deadlines still apply.
 
-The target-app agent sends `hold_start` before it waits for a manual Forward or Drop
-decision, and `hold_end` when the event resumes. The `system_server` agent keeps that
-hold state by PID and tries to extend or suppress matching input ANR paths such as
-`InputManagerCallback`, `AnrController`, `ActivityRecord`, and
-`ActivityManagerService`.
-
-This is intended for rooted research devices only. It is useful for methods such as
-`getIntent()`, `onNewIntent()`, `setResult()`, and `startActivity()` when they are
-called on the main thread and Android would otherwise report an input-dispatch ANR.
-
-The bypass uses a fixed internal hold window of two minutes. That value limits how
-long noxen keeps the `system_server` hold active, but it is not a promise that Android
-will show an ANR dialog exactly after two minutes. Some Android or OEM paths may
-continue without showing a dialog after a suppressed ANR stage.
-
-It is still not a reliable default strategy.
-
-Major drawbacks:
-
-- It is highly Android-version-specific.
-- It can destabilize the whole device, not only the target app.
-- A failed hook can break activity, broadcast, or service management globally.
-- OEM framework changes can invalidate assumptions.
-- It increases the risk of hiding real bugs in the target app.
-
-The switch is disabled by default. noxen reports a summary of the installed
-`system_server` hooks and any relevant warnings in the Log tab. Enable `Verbose logs`
-when you need hook-by-hook diagnostics, skipped paths, or active hold lifecycle
-details. If no supported hook can be installed, noxen warns the user and continues
-without relying on the bypass.
-
-Each bypass connection keeps its own device, session, and queued RPC destinations.
-Callbacks from a cancelled or superseded connection cannot invalidate a replacement
-session. Queued RPCs are dropped when found stale; an RPC already in progress may
-finish on its original script but is never redirected to a new one. Changing
-devices discards the previous device's pending holds. This lifecycle isolation
-does not change the experimental hooks or provide automatic reconnection after a
-detach.
-
-Within each connection, hold RPCs are serialized. Before sending a queued start,
-noxen checks that the same hold is still active locally, including starts replayed
-after initialization. An end notification with a PID must match both that PID and
-the hold ID, so a delayed or duplicate end cannot cancel a newer hold on the same
-process. The fixed hold window and Android hook paths are unchanged.
-
-## Recommended default
-
-For Android 11 and newer, the portable default is:
-
-- Keep blocking interception focused.
-- Use filters aggressively.
-- Use passthrough mode for passive observation.
-- Generate app-specific hooks.
-- Resolve intercepted intents quickly.
+The bypass is off by default. Its two-minute window limits how long noxen applies it. Android may report an ANR at a different time or never show a dialog. Support varies with Android and OEM changes, and a failing system hook can affect the whole device. Check **Log** for installation warnings and **Verbose logs** for individual hook results.

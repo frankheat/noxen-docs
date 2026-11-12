@@ -2,221 +2,70 @@
 title: "History and projects"
 ---
 
-History is the audit trail for a noxen session. It records captured intents even when
-they are auto-forwarded by filters or observed while interception is off.
-
-You can open a project without attaching to an app. This is useful when you only want
-to review a previous session, inspect captured component communication, or export data.
-
-Captures and outcomes are saved as they arrive. Only the table display is batched:
-while History is visible, a 100 ms timer checks for changes and refreshes it when
-needed. This is not a maximum display delay; large tables or a busy UI can take
-longer to render. While History is hidden, its table is refreshed when you return
-to the tab. Search and exports use the captured records, not a delayed screen
-snapshot. A blocked Intent in Intercept is displayed independently of this timer.
-
-The table prepares cells only for the rows and columns currently on screen. This
-does not limit the captured events or search results, and scrolling does not require
-loading another page. Search, filters, sorting, and exports still use the complete
-captured history. Automatic column widths consider all matching rows, including
-off-screen values, so widths do not change just because you scroll.
+Use History to review the Intents noxen captured, including those it forwarded
+automatically or observed with interception off. You can reopen a saved project
+and browse its captures without attaching to the app again.
 
 ## What History shows
-
-Each row represents one captured event and includes the hooked class/method, intent
-fields, outcome, and optional stack trace.
-
-**Time** uses UTC. For new captures, the Android agent timestamps the event when
-it observes the Intent. For `getIntent()`, this is after the original getter
-returns and before the result is released to the caller. The detail shows
-milliseconds and a **Capture order** label shared with Monitor, such as
-`Session 3 · #42`. The session number identifies the connection within the
-project. The event number continues across connections and when either table
-is cleared. Existing History records without a capture number keep their saved
-host receipt time.
-
-**Released at** appears for an Intent that was held and then forwarded when
-the agent confirms the release. It records the device time immediately before
-the hook returns the Intent or calls the original method, after any edits.
-Compare it with Monitor's time to exclude the pause spent in Intercept.
-See [Correlating History and Monitor events](../monitor/#correlating-history-and-monitor-events)
-for a worked example and the limits of these comparisons.
-
-Common outcomes:
 
 | Outcome | Meaning |
 |---|---|
 | `forwarded` | Forwarded with no confirmed modification |
 | `modified_forwarded` | Forwarded with at least one observed modification |
-| `dropped` | The hook suppressed the call or the getter result; not proof that earlier delivery was undone |
-| empty/pending | No final decision was recorded |
+| `dropped` | The hook suppressed the call or getter result |
+| Pending | No final decision was recorded |
 
-A `!` beside the outcome marks a modification warning. The detail explains whether
-the agent reported a partial failure or the resulting Intent could not be verified.
-In these cases, do not infer that every requested change reached the app.
+After you forward an edited Intent, History shows the original payload and the
+result the agent observed. If you see a `!` beside the outcome, open the detail
+to check whether an edit failed or noxen could not verify the result. The outcome
+records the hook decision. Verify Android delivery or method completion separately.
 
-Newly saved captures preserve an Intent flag value of `0`, including after editing
-and forwarding. Zero means no flags were set; JSON exports keep it as a number,
-not `null`. Older versions stored zero as `NULL`, so an old `null` value cannot
-reliably distinguish zero from an unavailable field. Opening an older project
-does not guess or rewrite those values.
+**Time** shows when the agent observed the Intent, in UTC. Older captures without
+an agent timestamp show when the host received the event. If the agent confirms
+a release, **Released at** shows when the hook was about to give control back to
+the app after any edits. Use **Capture order** to compare the Intent with related
+Monitor calls. [Correlating History and Monitor events](../monitor/#correlating-history-and-monitor-events)
 
-Intent details distinguish an observed empty string (`""`) from an absent field
-(`None`), including selector and nested Intent fields. Newly saved captures preserve
-an empty MIME string across project reopen and JSON export. Older project versions
-stored empty and absent MIME values identically; that lost distinction cannot be
-recovered and existing rows are not guessed or rewritten.
+Older versions could store zero flags as `null` and collapse an empty MIME string into an absent value. Those distinctions cannot be recovered when reopening an old project.
 
 ## Search
 
-Type in the search field to filter visible rows in real time. The search matches
-against class, method, action, component, data, MIME type, flags, and categories. Selector fields
-are included recursively. Extra keys, types, and values are searchable throughout
-structured Bundles, arrays, lists, and nested Intents, including nested intent fields
-such as action, data, component,
-package, flags, and categories. Opaque, unreadable, referenced, and truncated values
-can also be found by their displayed type or status.
+To find an Intent, enter part of a class name, action, URI, or extra value.
+Search ignores case and includes captured selector and ClipData values. After
+an edit, it searches the resulting payload. **Changes** shows the original
+values for manual review.
 
-ClipData labels, declared MIME types, item text, HTML, URIs, and nested Intents are
-also included. An explicitly recorded absent Intent matches `null` and
-`no Intent object`. Search uses a bounded local index of captured data; it never
-opens a URI, re-reads a Java object, or recovers content omitted at capture time.
-Index limits can also exclude part of a very large capture, so a search miss is
-not proof that a value is absent. This is substring search, not a regular expression
-or a query language; stack traces and component permission metadata are not indexed.
+Search skips the base Intent's **Package** field, stack traces, and permission
+metadata. Large captures can also exceed the search index's size limit. If a
+search returns no matches, check the detail before ruling out the value.
 
-The History command bar controls the same search field:
-
-```text
-/search MainActivity
-/search payment token
-/search
-```
-
-`/search <text>` applies a case-insensitive substring search. `/search` without
-text clears it. The command and the visual field always show the same query.
-Search is temporary; use structured `/filter` rules when a condition must be
-saved with the project.
-
-## Sorting
-
-Click any column header to sort by that column. Click again to reverse the order.
-The default sort is newest first by ID.
-
-Sorting keeps the same event selected even when its position changes or the ID
-column is hidden. Search and filters keep that selection while the event still
-matches; otherwise the first result is selected. If there are no results, the
-detail panel is cleared. The table and detail always refer to the same selection.
+Use `/search <text>` to set the same query or `/search` to clear it. Use [History filters](../filters/) for rules you want to keep in the project.
 
 ## Column selection
 
-Use the **⊟** button to show or hide individual columns. The selection is stored in
-the project file and restored on next launch.
-
-Enable **Capture order** to show the session and capture number beside **Time**.
-The column is hidden by default, sorts numerically, and leaves older rows
-without capture metadata blank.
-
-The same dialog also lets you set optional widths for Time, Capture order,
-Method, Class, Component, and Action. Widths can be set from 5 to 150 cells.
-Empty width fields use Textual's automatic sizing. Configured widths are stored
-in the project file.
-
-## Modified intents
-
-When an intent is changed before forwarding, History stores both views:
-
-- the resulting values observed by the agent after applying modifications;
-- the original values captured before modification.
-
-This lets you review what changed without losing the original evidence.
-It does not prove that the original method completed successfully or that Android
-delivered the Intent to another component. If the result could not be captured,
-the modification warning identifies that uncertainty.
+Use **⊟** to show or hide columns and set widths. Enable **Capture order** to compare session and capture numbers without opening each detail. Column preferences are saved in the project.
 
 ## Project files
 
-noxen stores session data and UI state in a `.noxen` project file (SQLite).
-
-Create a new project:
-
 ```bash
 noxen --new-project session
-```
-
-Open an existing project:
-
-```bash
 noxen --project session.noxen
 ```
 
-If no project option is used, noxen creates a persistent
-`project_YYYYMMDD_HHMMSS.noxen` file in the current working directory. It is not
-deleted on exit and can be reopened with `--project`. Creating a project at an
-existing path is refused; opening a missing project does not silently create one.
+Without either flag, noxen creates a persistent `project_YYYYMMDD_HHMMSS.noxen` file in the working directory.
 
-## Stored state
-
-Project files include:
-
-- captured intents;
-- final outcome;
-- modified and original intent values;
-- capture completeness metadata, including omitted extra counts and read errors;
-- Intercept filters;
-- History filters;
-- History column visibility and width preferences;
-- the selected Hook config and Extra script paths (not their file contents).
-
-Info app snapshots, Log messages, the current search query, and unforwarded editor
-drafts are not restored from a project. A pending History outcome after reopening
-is a historical record, not a blocked thread that can still be resumed.
-
-The outer Intent's `Package` restriction is preserved when a project is reopened,
-including for modified intents. A captured absent package is kept distinct from
-a field that was never recorded. Existing projects are migrated automatically,
-but package values missing from older captures are not reconstructed from routing
-metadata: that metadata may describe a selector instead of the outer Intent.
-
-Newly saved captures also retain the total/captured extra counts, omission and
-read-error markers, and category truncation/read-error markers. These remain
-available after reopening and in JSON exports. A post-edit completeness warning
-is saved even when no field change could be confirmed. Older projects are
-migrated automatically, but completeness metadata already lost by an older
-version cannot be recovered; absence of a warning is not proof of a complete capture.
+Projects store History, Monitor events and profiles, filters, table preferences, and paths to the hook configuration and extra script. Info app snapshots, Log messages, search queries, and unforwarded edits are session data. A pending row reopened from a project is a record of the capture. It cannot resume a thread.
 
 ### Storage errors
 
-If a capture cannot be saved, noxen keeps it in memory with a temporary negative
-ID and shows a notification and a **Storage warning** in its detail. Intercept
-actions and editing still refer to that capture, not to a previous History row.
-Temporary IDs are never used to update database rows, even if saving later recovers.
-
-If a later update fails, the in-memory capture keeps its latest values and outcome,
-but the project may still contain earlier values. The detail identifies this too.
-Export History before closing noxen to retain these in-memory records; unsaved
-captures are not automatically retried or restored when reopening the project.
+If a capture shows a **Storage warning**, the project may be missing that capture
+or its latest changes. Export History before closing noxen to keep the values
+from the current session. History does not retry failed writes automatically.
 
 ## Clearing history
 
-Use the History clear action when you want to remove the current session rows.
-
-This clears both the in-memory history and the stored intent rows in the current project.
-
-The project deletion must succeed before the in-memory History and its pending
-table updates are cleared. If deletion fails, noxen reports the error and keeps
-the History unchanged. Concurrent captures are registered either before or after
-the clear operation, consistently in memory and in the project.
-
-Clearing History does not forward or drop an Intent currently blocked in Intercept,
-nor discard its editor draft. Resolve that Intent separately in Intercept.
+Clearing History deletes the saved Intent rows in the current project. Resolve any held Intent separately in Intercept.
 
 ## Export
 
-Use the export action to write History entries to JSON. You can export the full
-history or only the currently filtered History view.
-
-The export is JSON and is suitable for later review, reporting, or external analysis.
-Exports and project databases can contain credentials, tokens, personal data, and
-other captured secrets. Noxen does not redact them automatically; review files before
-sharing them.
+Use `/export entries` for the full History or `/export filtered entries` for the current view. JSON exports and project files can contain secrets and personal data. Review them before sharing.
