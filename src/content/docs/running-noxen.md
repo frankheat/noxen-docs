@@ -178,11 +178,10 @@ See [History and projects](https://frankheat.github.io/noxen-docs/history-and-pr
 
 Shows a session-only snapshot of the hooked app: identity, build flags, signing,
 permissions, and manifest components. Overview, Permissions, and Components are
-separate sub-views, with search, filters, and sorting in the tables.
+tabs at the top of Info app, with search, filters, and sorting in the tables.
 
-Use **Refresh** (`Ctrl+R`) to request a new snapshot and **Panel** (`Ctrl+T`) to
-toggle the navigation rail. These shortcuts appear only in Info app. The snapshot
-is cleared on disconnect and is not restored from a project file.
+Use **Refresh** (`Ctrl+R`) in the Info app footer to request a new snapshot.
+Disconnecting clears the snapshot, which lives only in the current session.
 
 See [Info app](../info-app/) for access classification and its limitations.
 

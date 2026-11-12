@@ -7,7 +7,7 @@ configuration, signing, permissions, and the full roster of its components. It c
 the live event stream with a static picture of the app's attack surface.
 
 The snapshot is requested automatically when you connect to a target and can be re-taken with
-**Refresh** (`Ctrl+R` in the footer). **Panel** (`Ctrl+T`) toggles the navigation rail.
+**Refresh** (`Ctrl+R` in the footer).
 It is session-only (not stored in the project) and is cleared on disconnect. Until you connect,
 the tab shows a short "connect to a target" message.
 Late responses from a disconnected session or a superseded Refresh are ignored;
@@ -17,7 +17,7 @@ after the app has initialized. The snapshot is not continuously monitored.
 
 ## Layout
 
-A collapsible vertical rail on the left switches between three sub-views:
+Use the tabs at the top of **Info app** to switch views.
 
 - **Overview**: identity (package, version, UID, PID, process, installer, install dates),
   build and flags (target/min/compile SDK, debuggable, allow backup, cleartext traffic,

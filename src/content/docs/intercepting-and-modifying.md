@@ -492,7 +492,6 @@ See [Commands](https://frankheat.github.io/noxen-docs/commands/) for the full sy
 | `Ctrl+D` | Drop the current intent |
 | `Esc` | Cancel editing without forwarding or dropping (edit mode only) |
 | `Ctrl+R` | Refresh the snapshot (Info app only) |
-| `Ctrl+T` | Show or hide the navigation panel (Info app only) |
 | `Alt+Up` | Enlarge the active detail/command panel in Intercept, History, or Info app > Components |
 | `Alt+Down` | Shrink the active detail/command panel in Intercept, History, or Info app > Components |
 | `Left` / `Right` | Move between tabs when the tab bar has focus |
