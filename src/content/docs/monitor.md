@@ -213,7 +213,15 @@ evaluated. A capture failure is shown as unavailable and does not replace the
 application's result.
 
 Events are emitted after the call returns or throws. The timestamp records call
-entry; completion order can differ under concurrency. An unfinished call or process
+entry on the device and is displayed in UTC, with milliseconds in the detail.
+**Capture order** shares a project counter with History and continues across
+connections. In `Session 3 · #42`, `Session 3` identifies the connection and
+`#42` identifies the observation order. The smaller event number was observed first during sequential captures
+in one project, even when the times are identical or the device clock moves.
+Older captures marked **session only** use their original session counter.
+The **ID** column tracks project storage order. Completion and arrival order
+can differ under concurrency.
+An unfinished call or process
 termination can therefore leave no event. A normal return does not prove an
 asynchronous operation completed. Callbacks and WebView navigation results are
 not part of the initial profile.
@@ -230,7 +238,9 @@ and loads more as you scroll. Click a column heading to sort the full result
 set, or click it again to reverse the order. Select **⊟** beside the search field
 to open **Columns**, choose visible columns, and set widths in terminal characters.
 Enable **Class** to show the full hooked class name between **Profile** and
-**Method**. **Class** is hidden by default. Leave a width blank or enter `auto`
+**Method**. Enable **Capture order** to show the session and capture number
+beside **Time** and sort by capture number. Both columns are hidden by default.
+Leave a width blank or enter `auto`
 to fit the content. **Reset widths** restores automatic sizing. These preferences
 are saved in the project independently of Intent History. Use **Alt+↑** to expand the event
 detail pane and **Alt+↓** to shrink it. Press **Ctrl+L** in

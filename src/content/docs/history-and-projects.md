@@ -26,6 +26,20 @@ off-screen values, so widths do not change just because you scroll.
 Each row represents one captured event and includes the hooked class/method, intent
 fields, outcome, and optional stack trace.
 
+**Time** uses UTC. For new captures, the Android agent timestamps the event when
+it observes the Intent. For `getIntent()`, this is after the original getter
+returns and before the result is released to the caller. The detail shows
+milliseconds and a **Capture order** label shared with Monitor, such as
+`Session 3 · #42`. The session number identifies the connection within the
+project. The event number continues across connections and when either table
+is cleared. Existing History records without a capture number keep their saved
+host receipt time.
+
+**Released at** appears for an Intent that was held and then forwarded when
+the agent confirms the release. It records the device time immediately before
+the hook returns the Intent or calls the original method, after any edits.
+Compare it with Monitor's time to exclude the pause spent in Intercept.
+
 Common outcomes:
 
 | Outcome | Meaning |
@@ -97,7 +111,11 @@ detail panel is cleared. The table and detail always refer to the same selection
 Use the **⊟** button to show or hide individual columns. The selection is stored in
 the project file and restored on next launch.
 
-The same dialog also lets you set optional widths for Time and long text columns:
+Enable **Capture order** to show the session and capture number beside **Time**.
+The column is hidden by default, sorts numerically, and leaves older rows
+without capture metadata blank.
+
+The same dialog also lets you set optional widths for Time, Capture order,
 Method, Class, Component, and Action. Widths can be set from 5 to 150 cells.
 Empty width fields use Textual's automatic sizing. Configured widths are stored
 in the project file.
