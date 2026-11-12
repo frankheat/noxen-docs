@@ -11,6 +11,19 @@ The built-in **WebView** profile observes `loadUrl` (both overloads), `postUrl`,
 `loadData`, `loadDataWithBaseURL`, `evaluateJavascript`, `addJavascriptInterface`
 and `removeJavascriptInterface`.
 
+The profile also observes `WebView.getSettings()` and the concrete settings
+implementation it returns. It monitors changes to JavaScript, file access,
+content URI access, file-URL access and mixed content. Settings hooks appear as
+**Pending** until a call to `getSettings()` reveals their implementation. Load
+events display the last successfully requested settings observed for that
+WebView before the call. The WebView ID links these events with setting changes
+within the capture session.
+
+Settings applied before attachment or before the association was observed are
+unknown. The monitor uses weak references, tracks up to 128 WebViews, and resets
+observations when Monitor hooks are reconfigured. It does not read WebView
+configuration or interpret a setting as a vulnerability.
+
 The built-in **Content Provider** profile observes `ContentResolver.query`,
 `call`, `insert`, `update`, `delete`, `openInputStream`, `openOutputStream`,
 `openFileDescriptor` and `openTypedAssetFileDescriptor`, including their public
@@ -99,6 +112,27 @@ types or null values. Monitor does not read their contents or query the
 selected provider. Known overload forwarding is folded into the outer event.
 Encryption and decryption buffers and execution calls such as `doFinal` are
 outside this profile's scope.
+
+The built-in **Process Execution** profile observes all six `Runtime.exec`
+overloads and `ProcessBuilder.start()`. The command is shown as the original
+string or an indexed argument vector, with up to 32 arguments. Working
+directories are shown as supplied, or as inherited. The agent reads only
+recognized framework command lists and leaves custom list implementations
+opaque. Environment variables and subprocess I/O are outside this profile.
+Known forwarding within the Java launch APIs is folded into the outer event.
+A returned process indicates launch success. Its exit code is separate.
+
+The built-in **Dynamic Code Loading** profile observes `DexClassLoader`,
+available `InMemoryDexClassLoader` constructors and Android's standard
+`Context.createPackageContext` implementation. Details show the supplied DEX
+and library search paths, or the remaining byte counts of up to eight DEX
+buffers, together with the call outcome. Buffer contents are never read and
+their positions and limits are left untouched. Package context events show the
+package and the raw flags, with labels for the recognized public flags.
+
+Creating a class loader does not establish that a particular class was loaded
+or executed. Creating a package context is also a separate operation from
+loading code from it.
 
 Built-in profiles start disabled. Other API families can be added as custom profiles.
 
