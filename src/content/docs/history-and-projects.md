@@ -39,6 +39,8 @@ host receipt time.
 the agent confirms the release. It records the device time immediately before
 the hook returns the Intent or calls the original method, after any edits.
 Compare it with Monitor's time to exclude the pause spent in Intercept.
+See [Correlating History and Monitor events](../monitor/#correlating-history-and-monitor-events)
+for a worked example and the limits of these comparisons.
 
 Common outcomes:
 

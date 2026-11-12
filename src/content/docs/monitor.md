@@ -20,9 +20,11 @@ WebView before the call. The WebView ID links these events with setting changes
 within the capture session.
 
 Settings applied before attachment or before the association was observed are
-unknown. The monitor uses weak references, tracks up to 128 WebViews, and resets
-observations when Monitor hooks are reconfigured. It does not read WebView
-configuration or interpret a setting as a vulnerability.
+unknown. The monitor uses weak references and tracks up to 128 WebViews.
+Observations survive edits to unrelated hooks. Disabling `getSettings()` or
+changing which WebSettings setters have their arguments captured resets those
+observations. Monitor records settings calls it sees and leaves unread values
+unknown.
 
 The built-in **Content Provider** profile observes `ContentResolver.query`,
 `call`, `insert`, `update`, `delete`, `openInputStream`, `openOutputStream`,
@@ -134,6 +136,18 @@ Creating a class loader does not establish that a particular class was loaded
 or executed. Creating a package context is also a separate operation from
 loading code from it.
 
+The built-in **Intent** profile observes selected reads and edits inside the
+hooked process. `getStringExtra` shows the key and returned string.
+`getData` and `getDataString` show the returned URI or string. The available
+`getParcelableExtra` overloads show the key and returned object type.
+The typed overload also shows the expected class. Parcelable values stay opaque.
+
+`setComponent`, `setPackage`, `setFlags`, `addFlags`, and `removeFlags` show
+the supplied argument and the call outcome. Flag labels describe the supplied
+bits. Use History to inspect the Intent at a later send or receive hook.
+Reads through `Bundle` are outside this profile. The agent excludes its own
+inspection and editor changes from these Monitor events.
+
 Built-in profiles start disabled. Other API families can be added as custom profiles.
 
 **Monitor → Profiles** lists every profile on the left. A check mark in the
@@ -214,17 +228,62 @@ application's result.
 
 Events are emitted after the call returns or throws. The timestamp records call
 entry on the device and is displayed in UTC, with milliseconds in the detail.
-**Capture order** shares a project counter with History and continues across
-connections. In `Session 3 · #42`, `Session 3` identifies the connection and
-`#42` identifies the observation order. The smaller event number was observed first during sequential captures
-in one project, even when the times are identical or the device clock moves.
-Older captures marked **session only** use their original session counter.
-The **ID** column tracks project storage order. Completion and arrival order
-can differ under concurrency.
-An unfinished call or process
-termination can therefore leave no event. A normal return does not prove an
-asynchronous operation completed. Callbacks and WebView navigation results are
-not part of the initial profile.
+An unfinished call or process termination can leave no event. A normal return
+from a method that schedules work only confirms that the method returned.
+Callbacks and WebView navigation results are outside this profile's coverage.
+
+## Correlating History and Monitor events
+
+Use History to identify the Intent and Monitor to inspect what the hooked
+process did around it. The two views share the device clock and the capture
+counter for new events.
+
+| Field | What it tells you |
+| --- | --- |
+| **ID** | The saved row in its own table. History and Monitor assign IDs independently. A slow Monitor call can receive a higher ID than a faster call that started later. |
+| **Capture order** | In `Session 4 · #281`, the session identifies the connection and `#281` is the observation number shared by both views. It continues across sequential connections and after clearing either table. Within the same connection, the lower number was observed first, even if the displayed times match. |
+| **Time** | For a new History event, when the agent observed the Intent. For a Monitor event, when the hooked method began. Both views display UTC, with milliseconds available in the details. |
+| **Released at** | For a held Intent whose forwarding was confirmed by the agent, when the hook was about to give control back to the app, after any edits. Use this point when investigating what the app did after the pause in Intercept. |
+
+### Example: an Intent extra used in a SQLite query
+
+1. In **History**, select the `getIntent()` event. Suppose it is
+   `Session 4 · #281` and its delivered extras contain
+   `report_id = "RPT-8F29"`. If you edited the Intent, check the saved result
+   and any modification warning before using the value.
+2. In **Monitor → Events**, search for `RPT-8F29`. Open a matching SQLite
+   event and verify where the value appears. A match in a captured bind
+   parameter is more informative than a substring elsewhere in the event.
+3. Compare the session and capture numbers. For example, a query recorded as
+   `Session 4 · #295` was observed after the Intent in the same connection.
+   If the Intent was held and **Released at** is `07:41:26.410 UTC`, a query
+   timestamp of `07:41:26.415 UTC` places it 5 ms after the release on the
+   device clock. Measuring from the original History timestamp would also
+   include the time the Intent spent waiting in Intercept.
+
+You can enable **Capture order** from **Columns (⊟)** in both tables to compare
+several events without opening each detail.
+
+### Limits of correlation
+
+- **A match is evidence to investigate.** A distinctive value in a captured
+  argument is a stronger lead than close timestamps or a common value such as
+  `true`. Several Intents can carry the same value, and work scheduled on
+  another thread may occur after later Intents. noxen records observations
+  rather than automatically tracing data flow.
+- **Order and elapsed time are separate.** The capture counter preserves
+  observation order if the device clock changes. A duration calculated by
+  subtracting two wall-clock times can then be misleading. Use the session
+  label to spot a reconnection and check the target. Comparisons across devices
+  also depend on how closely their clocks are synchronized.
+- **Older rows have different evidence.** History records without capture
+  metadata retain the time the computer received the event. A number marked
+  **session only** belongs to its original session. If a held Intent was dropped
+  or the release could not be confirmed, **Released at** is absent.
+- **Coverage depends on what was captured.** Disabled or unavailable hooks,
+  opaque or truncated values, and lost events can leave gaps. Monitor search
+  scans the saved event text, so inspect the actual argument or return value
+  before drawing a conclusion.
 
 ## Project history
 
@@ -259,6 +318,4 @@ can lose events still in memory. The status line reports incomplete captures
 when you reopen the project.
 
 Monitoring changes timing and adds overhead, especially with stack capture.
-Enable only relevant profiles. Temporal proximity to an Intent is not evidence
-that the Intent caused an operation: Monitor does not claim automatic causality
-or taint analysis.
+Enable only relevant profiles.
