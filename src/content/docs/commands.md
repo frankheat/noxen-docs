@@ -169,7 +169,7 @@ See [Filters](https://frankheat.github.io/noxen-docs/filters/) for the full rule
 |---|---|
 | `/help` | Open the help modal |
 | `/quit` | Exit the application |
-| `/theme` | Toggle dark/light theme |
+| `/theme` | Toggle the theme for the current run |
 | `/clear history` | Clear all stored history entries in the current project |
 
 The dark and light variants use paired noxen palettes. Borders, selections,

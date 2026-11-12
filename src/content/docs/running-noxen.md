@@ -205,6 +205,7 @@ Stores startup defaults that apply to every new session:
 | Intercept on startup | Whether blocking mode starts enabled |
 | Stack trace on startup | Whether stack traces are shown by default |
 | Stack depth | Number of stack frames shown |
+| Theme | Dark or light appearance, applied on save and restored on startup |
 
 Press **Save** to persist changes. noxen stores these user settings in the standard
 per-user config directory for the operating system, not in the project checkout:
