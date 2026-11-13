@@ -54,6 +54,7 @@ export default defineConfig({
           label: "Advanced",
           items: [
             { label: "Hook configuration", slug: "hook-configuration" },
+            { label: "MCP", slug: "mcp" },
             { label: "APK analysis", slug: "apk-analysis" },
             { label: "Frida compatibility", slug: "frida-compatibility" },
           ],

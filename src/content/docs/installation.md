@@ -47,8 +47,9 @@ Launch noxen:
 noxen
 ```
 
-The base install includes noxen's TUI dependencies, default hook configuration, and
-JavaScript runtime bundles. User settings are stored in your operating system's
+The base install includes noxen's TUI and MCP dependencies, default hook configuration,
+and JavaScript runtime bundles. The MCP server stays off until you start it from
+the MCP tab. User settings are stored in your operating system's
 standard per-user config directory when you save them from the Settings tab. Frida
 remains separate because its Python package should match your Android `frida-server`
 version.

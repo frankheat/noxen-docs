@@ -61,6 +61,10 @@ Observe Java calls without stopping them. See [Monitor](../monitor/) for the ava
 
 Inspect the connected app's signing, build configuration, permissions, and manifest components. See [Info app](../info-app/) for access classifications and their limits.
 
+## MCP tab
+
+Connect an MCP client to the same project and session. See [MCP](../mcp/) for setup, available operations and shared-control limits.
+
 ## Log tab
 
 Check connection errors, hook installation results, and agent messages. Enable **Verbose logs** for per-hook and interception diagnostics.
