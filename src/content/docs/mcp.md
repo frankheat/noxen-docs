@@ -54,6 +54,8 @@ a process name or a PID to attach to. It uses the hook configuration selected in
 Home. Use `refresh_devices` if the device is missing. When an extra script is
 selected, connect from Home instead.
 
+Connecting through MCP keeps the current tab selected.
+
 A connection request can return while setup is still running. Read `get_status`
 until the agent is ready, and inspect reported hook states and the Log tab for
 partial installation. Enabling a profile means its configuration was accepted;
