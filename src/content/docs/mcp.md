@@ -38,21 +38,30 @@ or forwarding a held Intent. The analyst retains control in the interface.
 | `get_status` | Connection state, agent readiness, event epochs and recording problems. |
 | `list_devices` | Devices from the most recent Home scan. |
 | `refresh_devices` | Rescan Frida devices and update Home. |
+| `list_processes` | Find a running process by name or package and get its PID for `attach_pid`. |
 | `connect`, `disconnect` | Start or stop the shared Frida session. |
 | `list_history`, `get_intent` | Search History and read captured or modified Intent details. |
 | `list_monitor_events`, `get_monitor_event` | Search recorded Monitor calls and read their details. |
 | `get_interception` | Inspect the currently held Intent. |
-| `resolve_interception` | Forward or drop an Intent by its decision ID. |
+| `wait_for_interception` | Wait for an Intent to be held, optionally skipping the last decision ID. |
+| `resolve_interception` | Forward or drop an Intent by its decision ID, with optional changes on Forward. |
 | `set_intercept` | Turn interception on or off. Turning it off forwards the matching hold. |
 | `get_app_info` | Read the current Info app snapshot. |
 | `get_logs` | Read recent system logs, including hook and connection diagnostics. |
 | `get_monitor_profiles` | Read profile definitions and reported hook states. |
 | `set_monitor_profile_enabled` | Persist an explicit enabled state and request hook reconfiguration. |
+| `set_monitor_profiles_enabled` | Update multiple enabled states in one request using a map of profile IDs to booleans. |
+| `add_monitor_hook` | Save a Java overload in an existing Monitor profile. |
 
 `connect` accepts a device from `list_devices` and either a package to spawn,
-a process name or a PID to attach to. It uses the hook configuration selected in
-Home. Use `refresh_devices` if the device is missing. When an extra script is
-selected, connect from Home instead.
+a process name or a PID to attach to. Use `refresh_devices` if the device is missing.
+If attaching by name fails, search with `list_processes` and pass the PID as a
+string to `connect` with `mode: "attach_pid"`.
+
+Pass the JSON array from `noxen-analyze` as `hooks` in `connect` to use those
+definitions alongside the default hooks for that session. Omit `hooks` to use
+the custom hook configuration selected in Home. Connect from Home when using
+an extra script.
 
 Connecting through MCP keeps the current tab selected.
 
@@ -72,6 +81,10 @@ For older pages, pass the returned `next_before_id` and `epoch`. Clearing the
 corresponding history invalidates its epoch. Reopening noxen also invalidates old
 references. Restart the query after either operation. Start from the first page
 again to see new arrivals; existing Intent outcomes can change after forwarding.
+Changing Monitor profiles preserves existing cursors.
+
+`get_logs` defaults to the application log. Use `scope: "session"` for messages
+from the active Frida session, or `get_status` for the current connection state.
 
 Monitor queries read events already written to the project. A pending batch may
 not appear yet. Responses include the pending count and recording error, when
@@ -101,7 +114,26 @@ turning interception off. Pass null when turning it off with no hold. If the
 hold changes before the request reaches the agent, read the state again before
 deciding what to do. Finish or cancel any active draft in the TUI first.
 
-MCP does not expose Intent editing, profile or hook
-creation, filter changes, extra-script execution, project switching or autonomous
-device interaction. `get_interception` returns the capture, not an unsaved editor
-draft. Info app returns its existing snapshot rather than refreshing it.
+Operation errors include a stable code in `structuredContent.error.code` and
+an explanation in `structuredContent.error.message`.
+
+Use `wait_for_interception` to wait while Intercept is on. Pass the current
+connection token as `expected_connection` and the last seen ID as
+`after_decision_id` to skip that hold. The tool returns the next matching
+hold while it is still available, or `timed_out: true` after the requested
+timeout. The default is 10 seconds and the maximum is 30 seconds. If the
+connection changes, read `get_status` before starting a new wait.
+
+To change an Intent, pass `modifications` with `action: "forward"`.
+For example, this change adds or replaces a string extra:
+
+```json
+{"type": "extra_add", "key": "message", "value": "updated", "extra_type": "string"}
+```
+
+Use `extra_rem` with a key to remove an extra. For `component`, `action`, `data`,
+and `mime`, provide a string value or an empty string to clear the field. Extra
+values use the textual format of the Intent editor, including for numeric types.
+Validation failures leave the Intent held. After Forward, check `modification_error`
+for any agent or verification warning and use `event_id` and `history_epoch` to
+read the recorded result with `get_intent`.
