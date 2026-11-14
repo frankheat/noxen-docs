@@ -27,7 +27,8 @@ can read captured data. A new token is generated whenever the server starts.
 The server is off when noxen starts and does not save the token in the project.
 
 **Allow control** permits device and target discovery, connection and interception
-changes, and edits to filters, stack settings, and Monitor profiles.
+changes, edits to filters, stack settings, and Monitor profiles, Info app refresh,
+and clearing events or logs.
 Turning it off rejects new control operations.
 Operations already started can finish. **Stop** closes MCP access without disconnecting Frida
 or forwarding a held Intent. The analyst retains control in the interface.
@@ -50,13 +51,17 @@ or forwarding a held Intent. The analyst retains control in the interface.
 | `wait_for_interception` | Wait for an Intent to be held, optionally skipping the last decision ID. |
 | `resolve_interception` | Forward or drop an Intent by its decision ID, with optional changes on Forward. |
 | `set_intercept` | Turn interception on or off. Turning it off forwards the matching hold. |
-| `get_app_info` | Read the current Info app snapshot. |
+| `get_app_info`, `refresh_app_info` | Read the current Info app snapshot or fetch it again from Android. |
 | `get_logs` | Read recent system logs, including hook and connection diagnostics. |
+| `clear_events` | Clear History or Monitor events from the project using the current epoch. |
+| `clear_logs` | Clear the application and Frida session logs. |
 | `get_monitor_profiles` | Read profile definitions and reported hook states. |
 | `set_monitor_profile_enabled` | Persist an explicit enabled state and request hook reconfiguration. |
 | `set_monitor_profiles_enabled` | Update multiple enabled states in one request using a map of profile IDs to booleans. |
 | `add_monitor_hook` | Save a Java overload in an existing Monitor profile. |
 | `save_monitor_profile`, `remove_monitor_profile` | Create, replace, or remove a profile in the project. |
+| `restore_monitor_defaults` | Restore a built-in profile or add back its missing default hooks. |
+| `retry_monitor_hooks` | Request installation again for enabled hooks in the active session. |
 
 `connect` accepts a device from `list_devices` and either a package to spawn,
 a process name or a PID to attach to. Use `refresh_devices` if the device is missing.
@@ -65,8 +70,12 @@ string to `connect` with `mode: "attach_pid"`.
 
 Pass the JSON array from `noxen-analyze` as `hooks` in `connect` to use those
 definitions alongside the default hooks for that session. Omit `hooks` to use
-the custom hook configuration selected in Home. Connect from Home when using
-an extra script.
+the custom hook configuration selected in Home.
+
+By default, `connect` uses the extra script selected in Home, if present.
+Pass JavaScript source as `extra_script` to override that selection for this
+connection. Pass an empty string to start without an extra script. These
+overrides leave the project's saved Home configuration intact.
 
 Connecting through MCP keeps the current tab selected.
 
