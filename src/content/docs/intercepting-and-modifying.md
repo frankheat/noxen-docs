@@ -51,6 +51,12 @@ available. To inspect a different component, check its declaration separately.
 
 ### Extra editing
 
+When an extra directly contains a captured Intent, edit its **Component** below
+the extra's value. Use `package/class` or clear the field, then select
+**Apply & Forward**. History shows the old and new component. For a test case,
+use **Forward nested Intent → Activity1** in the Playground and change the
+component of `next` to `dev.noxen.playground/.Activity2`.
+
 Give each extra a unique key. Separate collection items with commas, as in
 `1,2,3`. If a string item contains a comma, write it as `\,`, for example
 `first,second\,item`. [Supported extra types](../commands/#intent-modifications)

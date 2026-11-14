@@ -173,6 +173,13 @@ For example, this change adds or replaces a string extra:
 {"type": "extra_add", "key": "message", "value": "updated", "extra_type": "string"}
 ```
 
+To change the component of an Intent held directly in an extra, use
+`nested_component` with the extra's key. An empty value clears the component.
+
+```json
+{"type": "nested_component", "key": "next", "value": "dev.noxen.playground/.Activity2"}
+```
+
 Use `extra_rem` with a key to remove an extra. For `component`, `action`, `data`,
 and `mime`, provide a string value or an empty string to clear the field.
 Use `cat_add` or `cat_rem` with a category name as `value`, and `flag_add`
