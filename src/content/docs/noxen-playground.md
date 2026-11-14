@@ -65,6 +65,10 @@ The main screen contains buttons for representative Android communication paths:
   permission no package defines (`unresolved`), a provider guarded by a `signature`
   permission (`protected`), and a provider with split read/write permissions plus a
   `/public` path permission that opens reads (`open`)
+- an exported provider without permissions, `dev.noxen.playground.open`, that passes
+  caller input to SQLite and to a file open unchanged. Use it with the
+  [Monitor](/noxen-docs/monitor/) **Incoming Provider** profile, for example
+  `adb shell content query --uri content://dev.noxen.playground.open/notes --where "1=1"`
 
 These scenarios are intentionally small. Their purpose is to make it easy to verify
 that hooks, History, Intercept, filtering, stack traces, and modification handling work

@@ -15,9 +15,10 @@ If a hook fails to install, select the hook and open **Details**.
 | Profile | What to look for |
 |---|---|
 | WebView | Page loads, JavaScript evaluation and bridges, and changes to WebView settings. Load events show settings previously observed for that WebView. Settings applied before observation remain unknown. |
-| Content Provider | `ContentResolver` queries, calls, edits, and opens. Inspect URIs, modes, returned insert URIs, and update or delete counts. Streams and cursors stay opaque. |
+| Content Resolver | Calls the app makes to providers through `ContentResolver`: queries, calls, edits, and opens. Inspect URIs, modes, returned insert URIs, and update or delete counts. Streams and cursors stay opaque. |
+| Incoming Provider | Calls the app's own providers receive, with the provider class, calling package, and calling UID. Queries, updates, and deletes show the selection and its arguments. Queries also show the projection and sort order. Other `Bundle` contents and `ContentValues` stay opaque. Requires Android 12 or later. |
 | URI Grants | Explicit grant, revoke, and persistable permission calls. A return records the call's outcome. It does not verify the resulting grant or cover grants made during Intent delivery. |
-| File | Path-based stream and random-access opens, deletion, rename, copy, and move. A successful non-append open may truncate a file. Stream I/O and native file access are outside this profile. |
+| File | Path-based stream, random-access, and `ParcelFileDescriptor` opens, deletion, rename, copy, and move. A successful non-append open may truncate a file. Stream I/O and native file access are outside this profile. |
 | SQLite | SQL and bindings from `execSQL` and standard queries through `rawQueryWithFactory`. Monitor does not read cursor rows or cover alternate drivers. |
 | Android Log | Tag, message, priority, and throwable type from calls to `android.util.Log` in the target. Android controls which messages reach Logcat. |
 | SharedPreferences | Staged edits, `apply`, and `commit` in the standard editor. `commit` reports a synchronous result. The disk write scheduled by `apply` is not verified. |
@@ -32,6 +33,23 @@ If a hook fails to install, select the hook and open **Details**.
 Create a profile and add hooks using the fully qualified Java class, method name, and argument types in signature order. Use `$init` for a constructor and leave arguments empty for a no-argument method. For example, use `java.lang.String, boolean` for a two-argument overload. Select whether to capture arguments, return values, or a stack.
 
 Profile changes are saved in the project. Use **Restore missing hooks** to add default hooks missing from a built-in profile. Use **Restore profiles** in the profile menu to recover deleted built-in profiles.
+
+### Following a call into a provider
+
+Enable **Incoming Provider** together with **SQLite** or **File**, then call
+an exported provider from `adb shell content` or another app. The incoming event
+shows who called and what they sent. Events on the same **Thread** just before it
+show the SQL or file open that the provider performed for that call. The incoming
+event appears after them because Monitor shows a call when it returns.
+
+Android rejects a caller without the required permission before the call
+reaches the app, so a denied call produces no event. A provider declared in
+another process is outside the hooked process. The calling UID is the Binder
+caller at that moment. For a call the app makes to its own provider, it is the
+app's UID, or the UID of an earlier incoming caller the app is still serving.
+Android checks only that the caller may access the provider before `call()`,
+without the read or write check applied to the other methods. The provider must
+check the command itself. [ContentProvider.call](https://developer.android.com/reference/android/content/ContentProvider#call(java.lang.String,%20java.lang.String,%20android.os.Bundle))
 
 ## Coverage states
 
