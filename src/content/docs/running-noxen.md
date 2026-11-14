@@ -67,6 +67,13 @@ Connect an MCP client to the same project and session. See [MCP](../mcp/) for se
 
 ## Log tab
 
+Open **Crashes** and select a row to read its report below the table. Each report is saved
+in the project with the target, device, time and capture session when available.
+Use the session number to find nearby History and Monitor events. Their order
+alone cannot establish the cause of the crash. Reports are available when Frida
+supplies crash data on detach. The view marks reports shortened to fit the
+32,768-character report limit.
+
 Check connection errors, hook installation results, and agent messages. Enable **Verbose logs** for per-hook and interception diagnostics.
 
 ## Settings tab

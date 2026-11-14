@@ -53,6 +53,7 @@ or forwarding a held Intent. The analyst retains control in the interface.
 | `set_input_anr_bypass` | Change the shared experimental Input ANR bypass setting from Home. |
 | `get_app_info`, `refresh_app_info` | Read the current Info app snapshot or fetch it again from Android. |
 | `get_logs` | Read recent system logs, including hook and connection diagnostics. |
+| `list_crashes`, `get_crash` | List saved target crashes and read an individual report. |
 | `clear_events` | Clear History or Monitor events from the project using the current epoch. |
 | `clear_logs` | Clear the application and Frida session logs. |
 | `get_monitor_profiles` | Read profile definitions and reported hook states. |
