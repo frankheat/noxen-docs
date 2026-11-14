@@ -51,9 +51,10 @@ available. To inspect a different component, check its declaration separately.
 
 ### Extra editing
 
-When an extra directly contains a captured Intent, edit its **Component** below
-the extra's value. Use `package/class` or clear the field, then select
-**Apply & Forward**. History shows the old and new component. For a test case,
+When an extra directly contains a captured Intent, edit its **Component**,
+**Action**, **Data URI** or **MIME Type** below the extra's value. Editing either
+the URI or MIME type preserves the other field. **Apply & Forward** records the
+observed changes in History. For a test case,
 use **Forward nested Intent → Activity1** in the Playground and change the
 component of `next` to `dev.noxen.playground/.Activity2`.
 

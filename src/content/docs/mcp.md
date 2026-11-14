@@ -173,8 +173,10 @@ For example, this change adds or replaces a string extra:
 {"type": "extra_add", "key": "message", "value": "updated", "extra_type": "string"}
 ```
 
-To change the component of an Intent held directly in an extra, use
-`nested_component` with the extra's key. An empty value clears the component.
+To edit an Intent held directly in an extra, use `nested_component`,
+`nested_action`, `nested_data` or `nested_mime` with the extra's key.
+An empty value clears the selected field. Changing the URI or MIME type
+preserves the other field.
 
 ```json
 {"type": "nested_component", "key": "next", "value": "dev.noxen.playground/.Activity2"}
