@@ -7,8 +7,6 @@ The MCP server gives a client access to the project and Frida session open in
 noxen. Changes made through MCP appear in the same interface used by the analyst.
 There is no second capture session.
 
-This feature is under development on `feature/mcp`.
-
 ## Start the server
 
 MCP is included in the standard noxen installation. No extra package or separate
