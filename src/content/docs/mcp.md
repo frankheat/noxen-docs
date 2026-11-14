@@ -44,6 +44,7 @@ or forwarding a held Intent. The analyst retains control in the interface.
 | `list_processes` | Find a running process by name or package and get its PID for `attach_pid`. |
 | `connect`, `disconnect` | Start or stop the shared Frida session. |
 | `list_history`, `get_intent` | Search History and read captured or modified Intent details. |
+| `export_history` | Retrieve full saved History entries in JSON pages. |
 | `get_filters`, `set_filters` | Read or replace the shared Intercept or History filter rules. |
 | `get_stack_settings`, `set_stack_settings` | Read or change the current stack settings for either view. |
 | `list_monitor_events`, `get_monitor_event` | Search recorded Monitor calls and read their details. |
@@ -51,6 +52,7 @@ or forwarding a held Intent. The analyst retains control in the interface.
 | `wait_for_interception` | Wait for an Intent to be held, optionally skipping the last decision ID. |
 | `resolve_interception` | Forward or drop an Intent by its decision ID, with optional changes on Forward. |
 | `set_intercept` | Turn interception on or off. Turning it off forwards the matching hold. |
+| `set_input_anr_bypass` | Change the shared experimental Input ANR bypass setting from Home. |
 | `get_app_info`, `refresh_app_info` | Read the current Info app snapshot or fetch it again from Android. |
 | `get_logs` | Read recent system logs, including hook and connection diagnostics. |
 | `clear_events` | Clear History or Monitor events from the project using the current epoch. |
@@ -99,6 +101,14 @@ references. Restart the query after either operation. Start from the first page
 again to see new arrivals; existing Intent outcomes can change after forwarding.
 Changing Monitor profiles preserves existing cursors.
 
+Use `export_history` to retrieve full entries, including the original Intent
+when a modified forward was recorded. It accepts the same query, filter
+revision and pagination parameters as `list_history`. It returns JSON in the
+response. A page can contain fewer entries than requested to fit the response
+size limit. Keep following `next_before_id` until it is null. If one entry alone
+exceeds the limit, the tool reports its ID. Unsaved History entries stay in the
+interface and are counted in `unsaved_events`.
+
 `get_logs` defaults to the application log. Use `scope: "session"` for messages
 from the active Frida session, or `get_status` for the current connection state.
 
@@ -123,6 +133,12 @@ changes also require the revision from `get_monitor_profiles`. A stale token or
 revision is rejected so a client cannot silently overwrite newer user actions.
 After a timeout, read the state before retrying: losing a response does not roll
 back an operation.
+
+The `input_anr_bypass` field in `get_status` shows the Home setting and its
+installation state. It can be `disabled`, `waiting_for_connection`, `starting`,
+`active` or `unavailable`. Active means at least one supported
+`system_server` overload was installed. It does not guarantee coverage of
+every input ANR path. Enable the bypass before starting to hold Intents.
 
 `set_filters` replaces the rules for the specified scope. Start with the
 `filters` and `revision` returned by `get_filters`, edit the list, and send it
