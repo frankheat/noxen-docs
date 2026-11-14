@@ -37,7 +37,7 @@ of the final payload even though the app continued.
 
 You can edit the base Intent's action, component, data URI, MIME type, categories, flags, and extras. Editing just the URI or MIME type preserves the other field. Flags accept a signed Java integer or a 32-bit mask up to `0xFFFFFFFF`.
 
-The selector and ClipData are captured separately and are read-only. Clearing a field explicitly can differ from leaving a captured empty string as it was.
+Clearing a field explicitly can differ from leaving a captured empty string as it was.
 
 ### Changing Component
 
@@ -51,12 +51,19 @@ available. To inspect a different component, check its declaration separately.
 
 ### Extra editing
 
-When an extra directly contains a captured Intent, edit its **Component**,
-**Action**, **Data URI** or **MIME Type** below the extra's value. Editing either
-the URI or MIME type preserves the other field. **Apply & Forward** records the
-observed changes in History. For a test case,
+You can edit **Component**, **Action**, **Data URI** and **MIME Type** of
+captured Intents inside extras, Bundles, other Intents, selectors and ClipData
+items. The editor shows the fields in the tree under the extra, selector or
+ClipData item they belong to. Editing either URI or MIME type
+preserves the other field. **History → Changes** shows the path and the observed
+values before and after forwarding. For a test case,
 use **Forward nested Intent → Activity1** in the Playground and change the
 component of `next` to `dev.noxen.playground/.Activity2`.
+
+Editing a selector changes its fields. Android can still route using the base
+Intent's explicit component. ClipData editing applies to the Intent inside
+an item. On Android builds where the agent cannot copy and replace the item,
+noxen reports a modification failure for that path.
 
 Give each extra a unique key. Separate collection items with commas, as in
 `1,2,3`. If a string item contains a comma, write it as `\,`, for example

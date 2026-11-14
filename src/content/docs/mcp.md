@@ -182,6 +182,12 @@ preserves the other field.
 {"type": "nested_component", "key": "next", "value": "dev.noxen.playground/.Activity2"}
 ```
 
+Use `path` in place of `key` to select a captured Intent deeper in the payload.
+Use `["extras", "payload", "next"]` for an Intent inside a Bundle,
+`["extras", "container", "extras", "next"]` for an extra inside another Intent,
+`["selector"]` for the base selector, and `["clipData", 0]` for the Intent in
+the first ClipData item. Item indexes start at zero.
+
 Use `extra_rem` with a key to remove an extra. For `component`, `action`, `data`,
 and `mime`, provide a string value or an empty string to clear the field.
 Use `cat_add` or `cat_rem` with a category name as `value`, and `flag_add`
