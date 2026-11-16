@@ -62,11 +62,26 @@ neither action sends it. Duplicate extra keys, incompatible fields and unsupport
 values are rejected rather than silently discarded. Each operation keeps its own
 draft while the request editor is open.
 
+**To Sender** (`Ctrl+R`) in History copies the selected Intent into a new request,
+and in Monitor's Events view it copies the selected content provider call. The
+source tab stays open; the new request is selected in Sender. Nothing is sent, and
+a held Intent is not forwarded.
+
+From History, the sending operation follows the hook that captured the Intent: a
+sending hook keeps its own operation, `getIntent` and `onNewIntent` become
+`startActivity`, `onReceive` becomes `sendBroadcast`, and PendingIntent creation
+maps to the operation it wraps. For other hooks, such as `bindService` or
+`setResult`, you choose the operation. No field is changed: a captured Activity
+Intent without `FLAG_ACTIVITY_NEW_TASK` opens in the editor so you can add it.
+
+From Monitor, queries, deletes, `call` and file reads can be copied when every
+argument was captured in full. ContentValues and Bundle extras are not recorded by
+Monitor, so inserts, updates and calls with extras must be created in Sender.
+
 In Info app, **Prepare** creates a request for the selected component; provider
 preparation supplies its authority, not a valid resource path or query inferred
 from the manifest. MCP clients can also prepare a request from a captured Intent
-with `prepare_sender_request`: the sending operation is chosen explicitly, and
-preparing a request neither forwards the original hold nor sends the copy.
+with `prepare_sender_request`.
 
 A capture is reusable only when its fields are complete and supported. Opaque
 objects, omitted data, ambiguous truncated values and object references cannot be
