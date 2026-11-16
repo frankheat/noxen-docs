@@ -37,37 +37,23 @@ choose an operation and enter its arguments. **Save** stores the definition;
 **Send** executes the selected revision once. Editing a definition preserves the
 snapshots in its earlier runs.
 
-The request form uses text exactly as entered. Leave an optional field blank to
-leave it unset. Use **Exact values…** to set a field to an explicit empty string
-(`""`) or enter escaped characters such as a line break (`"first\nsecond"`).
-**Apply** updates the draft. **Save** validates and stores the request.
-The form displays escaped previews for saved control characters and preserves
-their original values.
+The request editor uses dedicated fields and expandable sections. Add categories
+as list entries, and extras as **Key / Type / Value** rows. A Bundle, Intent or
+array expands within its owning entry. Selector and ClipData have their own
+sections; ClipData items can contain text, a URI or an Intent. Provider operations
+show their own fields, lists and typed values. No JSON is required in the editor.
 
-Additional arguments use typed JSON. The following example adds a string extra
-and an Intent inside a Bundle.
+Inline text is literal: entering `\n` there sends a backslash followed by `n`.
+Use a field's **Edit** button to choose an explicit empty string, null or an unset
+field where supported. In that dialog, enter text without surrounding quotes;
+`\n`, `\r`, `\t` and `\u0000` represent special characters, and `\\` represents
+a literal backslash. Saved special characters appear as escaped previews in the
+form. Opening and saving a request preserves them.
 
-```json
-{
-  "intent": {
-    "extras": {
-      "message": {"type": "String", "value": "test"},
-      "payload": {
-        "type": "Bundle",
-        "value": {
-          "next": {
-            "type": "Intent",
-            "value": {"component": "dev.noxen.playground/.Activity1"}
-          }
-        }
-      }
-    }
-  }
-}
-```
-
-Do not repeat common fields in Additional arguments. Validation rejects unknown
-fields and unsupported types rather than dropping them.
+**Apply** updates the field draft. **Save** validates and stores the request;
+neither action sends it. Duplicate extra keys, incompatible fields and unsupported
+values are rejected rather than silently discarded. Each operation keeps its own
+draft while the request editor is open.
 
 **From capture** prepares a copy of the selected History entry or held Intent.
 You choose the sending operation explicitly. Preparing a request neither forwards
