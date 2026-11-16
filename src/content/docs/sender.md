@@ -37,11 +37,15 @@ choose an operation and enter its arguments. **Save** stores the definition;
 **Send** executes the selected revision once. Editing a definition preserves the
 snapshots in its earlier runs.
 
-The common fields distinguish null, literal text and quoted JSON strings. An empty
-string in **Value** mode is sent as an empty string. **JSON** mode lets you enter
-escaped characters explicitly; captured control characters open in this mode so
-the editor preserves them. Additional arguments use typed JSON. For
-example, the following adds a string extra and an Intent inside a Bundle:
+The request form uses text exactly as entered. Leave an optional field blank to
+leave it unset. Use **Exact values…** to set a field to an explicit empty string
+(`""`) or enter escaped characters such as a line break (`"first\nsecond"`).
+**Apply** updates the draft. **Save** validates and stores the request.
+The form displays escaped previews for saved control characters and preserves
+their original values.
+
+Additional arguments use typed JSON. The following example adds a string extra
+and an Intent inside a Bundle.
 
 ```json
 {
