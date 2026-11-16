@@ -38,6 +38,7 @@ export default defineConfig({
             { label: "Intercepting and modifying", slug: "intercepting-and-modifying" },
             { label: "Info app", slug: "info-app" },
             { label: "Monitor", slug: "monitor" },
+            { label: "Sender", slug: "sender" },
             { label: "Filters", slug: "filters" },
             { label: "History and projects", slug: "history-and-projects" },
             { label: "Commands", slug: "commands" },

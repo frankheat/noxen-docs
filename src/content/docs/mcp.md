@@ -26,7 +26,7 @@ The server is off when noxen starts and does not save the token in the project.
 
 **Allow control** permits device and target discovery, connection and interception
 changes, edits to filters, stack settings, and Monitor profiles, Info app refresh,
-and clearing events or logs.
+clearing events or logs, and Sender connections, request editing and execution.
 Turning it off rejects new control operations.
 Operations already started can finish. **Stop** closes MCP access without disconnecting Frida
 or forwarding a held Intent. The analyst retains control in the interface.
@@ -63,6 +63,20 @@ or forwarding a held Intent. The analyst retains control in the interface.
 | `save_monitor_profile`, `remove_monitor_profile` | Create, replace, or remove a profile in the project. |
 | `restore_monitor_defaults` | Restore a built-in profile or add back its missing default hooks. |
 | `retry_monitor_hooks` | Request installation again for enabled hooks in the active session. |
+| `get_sender`, `connect_sender`, `disconnect_sender` | Inspect or change the application's Sender connection. |
+| `check_sender_activity_context` | Sample the sender process state before an Activity launch. |
+| `list_sender_requests`, `get_sender_request` | Read saved request definitions and their revisions. |
+| `save_sender_request`, `remove_sender_request` | Create, replace or remove a definition without sending it. |
+| `prepare_sender_request`, `prepare_sender_component` | Prepare unsaved arguments from a capture or Info app component. |
+| `execute_sender_request` | Save a run and dispatch the selected revision with an execution key preventing duplicate sends. |
+| `list_sender_runs`, `get_sender_run` | Read execution records, including identity, arguments and results. |
+| `wait_for_sender_run`, `cancel_sender_run` | Wait for an execution or request cooperative cancellation where supported. |
+| `retry_sender_recording` | Retry saving results after a storage error without resending requests. |
+| `compare_sender_runs` | Compare requests, sender identities and results from two runs. |
+
+[Sender](/noxen-docs/sender/) explains the request format, execution keys, caller
+identity and limits. Its connection may use another application, while sharing
+the same project and device as the observer. It does not require another APK.
 
 `connect` accepts a device from `list_devices` and either a package to spawn,
 a process name or a PID to attach to. Use `refresh_devices` if the device is missing.
