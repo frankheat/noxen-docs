@@ -32,19 +32,26 @@ can affect a call.
 
 ## Prepare and send a request
 
-**Requests** contains reusable definitions. Create a request, give it a name,
-choose an operation and enter its arguments. **Save** stores the definition;
-**Send** executes the selected revision once. Editing a definition preserves the
-snapshots in its earlier runs.
+Below the connection bar, each saved request is a tab labelled with its name.
+**+** creates a request named with the next free number; rename it in the editor
+and its tab follows. Selecting a tab shows the request on the left and its result
+on the right. **Edit** opens the editor; right-click a tab to **Edit**,
+**Duplicate** or **Remove** it. In the editor, choose an operation and enter its
+arguments. **Save** stores the definition; **Send** executes the selected request
+once. Editing a definition preserves the snapshots in its earlier runs.
+`Alt+Left` and `Alt+Right` move the divider between request and result.
 
-The request editor uses dedicated fields and expandable sections. Add categories
+The request editor has a request explorer on the left and an editing area on the right.
+Select a section in the explorer, or use **Open** on a structured value, to edit it.
+On narrow terminals, **Browse** switches between the explorer and the editing area.
+Navigation preserves the draft; only **Save** stores the request. Add categories
 as list entries, and extras as **Key / Type / Value** rows. A Bundle, Intent or
-array expands within its owning entry. Selector and ClipData have their own
+array is listed beneath its owning entry in the explorer. Selector and ClipData have their own
 sections; ClipData items can contain text, a URI or an Intent. Provider operations
 show their own fields, lists and typed values. No JSON is required in the editor.
 
 Inline text is literal: entering `\n` there sends a backslash followed by `n`.
-Use a field's **Edit** button to choose an explicit empty string, null or an unset
+Use a field’s **⋯** (Value options) button to choose an explicit empty string, null or an unset
 field where supported. In that dialog, enter text without surrounding quotes;
 `\n`, `\r`, `\t` and `\u0000` represent special characters, and `\\` represents
 a literal backslash. Saved special characters appear as escaped previews in the
@@ -55,11 +62,11 @@ neither action sends it. Duplicate extra keys, incompatible fields and unsupport
 values are rejected rather than silently discarded. Each operation keeps its own
 draft while the request editor is open.
 
-**From capture** prepares a copy of the selected History entry or held Intent.
-You choose the sending operation explicitly. Preparing a request neither forwards
-the original hold nor sends the copy. In Info app, **Prepare** creates a request
-for the selected component; provider preparation supplies its authority, not a
-valid resource path or query inferred from the manifest.
+In Info app, **Prepare** creates a request for the selected component; provider
+preparation supplies its authority, not a valid resource path or query inferred
+from the manifest. MCP clients can also prepare a request from a captured Intent
+with `prepare_sender_request`: the sending operation is chosen explicitly, and
+preparing a request neither forwards the original hold nor sends the copy.
 
 A capture is reusable only when its fields are complete and supported. Opaque
 objects, omitted data, ambiguous truncated values and object references cannot be
@@ -102,9 +109,13 @@ The process state is a hint. Android decides whether the launch is allowed.
 
 ## Read the result
 
-**Runs** stores each execution independently of its request definition. Select a
-run to inspect its saved arguments, sender identity, result and timing. Comparison
-shows differences between two runs; export writes the full saved record as JSON.
+Each execution is stored independently of its request definition. The result
+panel shows the latest run of the selected request: state, returned value, timing
+and the sender identity used. **‹** and **›** step through its earlier runs; an
+earlier run is shown with the request exactly as it was sent. If the request was
+edited after its latest run, the result panel also lists the arguments that were
+actually sent. Comparison and the complete record remain available
+through [MCP](#mcp-access).
 
 | State | Meaning |
 | --- | --- |
@@ -116,7 +127,7 @@ shows differences between two runs; export writes the full saved record as JSON.
 | `unknown` | noxen lost the ability to confirm the result. The operation may have completed. |
 
 `startActivity` can return without an exception when Android blocks a background
-launch. Runs shows **Call returned · Activity launch unverified** whenever the
+launch. The result shows **Call returned · Activity launch unverified** whenever the
 call returns normally. Check the receiving side or Android's system log for the
 outcome. A recorded crash during a run establishes that the sender crashed
 during that run. The cause requires separate evidence.
@@ -133,13 +144,14 @@ related events but do not prove causality.
 ## Persistence and limits
 
 A request snapshot is written to the project before dispatch. Results are saved
-automatically. If saving a result fails, it remains in memory with an error and a
-retry action; quitting asks how to handle unsaved results. An unfinished run is
+automatically. If saving a result fails, it remains in memory and the error appears
+in the Sender status line; quitting retries the save and asks how to handle results
+that still cannot be saved. An unfinished run is
 marked `unknown` when the project reopens and is never automatically resent.
 
 One request can run at a time per sender. Disconnecting does not undo a call that
-has already reached Android. Cancellation is available for queries and file reads
-through Android's [cancellation signal](https://developer.android.com/reference/android/content/ContentResolver).
+has already reached Android. **Cancel** is available for a running query or file
+read, using Android's [cancellation signal](https://developer.android.com/reference/android/content/ContentResolver).
 It is cooperative: a provider or blocked file read may not stop immediately.
 Requesting cancellation is not the same as receiving a cancelled result.
 
