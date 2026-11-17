@@ -63,29 +63,36 @@ of the final payload even though the app continued.
 
 ## What can be changed
 
-- **Component**, **action**, **data**, **mimeType**, **flags** and **categories** of
-  the Intent. A component uses `package/class`, for example `dev.example/.Activity2`;
-  the syntax is checked, not whether the component exists or is accessible. `flags`
-  is an unsigned 32-bit integer.
-- **Extras** of type `String` (including `null`), `boolean`, `int`, `long`, `float`,
-  `double`, `Uri`, and arrays `String[]`, `int[]`, `long[]`, `float[]`, `double[]`.
-  A `long` is a decimal string, as in Sender. Other types, such as `short` or
-  `char`, can be removed or left as they are, but not set.
-- **Inside nested Intents**, in extras, Bundles, the selector or ClipData items:
-  only **component**, **action**, **data** and **mimeType**. **History → Changes**
-  shows the path and the values before and after forwarding. For a test case, use
-  **Forward nested Intent → Activity1** in the Playground and change the component
-  of `next` to `dev.noxen.playground/.Activity2`.
+Everything the JSON shows, with the same types as [Sender](../sender/):
 
-`package` cannot be changed, and the selector, ClipData and nested Intents cannot be
-added or removed.
+- **component**, **package**, **action**, **data**, **mimeType**, **flags** and
+  **categories**. A component uses `package/class`, for example
+  `dev.example/.Activity2`; the syntax is checked, not whether the component exists or
+  is accessible. `flags` is an unsigned 32-bit integer. `null` clears a field and `""`
+  sets an empty string: Android keeps the two apart.
+- **Extras** of every Sender type, including `byte`, `short`, `char`, every array,
+  Bundles and Intents. A `long` is a decimal string.
+- **selector** and **clipData**, which can also be added or removed, and **nested
+  Intents** in extras, Bundles, the selector or ClipData items.
+
+noxen makes each change as narrowly as it can: a field, an extra, or the component,
+action, data or MIME type of a nested Intent. Anything else, such as another field
+of a nested Intent, a Bundle's contents, the selector or ClipData, is rebuilt as a
+whole from its JSON on the device. A value that holds something not captured in full
+is never rebuilt: the parts the JSON could not show would be lost, so only its
+narrow changes are applied and the rest is refused with the reason. **History →
+Changes** shows the path and the values before and after forwarding. For a test case,
+use **Forward nested Intent → Activity1** in the Playground and change the component
+of `next` to `dev.noxen.playground/.Activity2`.
+
+`package` and `selector` cannot both be set: Android refuses it. A null array is
+read back as a null value, because Android keeps no type for null.
 
 Changing the component before a send can change which recipient the Intent
 requests. In a receiving hook, Android has already chosen where to deliver the
 Intent. Your edit changes the field the receiving app reads or reuses. Editing a
 selector changes its fields; Android can still route using the base Intent's
-explicit component. On Android builds where the agent cannot copy and replace a
-ClipData item, noxen reports a modification failure for that path.
+explicit component.
 
 ## Reading a capture
 
