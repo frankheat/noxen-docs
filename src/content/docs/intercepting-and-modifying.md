@@ -24,52 +24,68 @@ noxen skips the method and returns a default value for its return type. If the
 hook captures `getIntent()`, the getter has already run and noxen returns `null`
 to the caller. Work the app performed before the hook remains in effect.
 
-## Stage modifications
+## Edit as JSON
 
-The editor and [modification commands](../commands/#intent-modifications) share a draft. **Apply & Forward** validates and applies it. **Cancel edit** discards the draft and leaves the Intent held.
+**✎** opens the held Intent as JSON, in the same format and editor as
+[Sender](../sender/): suggestions with `Ctrl+Space`, automatic brackets and quotes,
+`Ctrl+O` to fold a block and `Ctrl+N` to unfold all. **Apply & Forward** (`Ctrl+F`)
+applies your changes and lets the call continue. **Cancel edit** (`Esc`) discards
+them and leaves the Intent held.
 
-If a release request fails, the editor keeps your draft so you can retry. If you
+```json
+{
+    "component": "dev.noxen.playground/dev.noxen.playground.Activity8",
+    "action": "test.PING",
+    "flags": 268435456,
+    "categories": [],
+    "extras": {
+        "n": {"type": "int", "value": 3}
+    }
+}
+```
+
+noxen compares your JSON with the one it opened and applies **only what you
+changed**. A value that could not be captured in full, such as an opaque object or a
+truncated string, is not in the JSON: the line under the editor names it, and it
+stays on the Intent untouched. Deleting a field you were shown clears it; deleting
+an extra removes it. JSON escapes control characters, so a value such as
+`a\u0000b` is shown and written back exactly.
+
+If the JSON is not valid, or a change cannot be made, the line under the editor says
+why and the Intent stays held. [Modification commands](../commands/#intent-modifications)
+typed while the editor is open change the JSON directly; commands staged before
+opening it are already in the JSON.
+
+If a release request fails, the editor keeps your JSON so you can retry. If you
 see a `!` in History after forwarding, open the detail to check the result.
 The agent may have applied only some edits, or noxen may have missed confirmation
 of the final payload even though the app continued.
 
 ## What can be changed
 
-You can edit the base Intent's action, component, data URI, MIME type, categories, flags, and extras. Editing just the URI or MIME type preserves the other field. Flags accept a signed Java integer or a 32-bit mask up to `0xFFFFFFFF`.
+- **Component**, **action**, **data**, **mimeType**, **flags** and **categories** of
+  the Intent. A component uses `package/class`, for example `dev.example/.Activity2`;
+  the syntax is checked, not whether the component exists or is accessible. `flags`
+  is an unsigned 32-bit integer.
+- **Extras** of type `String` (including `null`), `boolean`, `int`, `long`, `float`,
+  `double`, `Uri`, and arrays `String[]`, `int[]`, `long[]`, `float[]`, `double[]`.
+  A `long` is a decimal string, as in Sender. Other types, such as `short` or
+  `char`, can be removed or left as they are, but not set.
+- **Inside nested Intents**, in extras, Bundles, the selector or ClipData items:
+  only **component**, **action**, **data** and **mimeType**. **History → Changes**
+  shows the path and the values before and after forwarding. For a test case, use
+  **Forward nested Intent → Activity1** in the Playground and change the component
+  of `next` to `dev.noxen.playground/.Activity2`.
 
-Clearing a field explicitly can differ from leaving a captured empty string as it was.
-
-### Changing Component
-
-Use `package/class`, for example `dev.example/.Activity2`. Empty the field or use `component clear` to remove it. Syntax validation does not establish whether the component exists or is accessible.
+`package` cannot be changed, and the selector, ClipData and nested Intents cannot be
+added or removed.
 
 Changing the component before a send can change which recipient the Intent
 requests. In a receiving hook, Android has already chosen where to deliver the
-Intent. Your edit changes the field the receiving app reads or reuses.
-The editor shows exported status and permissions from the original capture when
-available. To inspect a different component, check its declaration separately.
-
-### Extra editing
-
-You can edit **Component**, **Action**, **Data URI** and **MIME Type** of
-captured Intents inside extras, Bundles, other Intents, selectors and ClipData
-items. The editor shows the fields in the tree under the extra, selector or
-ClipData item they belong to. Editing either URI or MIME type
-preserves the other field. **History → Changes** shows the path and the observed
-values before and after forwarding. For a test case,
-use **Forward nested Intent → Activity1** in the Playground and change the
-component of `next` to `dev.noxen.playground/.Activity2`.
-
-Editing a selector changes its fields. Android can still route using the base
-Intent's explicit component. ClipData editing applies to the Intent inside
-an item. On Android builds where the agent cannot copy and replace the item,
-noxen reports a modification failure for that path.
-
-Give each extra a unique key. Separate collection items with commas, as in
-`1,2,3`. If a string item contains a comma, write it as `\,`, for example
-`first,second\,item`. [Supported extra types](../commands/#intent-modifications)
-
-Use **View full key** for shortened keys when available. Values containing line breaks or control characters appear as read-only escaped previews. Forwarding them unchanged preserves their original characters and type. Remove or replace them explicitly if needed. Pasting multi-line or control text into a value field is rejected.
+Intent. Your edit changes the field the receiving app reads or reuses. Editing a
+selector changes its fields; Android can still route using the base Intent's
+explicit component. On Android builds where the agent cannot copy and replace a
+ClipData item, noxen reports a modification failure for that path.
 
 ## Reading a capture
 

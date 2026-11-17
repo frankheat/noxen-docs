@@ -21,10 +21,11 @@ Modification commands update the draft. noxen applies your edits when you
 forward the Intent. History shows the result the agent observed and reports
 partial or unconfirmed edits.
 
-The command bar and visual editor share the same draft. When the editor is open, a
-modification command updates it immediately. Opening the editor after entering commands
-shows their combined result. **Cancel edit** or `Esc` discards every pending change,
-regardless of whether it came from a command or from the form.
+When the JSON editor is open, a modification command changes its JSON immediately.
+Opening the editor after entering commands shows their combined result. **Cancel
+edit** or `Esc` discards every pending change, whether it came from a command or from
+the JSON. `component` extras and list types (`int-list` and the others) cannot be
+written in the JSON: stage them with the editor closed.
 
 | Command | Meaning |
 |---|---|
@@ -84,8 +85,8 @@ contains spaces:
 +x null optional_name
 ```
 
-The edit form exposes the same type set. Numeric values are checked before the
-intent is forwarded, including Android `int` and `long` ranges. For booleans,
+Numeric values are checked before the intent is forwarded, including Android `int`
+and `long` ranges. For booleans,
 Android accepts `true`, `false`, `t`, `f`, or an integer (`0` is false and any
 other valid integer is true).
 

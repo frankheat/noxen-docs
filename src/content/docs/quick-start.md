@@ -32,8 +32,8 @@ Trigger an action in the target app. When an Intent appears in Intercept, choose
 
 ## Modify an intent
 
-Open the editor on a held Intent and change a field, such as the action or data
-URI. Choose **Apply & Forward** to apply your changes and let the call continue.
+Press **✎** on a held Intent to edit it as JSON and change a field, such as the
+action or data URI. Choose **Apply & Forward** to apply your changes and let the call continue.
 Choose **Cancel edit** to discard the draft and keep the Intent held.
 [Intercepting and modifying](../intercepting-and-modifying/)
 

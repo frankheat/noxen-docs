@@ -206,7 +206,7 @@ Use `extra_rem` with a key to remove an extra. For `component`, `action`, `data`
 and `mime`, provide a string value or an empty string to clear the field.
 Use `cat_add` or `cat_rem` with a category name as `value`, and `flag_add`
 or `flag_rem` with a 32-bit mask as a decimal or hexadecimal string. Extra
-values use the textual format of the Intent editor, including for numeric types.
+values use the textual format of modification commands, including for numeric types.
 Validation failures leave the Intent held. After Forward, check `modification_error`
 for any agent or verification warning and use `event_id` and `history_epoch` to
 read the recorded result with `get_intent`.
