@@ -72,7 +72,9 @@ closes. If the request is changed elsewhere, for example through MCP, the editor
 shows that version. Editing a request preserves the snapshots in its earlier runs.
 
 **To Sender** (`Ctrl+R`) in History copies the selected Intent into a new request,
-and in Monitor's Events view it copies the selected content provider call. The
+and in Monitor's Events view it copies the selected content provider call. In
+Monitor it is available only for a provider call captured in full, which Sender
+can repeat as it was made; for any other event it stays disabled. The
 source tab stays open; the new request is selected in Sender. Nothing is sent, and
 a held Intent is not forwarded. The request is built from the capture, not from the
 [JSON view](../intercepting-and-modifying/#reading-a-capture): the view's `hook`
