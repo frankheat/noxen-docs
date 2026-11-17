@@ -73,8 +73,8 @@ Use **View full key** for shortened keys when available. Values containing line 
 
 ## Reading a capture
 
-**JSON** (`F4`) shows the held Intent in the request format that [Sender](../sender/)
-uses; **Details** returns to the layout above. The choice applies to History too.
+`F4` shows the held Intent as JSON, in the request format that [Sender](../sender/)
+uses; `F4` again returns to the layout above. The choice applies to History too.
 `hook` comes first and names the hooked call, such as
 `dev.noxen.playground.Activity2.getIntent()`. `operation` appears only when the
 hooked method is itself that call: a receiving hook such as `getIntent` does not

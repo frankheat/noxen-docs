@@ -33,7 +33,11 @@ can affect a call.
 ## Prepare and send a request
 
 Below the connection bar, each saved request is a tab labelled with its name.
-**+** creates a request named with the next free number. Right-click a tab to
+**+** creates an empty request named with the next free number, with the
+operations already listed under the cursor. Choosing one also writes what it
+needs: an empty `intent`, with `FLAG_ACTIVITY_NEW_TASK` for `startActivity`, or a
+`content://` URI to complete for provider operations. An empty request cannot be
+sent until it has an operation. Right-click a tab to
 **Rename**, **Duplicate** or **Remove** it. Selecting a tab shows the request on
 the left, as JSON you edit in place, and its result on the right. `Alt+Left` and
 `Alt+Right` move the divider between them.
