@@ -1,67 +1,54 @@
 ---
 title: "Quick start"
+description: Connect to an app, hold an Intent, change it and review the result.
 ---
 
-This guide walks you through connecting to an Android app, inspecting an Intent,
-and reviewing the capture in History. You can use noxen playground as a test
-target. [noxen playground](../noxen-playground/)
+This guide takes you through a first session: connect to an app, hold an Intent,
+change it, and review the capture. [noxen playground](../noxen-playground/) is a
+good first target.
 
 ## Before you start
 
-Install noxen and start `frida-server` on your Android device or emulator.
-[Installation](../installation/)
+Install noxen and start `frida-server` on the device. See
+[Installation](../installation/).
 
-## Start a live session
+## Connect
 
-Run `noxen` in your terminal. If the command is unavailable, try `python -m noxen`
-in the environment where you installed it.
+1. Run `noxen`.
+2. In **Home**, select the device. If it is the only one, it is already selected.
+3. Choose **Spawn** to start the app, or an **Attach** mode for a running process.
+4. Select the target and choose **Connect**.
 
-1. On the Home tab, select your device.
-2. Choose **Spawn** to start the app, or an **Attach** mode to connect to a running process.
-3. Select the target and press **Connect**.
+noxen opens **Intercept** when the agent is ready. If the connection fails, open
+**Log** to see why. See [Home](../home/).
 
-noxen opens Intercept when the agent is ready. If a connection fails or a hook
-warning appears, open Log to see which methods registered and which failed.
-[Connection troubleshooting](../troubleshooting/#connection-failed)
+## Hold an Intent
 
-## Handle the first intercepted intent
+Use the target app. When it sends or receives an Intent through a hooked method,
+noxen holds the call and shows the Intent in Intercept.
 
-Trigger an action in the target app. When an Intent appears in Intercept, choose
-**Forward** to continue or **Drop** to suppress the hooked call or result.
-[Forward or drop](../intercepting-and-modifying/#forward-or-drop)
+- **Forward** (`Ctrl+F`) lets the call continue.
+- **Drop** (`Ctrl+D`) suppresses the call or its result.
 
-## Modify an intent
+## Change it
 
-Press **✎** on a held Intent to edit it as JSON and change a field, such as the
-action or data URI. Choose **Apply & Forward** to apply your changes and let the call continue.
-Choose **Cancel edit** to discard the draft and keep the Intent held.
-[Intercepting and modifying](../intercepting-and-modifying/)
+Press **✎** to edit the held Intent as JSON. Change a field, such as `action`, and
+choose **Apply & Forward** (`Ctrl+F`). **Cancel edit** (`Esc`) discards the change
+and keeps the Intent held. See [Intercept](../intercept/).
 
-## Reduce noisy traffic
+## Hold fewer Intents
 
-If framework calls keep interrupting your test, add an Intercept filter. For
-example, a focus rule for `method=onReceive` lets you stop matching receiver calls
-while other captured events proceed. You can still review those events in History.
-[Filter rules and examples](../filters/)
+If framework calls keep interrupting you, add an Intercept filter. For example, a
+`focus` rule with `method=onReceive` holds only receiver calls; the rest are
+forwarded automatically and still recorded in History. See [Filters](../filters/).
 
-## Review captured intents
+## Review the result
 
-Open History and select a capture to inspect its payload and outcome. If you
-forwarded an edited Intent, the detail shows the changes the agent observed.
+Open **History** and select the capture. For an edited Intent, the detail shows what
+changed. See [History](../history/).
 
-## Use a project file
+## See also
 
-To give a new project a recognizable name, run:
-
-```bash
-noxen --new-project session
-```
-
-To review the same project later, run:
-
-```bash
-noxen --project session.noxen
-```
-
-You can browse saved captures without connecting to the target again.
-[History and projects](../history-and-projects/)
+- [Projects](../projects/), to name a session and reopen it later
+- [Android behavior and limits](../android-behavior-and-limits/), before you hold an
+  Intent for long

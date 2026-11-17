@@ -1,233 +1,169 @@
 ---
-title: Sender
-description: Send Android requests from a selected application and keep a record of each execution.
+title: "Sender"
+description: Start activities, send broadcasts and call content providers from an app running on the device.
 ---
 
-Sender executes requests using an application already running on the device.
-You can send Intents and call content providers while observing the target
-through Intercept, History and Monitor. No additional APK is required.
+The **Sender** tab sends your own requests from an app already running on the device:
+it starts activities and services, sends broadcasts and calls content providers. Each
+request is saved in the project, and each time you send it the result is kept as a run.
+No extra APK is needed.
 
-## Choose a sender
+## Choose a sender app
 
-Discover the device in Home, then open **Sender** and select the device and a
-running application. When only one device is found, Home and Sender select it for
-you. Open the application on Android first if it is not listed.
-Sender attaches to its process without restarting it. The observer and sender
-must use the same device. When both use the same process, noxen shares the
-existing agent; disconnecting Sender leaves the observer attached.
-Monitor excludes the Sender's internal Intent and Bundle preparation. The actual
-sending and provider calls remain available to configured hooks.
+Select the device and a **Running sender application**, then choose **Connect**. If
+only one device is found, it is selected for you. If the app is not listed, open it on
+the device and choose **Refresh**.
 
-The selected application supplies the UID, permissions and application context
-for each call. An app installed with system privileges, a shared UID, existing
-URI grants or a trusted signature may reach endpoints that an ordinary third-party
-app cannot. A successful call from the target's own process is an internal test,
-not evidence of external access. Android's [component access controls](https://developer.android.com/privacy-and-security/risks/access-control-to-exported-components)
-still apply to calls made from another application.
+Sender attaches to the app without restarting it. If it is the app noxen is already
+connected to from Home, Sender shares that connection.
+
+The sender app's identity is the caller Android sees: its UID, permissions and
+signature. Choose it on purpose:
+
+- To test what any app can reach, use an ordinary third-party app with no special
+  permissions.
+- A call from the target app itself is an internal call, not proof of external access.
+- System apps, shared UIDs and existing URI grants can reach what other apps cannot.
 
 Each run records the sender's package, PID, UID, Android and target SDK versions,
-system-app flag, packages sharing its UID, and declared permissions with their
-grant state. Permissions are read again before each operation. This snapshot does
-not enumerate AppOps, temporary URI grants, signature trust or every policy that
-can affect a call.
+whether it is a system app, which packages share its UID, and its permissions with
+their grant state. It does not record AppOps or temporary URI grants.
 
-## Prepare and send a request
+## Write a request
 
-Below the connection bar, each saved request is a tab labelled with its name.
-**+** creates an empty request named with the next free number, with the
-operations already listed under the cursor. Choosing one also writes what it
-needs: an empty `intent`, with `FLAG_ACTIVITY_NEW_TASK` for `startActivity`, or a
-`content://` URI to complete for provider operations. An empty request cannot be
-sent until it has an operation. Right-click a tab to
-**Rename**, **Duplicate** or **Close** it, or to close several tabs at once with
-**Close other tabs**, **Close tabs to the left** or **Close tabs to the right**.
-Closing a tab deletes its request. When several tabs close, noxen lists them and
-asks first. There is always at least one tab: closing the last one, or opening
-Sender in a new project, leaves an empty request as **+** creates it. Selecting a tab shows the request on
-the left, as JSON you edit in place, and its result on the right. `Alt+Left` and
-`Alt+Right` move the divider between them.
+Each request is a tab. **+** creates an empty one and lists the operations at the
+cursor; choosing one writes what it needs. There is always at least one tab: closing
+the last one leaves an empty request.
 
-The JSON is the request itself: an `operation` and its arguments. A field that is
-absent is not set; `null` and `""` are explicit values. A typed value names its
-type, for example `"count": {"type": "int", "value": 3}`, and a `long` is written
-as a decimal string. Control characters use JSON escapes such as `\n` and `\u0000`.
+Right-click a tab to **Rename**, **Duplicate** or **Close** it, or to close several at
+once with **Close other tabs**, **Close tabs to the left** or **Close tabs to the
+right**. Closing a tab deletes its request; noxen asks first when you close several.
 
-The editor helps while you type:
+The request is JSON: an `operation` and its arguments.
 
-- An opening brace closes itself on its own indented line; brackets and quotes
-  close themselves too.
-- Names that fit at the cursor are suggested as you type, and `Ctrl+Space` lists
-  them all. Accepting one writes its structure: `intent` adds the whole Intent
-  skeleton, and a type chosen inside `extras` adds an entry with that type. A
-  comma missing on the line above is added.
-- `Ctrl+O` folds the block that opens on the cursor line, or the one around the
-  cursor, into a placeholder such as `{⋯₁}`, and unfolds it again. `Ctrl+N`
-  unfolds everything. Folding does not change the request.
+```json
+{
+    "operation": "sendBroadcast",
+    "intent": {
+        "action": "dev.example.PING",
+        "extras": {
+            "count": {"type": "int", "value": 3},
+            "id": {"type": "long", "value": "9007199254740993"}
+        }
+    }
+}
+```
 
-Edits are saved on their own a moment after you stop typing, whenever the JSON is
-a valid request; saving never sends it. Until then the line under the editor says
-why it is not saved yet, for example a missing comma or a duplicate extra key.
-Incompatible fields and unsupported values are rejected rather than silently
-discarded. **Send** executes the request once, with what is on screen. Text that
-is not valid yet is kept while you look at another request, but not after noxen
-closes. If the request is changed elsewhere, for example through MCP, the editor
-shows that version. Editing a request preserves the snapshots in its earlier runs.
+- An absent field is not set; `null` and `""` are values.
+- A typed value names its type. A `long` is a decimal string, so that all 64 bits
+  survive.
+- Control characters use JSON escapes, such as `\n` and `\u0000`.
 
-**To Sender** (`Ctrl+R`) in History copies the selected Intent into a new request,
-and in Monitor's Events view it copies the selected content provider call. In
-Monitor it is available only for a provider call captured in full, which Sender
-can repeat as it was made; for any other event it stays disabled. A request
-sent from History, Monitor or Info app is named with the next free number, like
-one created with **+**. The source tab stays open; the new request is selected in
-Sender. Nothing is sent, and
-a held Intent is not forwarded. The request is built from the capture, not from the
-[JSON view](../intercepting-and-modifying/#reading-a-capture): the view's `hook`
-and `notCaptured` fields are not part of it.
+| Action | Shortcut |
+| --- | --- |
+| List suggestions; accepting one writes its structure | `Ctrl+Space` |
+| Fold or unfold the block at the cursor | `Ctrl+O` |
+| Unfold everything | `Ctrl+N` |
+| Move the divider between request and result | `Alt+Left`, `Alt+Right` |
 
-From History, the sending operation follows the hook that captured the Intent: a
-sending hook keeps its own operation, `getIntent` and `onNewIntent` become
-`startActivity`, `onReceive` becomes `sendBroadcast`, and PendingIntent creation
-maps to the operation it wraps. For other hooks, such as `bindService` or
-`setResult`, you choose the operation. No field is changed: a captured Activity
-Intent without `FLAG_ACTIVITY_NEW_TASK` arrives as unsaved text, and is saved once
-you add the flag.
+The request is saved as soon as it is valid; saving never sends it. Until then, the
+line under the editor says what is wrong. **Send** runs what is on screen once.
 
-If some values were not captured in full, such as an opaque object or a truncated
-string, noxen lists them and asks before copying. **Send without them** creates the
-request with only what was captured; review it before sending, since the app may
-behave differently without those values.
+## Copy a capture to Sender
 
-From Monitor, queries, deletes, `call` and file reads can be copied when every
-argument was captured in full. ContentValues and Bundle extras are not recorded by
-Monitor, so inserts, updates and calls with extras must be created in Sender.
+**To Sender** (`Ctrl+R`) creates a request from what is selected, and switches to it.
+Nothing is sent, and a held Intent stays held.
 
-In Info app's Components view, **To Sender** creates a request for the selected
-component; for a provider it supplies the authority, not a valid resource path or
-query inferred from the manifest. It is disabled when no request can be made, for
-example for a provider that declares several authorities. `Ctrl+R` works there
-too, as in History and Monitor. MCP clients can also prepare a request from a captured Intent
-with `prepare_sender_request`.
+| From | Creates |
+| --- | --- |
+| [History](../history/) | A request with the selected Intent |
+| [Monitor](../monitor/) | A request repeating the selected content provider call |
+| [Info app](../info-app/) | A request for the selected component |
 
-A capture is reusable only when its fields are complete and supported. Opaque
-objects, omitted data, ambiguous truncated values and object references cannot be
-reconstructed reliably. Enter such requests explicitly. Sender constructs new
-objects; it does not preserve the identity of captured Java objects.
+From History, the operation follows the hook: a sending hook keeps its operation,
+`getIntent` and `onNewIntent` become `startActivity`, `onReceive` becomes
+`sendBroadcast`, and a PendingIntent request becomes the operation it wraps. For other
+hooks, such as `bindService`, you choose the operation.
+
+If some values were not captured in full, noxen lists them and asks first. **Send
+without them** creates the request without those values; check it before sending.
+
+From Monitor, To Sender is available only for a query, delete, `call` or file read
+whose arguments were all captured. Monitor does not record `ContentValues` or Bundle
+extras, so inserts, updates and calls with extras have to be written in Sender.
+
+From Info app, a provider request gets the authority; you add the path. To Sender is
+disabled when no request can be made, for example for a provider with several
+authorities.
 
 ## Supported operations
 
 | Operation | Arguments and result |
 | --- | --- |
-| `startActivity` | Intent. Requires an explicit `FLAG_ACTIVITY_NEW_TASK` (`0x10000000`) because the caller uses an application context. |
-| `sendBroadcast` | Intent and optional receiver permission. Returns when the sending API returns. |
-| `sendOrderedBroadcast` | Intent and optional receiver permission. Waits for the final receiver and records its result code, data and captured extras. |
-| `startService`, `startForegroundService` | Intent. Records the returned component or exception. |
-| `stopService` | Intent. Records the returned boolean. |
-| `query` | Content URI, projection, selection, selection arguments and sort order. Records bounded cursor rows. |
-| `getType` | Content URI. Records the MIME type or null. |
-| `insert`, `update`, `delete` | Content URI and operation-specific values or selection. Records the returned URI or affected-row count. |
-| `call` | Content URI, method, optional argument and Bundle extras. Captures supported fields of the returned Bundle. |
-| `openFileDescriptor` | Content URI. Opens read-only and records a bounded Base64 result. |
+| `startActivity` | Intent. It must include `FLAG_ACTIVITY_NEW_TASK` (`0x10000000`), because the call uses the application context |
+| `sendBroadcast` | Intent and optional receiver permission. Returns when the sending call returns |
+| `sendOrderedBroadcast` | Intent and optional receiver permission. Waits for the last receiver and records its result code, data and extras |
+| `startService`, `startForegroundService` | Intent. Records the returned component or the exception |
+| `stopService` | Intent. Records the returned boolean |
+| `query` | URI, projection, selection, selection arguments and sort order. Records the rows |
+| `getType` | URI. Records the MIME type |
+| `insert`, `update`, `delete` | URI with values or selection. Records the returned URI or row count |
+| `call` | URI, method, argument and Bundle extras. Records the returned Bundle |
+| `openFileDescriptor` | URI. Opens it read-only and records the content as Base64 |
 
-Intent arguments support component, package, action, data URI, MIME type, flags,
-categories, extras, selector and ClipData, including nested Intents. Extras support
-strings, booleans, Java numeric primitives, chars, URIs, Bundles, Intents and arrays
-of supported primitives, strings and Intents. A `long` uses a decimal string to
-preserve all 64 bits. Custom Parcelable and Serializable objects are not supported.
-Provider ContentValues accept scalar types except char, plus byte arrays.
-Omitted or null `extras` create no Bundle; an explicit `{}` creates an empty Bundle.
+An Intent supports component, package, action, data, MIME type, flags, categories,
+extras, selector and ClipData, including nested Intents. Extras can be strings,
+booleans, numbers, chars, URIs, Bundles, Intents and arrays. Custom `Parcelable` and
+`Serializable` objects are not supported. `extras` set to `{}` creates an empty
+Bundle; omitting it creates none.
 
-Android background-launch rules still apply. A foreground-service request also
-requires a compatible target service; noxen does not promote it to the foreground
-or bypass its startup requirements. Bound-service/AIDL transactions, arbitrary
-method invocation, automatic fuzzing and automatic respawn are outside Sender's
-current operation set.
-
-Before sending a `startActivity` request, noxen checks the sender process's
-importance on Android 10 and later. If the process appears to be in the
-background, you can send anyway or cancel and bring the sender app to the front.
-The process state is a hint. Android decides whether the launch is allowed.
+Android's rules still apply. Before a `startActivity`, noxen checks whether the sender
+app is in the background, where Android may block the launch, and lets you send anyway
+or bring the app to the front first. `startForegroundService` needs a target service
+that can start in the foreground.
 
 ## Read the result
 
-Each execution is stored independently of its request definition. The result
-panel shows the latest run of the selected request: state, returned value, timing
-and the sender identity used. **‹** and **›** step through its earlier runs; an
-earlier run is shown with the request exactly as it was sent. If the request was
-edited after its latest run, the result panel also lists the arguments that were
-actually sent. Comparison and the complete record remain available
-through [MCP](#mcp-access).
+The panel on the right shows the latest run of the selected request: its state, the
+returned value, timings and the sender identity. **‹** and **›** go through earlier
+runs, each shown with the request as it was sent.
 
 | State | Meaning |
 | --- | --- |
-| `preparing` | The request snapshot was saved; Android has not reported the start. |
-| `running` | The sender agent reported that execution started. |
-| `returned` | The sending API or final ordered-broadcast callback returned. |
-| `error` | Execution reported an exception. |
-| `cancelled` | Android reported cancellation. |
-| `unknown` | noxen lost the ability to confirm the result. The operation may have completed. |
+| `preparing` | The run was saved; Android has not started it yet |
+| `running` | The call started |
+| `returned` | The call returned, or the ordered broadcast finished |
+| `error` | The call threw an exception |
+| `cancelled` | Android reported a cancellation |
+| `unknown` | noxen lost track of the call. It may have completed |
 
-`startActivity` can return without an exception when Android blocks a background
-launch. The result shows **Call returned · Activity launch unverified** whenever the
-call returns normally. Check the receiving side or Android's system log for the
-outcome. A recorded crash during a run establishes that the sender crashed
-during that run. The cause requires separate evidence.
-If Intercept or another hook changes a call, the run still describes the submitted
-arguments. Inspect History for edits or a dropped Intent before drawing conclusions
-about delivery.
+An activity launch shows **Call returned · Activity launch unverified**: Android can
+block a launch without an exception. Check the receiving side.
 
-The host records when the run was created and when its result arrived. Start and
-finish times come from the sender device; elapsed duration uses Android's monotonic
-clock. Host and device clocks may differ. Sender runs have their own IDs and do not
-share History/Monitor capture order. Timing and matching payloads help investigate
-related events but do not prove causality.
+If Intercept or another hook changed the call, the run still shows what was sent. Check
+History for edits or drops.
 
-## Persistence and limits
+Start and finish times come from the device. Sender runs are not numbered with
+History and Monitor's capture order.
 
-A request snapshot is written to the project before dispatch. Results are saved
-automatically. If saving a result fails, it remains in memory and the error appears
-in the Sender status line; quitting retries the save and asks how to handle results
-that still cannot be saved. An unfinished run is
-marked `unknown` when the project reopens and is never automatically resent.
+## Limits
 
-One request can run at a time per sender. Disconnecting does not undo a call that
-has already reached Android. **Cancel** is available for a running query or file
-read, using Android's [cancellation signal](https://developer.android.com/reference/android/content/ContentResolver).
-It is cooperative: a provider or blocked file read may not stop immediately.
-Requesting cancellation is not the same as receiving a cancelled result.
+One request runs at a time per sender. **Cancel** stops a running query or file read
+if the provider supports it. A run in progress when noxen closed is marked `unknown`
+when the project reopens, and is never sent again.
 
-Requests are limited to 256 KiB of serialized JSON and eight levels of typed
-nesting. Queries default to 100 rows and a 256 KiB capture budget, with a maximum of
-1,000 rows and 256 columns. The byte budget includes conservative allowance for
-encoding and can stop capture before that many bytes of values are returned.
-Blobs remain opaque. File reads default to 64 KiB and allow up to 256 KiB.
-These are capture limits, not limits on work the provider performs.
+| Limit | Value |
+| --- | --- |
+| Request size | 256 KiB of JSON, 8 levels of nesting |
+| Query rows | 100 by default, up to 1,000, and up to 256 columns |
+| Query and file capture | 256 KiB; files default to 64 KiB |
+| Returned Bundles | 100 entries each, 4 levels, 4,096 characters per value, 32,768 characters in all |
+| Saved result | 384 KiB |
 
-Returned Bundles have a shared 32,768-character capture budget, at most 100 entries per
-Bundle, four nested levels and 4,096 characters per scalar value. Unsupported
-objects remain opaque. A final serialized result above 384 KiB is replaced with
-an explicit capture-limit marker. Truncation and unavailable values remain visible
-in the saved result.
+These limits apply to what noxen records, not to what the provider does. Truncated
+values are marked in the result.
 
-## MCP access
+## See also
 
-MCP clients use the same requests, runs and sender connection as the interface.
-Control operations require **Allow control**, the current connection token, and
-where relevant the sender token and request revision. They do not switch tabs.
-
-Call `get_sender`, connect with `connect_sender`, save a request with
-`save_sender_request`, then call `execute_sender_request`. Supply a unique
-`execution_key` for each intentional execution. Reusing that key with the same
-request revision retrieves its existing run instead of sending again; using it
-with a different request revision is rejected. Read the latest tokens after a
-connection change.
-
-Use `wait_for_sender_run` to wait up to 30 seconds. A wait timeout does not cancel
-or resend the operation. `get_sender_run` returns the complete record; if it
-exceeds the MCP response limit, retrieve its `request`, `result` and `sender`
-sections separately. The [MCP reference](/noxen-docs/mcp/) lists the remaining
-request, comparison and cancellation operations.
-
-Use `check_sender_activity_context` with the current sender token to check for a
-background process before executing a `startActivity` request. The resulting run
-can include a fresh `activityContext` sample taken before the call. A returned
-activity call reports `result.activityLaunch: "unverified"`.
+- [MCP](../mcp/#sender), to send requests from an MCP client
+- [Commands](../commands/#extra-types), for the value types

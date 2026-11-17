@@ -1,57 +1,50 @@
 ---
 title: "Commands"
+description: Reference for the commands accepted by the Intercept and History command bars.
 ---
 
-Use the command bar to edit a held Intent, filter captures, or export results.
-Enter an Intent command such as `forward` while Intercept is holding an event.
-Commands that control noxen, such as `/search` and `/export`, start with a slash.
+Intercept and History have a command bar at the bottom; `Ctrl+B` shows or hides it.
+Commands without a slash act on the held Intent and work only in Intercept. Commands
+with a slash act on noxen and work in both tabs, unless noted.
 
 ## Intent actions
 
-These commands are available when an intent is actively blocked in the Intercept tab.
-
-| Command | Alias | Meaning |
-|---|---|---|
-| `forward` | `f` | Forward the current intercepted intent |
-| `drop` | `d` | Drop the current intercepted intent |
+| Command | Alias | Effect |
+| --- | --- | --- |
+| `forward` | `f` | Forward the held Intent |
+| `drop` | `d` | Drop the held Intent |
 
 ## Intent modifications
 
-Modification commands update the draft. noxen applies your edits when you
-forward the Intent. History shows the result the agent observed and reports
-partial or unconfirmed edits.
+These commands change the held Intent. They take effect when you forward it. If the
+[JSON editor](../intercept/#edit-as-json) is open, they change its JSON at once.
+**Cancel edit** discards them.
 
-When the JSON editor is open, a modification command changes its JSON immediately.
-Opening the editor after entering commands shows their combined result. **Cancel
-edit** or `Esc` discards every pending change, whether it came from a command or from
-the JSON. `component` extras and list types (`int-list` and the others) cannot be
-written in the JSON: stage them with the editor closed.
-
-| Command | Meaning |
-|---|---|
-| `action <value>` | Set the intent action |
-| `component <package/class>` | Set the base Intent Component, for example `component dev.example/.MainActivity` |
-| `component clear` | Remove the base Intent Component; leave its selector and package unchanged |
+| Command | Effect |
+| --- | --- |
+| `action <value>` | Set the action |
+| `component <package/class>` | Set the component, for example `component dev.example/.MainActivity` |
+| `component clear` | Remove the component |
 | `data <uri>` | Set the data URI |
 | `mime <type>` | Set the MIME type, for example `mime application/pdf` |
 | `mime clear` | Remove the MIME type |
 | `+cat <value>` | Add a category |
 | `-cat <value>` | Remove a category |
-| `+flag <int>` | Add an integer flag |
-| `-flag <int>` | Remove an integer flag |
-| `+x [type] <key> <value>` | Add or replace an extra |
-| `+x null <key>` | Add a null String extra |
+| `+flag <int>` | Add flags, decimal or hexadecimal |
+| `-flag <int>` | Remove flags |
+| `+x [type] <key> <value>` | Add or replace an extra; the type defaults to `string` |
+| `+x null <key>` | Add a null `String` extra |
 | `-x <key>` | Remove an extra |
 
-Android normally clears the MIME type when `setData()` is called and clears the data
-URI when `setType()` is called. Noxen applies these two fields together with
-`setDataAndType()`, so changing one preserves the other unless you explicitly clear it.
+Changing the data URI keeps the MIME type and the other way round, unlike Android's
+`setData()` and `setType()`, which clear each other.
 
-The type names mirror every extra form in the current Android `adb shell am`
-intent parser:
+### Extra types
 
-| noxen type | adb option | Value received by the app |
-|---|---|---|
+The types match those of `adb shell am`.
+
+| Type | `am` option | Value the app receives |
+| --- | --- | --- |
 | `string` | `--es` | `String` |
 | `null` | `--esn` | null `String` |
 | `bool` | `--ez` | `boolean` |
@@ -72,11 +65,9 @@ intent parser:
 | `double-list` | `--edal` | `ArrayList<Double>` |
 | `string-list` | `--esal` | `ArrayList<String>` |
 
-If no extra type is specified, `string` is used.
-
-Array and list items are comma-separated. String collections accept `\,` for a
-literal comma inside an item. Quote the full value in the command bar when it
-contains spaces:
+Separate array and list items with commas; in strings, `\,` is a literal comma. Quote
+a value that contains spaces. A `bool` accepts `true`, `false`, `t`, `f` or an integer,
+where `0` is false. Numbers are checked against their Java range.
 
 ```text
 +x int[] ids 10,20,30
@@ -85,87 +76,67 @@ contains spaces:
 +x null optional_name
 ```
 
-Numeric values are checked before the intent is forwarded, including Android `int`
-and `long` ranges. For booleans,
-Android accepts `true`, `false`, `t`, `f`, or an integer (`0` is false and any
-other valid integer is true).
+`component` extras and the list types cannot be shown in the JSON editor: add them
+with the editor closed.
 
-See [Intercepting and modifying](https://frankheat.github.io/noxen-docs/intercepting-and-modifying/) for a complete
-modification flow.
+## Interception
 
-## Interception state
+| Command | Effect |
+| --- | --- |
+| `/intercept on` | Hold matching Intents |
+| `/intercept off` | Record Intents without holding them |
+| `/intercept status` | Show whether interception is on |
 
-| Command | Meaning |
-|---|---|
-| `/intercept on` | Enable block mode |
-| `/intercept off` | Disable block mode |
-| `/intercept status` | Show current interception state |
+## Stack traces
 
-When interception is off, intents are still observed and stored in History, but the target
-thread is not held waiting for a manual decision.
+These apply to the current tab; Intercept and History have separate settings.
 
-## Stack trace
+| Command | Effect |
+| --- | --- |
+| `/stack on` | Show stack traces |
+| `/stack off` | Hide stack traces |
+| `/stack <number>` | Show that many frames |
 
-| Command | Meaning |
-|---|---|
-| `/stack on` | Enable stack trace display in the active tab |
-| `/stack off` | Disable stack trace display in the active tab |
-| `/stack <number>` | Set the number of stack frames shown in the active tab |
+## Search
 
-Intercept and History stack settings are independent.
+History only.
 
-## History search
-
-| Command | Meaning |
-|---|---|
-| `/search <text>` | Apply the same substring search as the History search field |
-| `/search` | Clear the History search |
-
-The command is available only in History. It updates the visual search field,
-so the command and graphical control never hold different queries. Search is a
-temporary case-insensitive substring match. `/filter` remains the appropriate
-command for structured rules stored with the project.
+| Command | Effect |
+| --- | --- |
+| `/search <text>` | Search History, like the search field |
+| `/search` | Clear the search |
 
 ## Filters
 
-`/filter` always operates on the active tab.
+These apply to the current tab. See [Filters](../filters/) for the rule syntax.
 
-| Command | Meaning |
-|---|---|
-| `/filter list` | Show active filters |
+| Command | Effect |
+| --- | --- |
+| `/filter list` | List the filters |
 | `/filter add ignore <rule>` | Add an ignore rule |
 | `/filter add focus <rule>` | Add a focus rule |
-| `/filter remove <id>` | Remove a filter by ID |
+| `/filter remove <id>` | Remove a filter |
 
-Examples:
+## Export
 
-```text
-/filter add ignore class=*ContextThemeWrapper
-/filter add focus method=sendBroadcast
-/filter add focus component=explicit
-/filter remove 3
-```
+| Command | Effect |
+| --- | --- |
+| `/export entries` | Export all of History as JSON |
+| `/export filtered entries` | Export the History rows currently shown |
+| `/save intercept filters` | Save the Intercept filters to a text file |
+| `/save history filters` | Save the History filters to a text file |
 
-See [Filters](https://frankheat.github.io/noxen-docs/filters/) for the full rule format.
+Files are written to the current directory, with a timestamp in their name.
 
-## Export and save
+## General
 
-| Command | Meaning |
-|---|---|
-| `/export entries` | Export all history entries to JSON |
-| `/export filtered entries` | Export only the currently filtered History view |
-| `/save history filters` | Save History filters to a timestamped text file |
-| `/save intercept filters` | Save Intercept filters to a timestamped text file |
+| Command | Effect |
+| --- | --- |
+| `/help` | Show the commands |
+| `/theme` | Switch between dark and light for this run |
+| `/clear history` | Delete all captures from the project |
+| `/quit` | Quit noxen |
 
-## System commands
+## See also
 
-| Command | Meaning |
-|---|---|
-| `/help` | Open the help modal |
-| `/quit` | Exit the application |
-| `/theme` | Toggle the theme for the current run |
-| `/clear history` | Clear all stored history entries in the current project |
-
-The dark and light variants use paired noxen palettes. Borders, selections,
-status colors, logs and controls adapt together so both variants preserve
-readability and contrast.
+- [Keyboard shortcuts](../keyboard-shortcuts/)

@@ -1,40 +1,15 @@
 ---
 title: "Hook configuration"
+description: Reference for the JSON file that adds Intent hooks to noxen's defaults.
 ---
 
-Hook configuration controls which Java methods are intercepted. This is how you decide
-which component communication points noxen can observe.
+A hook configuration is a JSON file listing Java methods for noxen to hook. Select it
+in [Home](../home/#hook-config) with **Hook config**. Its hooks are added to the
+default ones; they never replace or disable them.
 
-noxen ships with a default hook configuration bundled inside the package.
-Additional hook files can be loaded with the **Hook config** Browse button on the
-Home tab before connecting. Custom hooks are appended to the default hooks.
+## Syntax
 
-In the source tree, the default configuration is stored at:
-
-```text
-config/hooks.json
-```
-
-Installed packages use the bundled runtime copy at `runtime/config/hooks.json`
-inside the Python package (`src/noxen/runtime/config/hooks.json` in the checkout).
-The source copy is preferred when available. Normal users do not need to run noxen
-from the source checkout. Selecting a custom file adds hooks; it does not replace
-or disable the bundled defaults.
-
-## Format
-
-Each hook definition has:
-
-- `clazz`: Java class name.
-- `method`: method name.
-- `args`: exact Java argument type list.
-- `minApi`: optional minimum Android API level.
-
-The top-level JSON value must be an array. `clazz`, `method`, and every entry in
-`args` must be non-empty strings. When present, `minApi` must be a positive
-integer. Unknown fields are ignored with a warning.
-
-Example:
+The file is an array of hook definitions:
 
 ```json
 [
@@ -42,96 +17,57 @@ Example:
     "clazz": "com.example.MyReceiver",
     "method": "onReceive",
     "args": ["android.content.Context", "android.content.Intent"],
-    "minApi": 1
+    "minApi": 26
   }
 ]
 ```
 
-The selected file is validated before noxen starts a connection. A missing or
-unreadable file, invalid JSON, or an invalid hook definition prevents the
-connection from starting. The error is shown on the Home tab and its detailed
-location, such as `hook[3].args[1]`, is written to Log.
+| Field | Required | Value |
+| --- | --- | --- |
+| `clazz` | Yes | Fully qualified class name. Inner classes use `$`, as in `android.content.Context$BindServiceFlags` |
+| `method` | Yes | Method name |
+| `args` | Yes | The exact argument types of the overload, in order |
+| `minApi` | No | Lowest Android API level on which to install the hook |
 
-Custom hooks are intended for methods that carry an Intent. A supported entry is
-one of the following:
+Unknown fields are ignored with a warning in Log. If the file cannot be read, is not
+valid JSON, or has an invalid entry, noxen does not connect: Home shows the error, and
+Log shows where it is, such as `hook[3].args[1]`.
 
-- a method whose `args` contains `android.content.Intent`;
-- a zero-argument `getIntent` method returning `android.content.Intent`;
-- `PendingIntent.getActivity`, `getBroadcast`, or `getService`, with the Intent
-  in the expected third argument position.
+## Supported methods
 
-Other method shapes are rejected because noxen could not extract and safely edit
-an Intent from them.
-For an argument-based hook, noxen captures the first parameter declared exactly as
-`android.content.Intent`, including a null value or an Intent subclass passed there.
-It does not capture every argument or every return value of an arbitrary method.
-Argument type names in the JSON must match the actual overload exactly.
+A hook must give noxen an Intent to capture:
 
-## Duplicates
+- a method with an `android.content.Intent` argument. noxen captures the first one;
+- a `getIntent()` method returning an Intent;
+- `PendingIntent.getActivity`, `getBroadcast` or `getService`.
 
-An exact hook signature is identified by `clazz`, `method`, and `args`. If the
-same signature appears more than once, including once in the bundled defaults
-and once in a custom file, noxen keeps the first definition and reports the
-duplicate in Log.
+Other methods are rejected. To record other calls without holding them, use a
+[Monitor](../monitor/#custom-profiles) profile.
 
-## Default coverage
+## Default hooks
 
-The default hooks include common intent entry points such as:
+| Class | Methods |
+| --- | --- |
+| `Activity` | `startActivityForResult`, `setResult`, `onActivityResult`, `onNewIntent`, `getIntent` |
+| `ContextWrapper` | `startActivity`, `sendBroadcast`, `sendOrderedBroadcast`, `startService`, `startForegroundService`, `bindService` |
+| `PendingIntent` | `getActivity`, `getBroadcast`, `getService` |
 
-- `Activity.startActivityForResult`
-- `Activity.setResult`
-- `Activity.onActivityResult`
-- `Activity.onNewIntent`
-- `Activity.getIntent`
-- `ContextWrapper.startActivity`
-- `ContextWrapper.sendBroadcast`
-- `ContextWrapper.sendOrderedBroadcast`
-- `ContextWrapper.startService`
-- `ContextWrapper.startForegroundService`
-- `ContextWrapper.bindService`
-- `PendingIntent.getActivity`
-- `PendingIntent.getBroadcast`
-- `PendingIntent.getService`
+## Installation report
 
-## API-specific hooks
-
-Some Android methods exist only on newer API levels.
-
-For example, Android 14 introduced or changed overloads around broadcast and service APIs.
-The `minApi` field prevents the agent from trying to hook methods that are not available
-on the current device.
-
-## Exact signatures matter
-
-Frida hooks overloads by argument list. If the argument list is wrong, the method will
-not be hooked.
-
-Check:
-
-- Fully qualified class name.
-- Method name.
-- Exact argument type order.
-- Inner class syntax, for example `android.content.Context$BindServiceFlags`.
-
-Static validation cannot prove that a class or overload exists in the selected
-process. After connecting, the Frida agent attempts each hook independently and
-reports a summary such as:
+After connecting, Log reports how many hooks installed:
 
 ```text
 Hooks: 27 installed, 2 skipped, 1 failed
 ```
 
-An API-incompatible hook is skipped. A missing class, method, or overload fails
-only that hook and does not discard hooks that were installed successfully. Log
-identifies whether each affected entry came from the bundled defaults or the
-custom file. If no custom hook could be installed, noxen emits an explicit
-warning.
+A hook whose `minApi` is above the device's is skipped. A class or overload that does
+not exist fails, without affecting the others. If a hook is defined twice, noxen keeps
+the first and reports the duplicate.
 
-Hooks observe the attached process. A component running in a separate process needs
-its own attachment. An override that skips a hooked base method, or a call that
-takes a different overload or a native path, can bypass that hook. Verify coverage
-with a known call on the target device.
+An installed hook sees only its own overload in the connected process. A component in
+another process, an override that does not call the hooked method, or a different
+overload, bypasses it. Check important hooks with a known call.
 
-The project stores the selected file path, not a copy of the JSON content. Keep
-the file available at that path when reopening the project. Paths selected with
-Browse are normalized to absolute paths.
+## See also
+
+- [APK analysis](../apk-analysis/), to generate a hook configuration from an APK

@@ -1,21 +1,40 @@
 ---
 title: "Android behavior and limits"
+description: Why holding an Intent can make the app not respond, and how to avoid it.
 ---
 
-## Why ANR can happen
+Holding an Intent pauses the thread that reached the hook. Android expects many threads
+to respond within a deadline, so a long hold can make it report that the app is not
+responding (ANR), or stop the app.
 
-A held Intent pauses the hooked thread. Android can report an Application Not Responding (ANR) if that thread delays input dispatch, a broadcast receiver, a service callback, or another timed operation.
+## Deadlines that apply
 
-A foreground service that misses its deadline to call `startForeground()` can fail startup and terminate the process. The input ANR bypass does not cover this deadline. [Android foreground-service troubleshooting](https://developer.android.com/develop/background-work/services/fgs/troubleshooting)
+| Thread is handling | Android can |
+| --- | --- |
+| Input, such as a tap | Report an input ANR |
+| A broadcast receiver | Report a broadcast ANR |
+| A service callback | Report a service ANR |
+| A foreground service start | Stop the app if `startForeground()` is late. See [foreground service troubleshooting](https://developer.android.com/develop/background-work/services/fgs/troubleshooting) |
 
-## Keeping sessions responsive
+## Keep the app responsive
 
-Resolve held Intents promptly, especially on the main thread. Use [Intercept filters](../filters/) to auto-forward events you do not need to stop. With interception off, noxen still captures events without holding the target thread.
+- Resolve held Intents quickly, above all on the main thread.
+- Hold only what you need: use [Intercept filters](../filters/) to forward the rest
+  automatically.
+- Turn interception off to record without holding.
 
-Filters reduce blocking. They do not remove hooks or their overhead. Custom hook files add to the bundled framework hooks. An app-specific hook can still run on a thread subject to an Android deadline.
+Filters reduce holding, not hooking: every hook still runs. Hooks from a
+[hook configuration](../hook-configuration/) add to the defaults.
 
-## System ANR bypass
+If the connection is lost while an Intent is held, the app may stay blocked. Restart it.
 
-**Input ANR bypass (experimental)** in Home attaches to Android's `system_server` on a rooted research device. It attempts to postpone matching input-dispatch ANRs for the target while an Intent is held. Other Android deadlines still apply.
+## Input ANR bypass
 
-The bypass is off by default. Its two-minute window limits how long noxen applies it. Android may report an ANR at a different time or never show a dialog. Support varies with Android and OEM changes, and a failing system hook can affect the whole device. Check **Log** for installation warnings and **Verbose logs** for individual hook results.
+**Input ANR bypass (experimental)** in [Home](../home/#input-anr-bypass-experimental)
+hooks Android's `system_server` on a rooted device, to postpone the input ANR while
+noxen holds an Intent in the target. It covers only input ANRs.
+
+The bypass is off by default and lasts at most two minutes per hold. Android may still
+report an ANR, at a different time or without a dialog, and support varies between
+Android versions and manufacturers. A failing hook in `system_server` can affect the
+whole device. Log reports which hooks installed; **Verbose logs** shows each one.

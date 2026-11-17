@@ -1,167 +1,70 @@
 ---
 title: "Troubleshooting"
+description: Fix connection failures, missing captures and an unresponsive app.
 ---
 
-Use this page to diagnose connection failures, missing captures, or an
-unresponsive target. Start with the symptom you see in noxen.
+Find the symptom you see. [Log](../log/) usually says more: enable **Verbose logs** for
+every detail.
 
-## `Connection failed`
+## Connection failed
 
-If Home reports a failed connection, open Log to read the Frida error. Check
-that `frida-server` is running, that noxen can reach the device, and that the
-host and device versions match. For Attach, also check that the process is
-still running and that you selected the correct name or PID.
+Log shows the Frida error. Check that:
 
-If Attach succeeds but you miss an early startup call, reconnect in **Spawn**
-mode and trigger the behavior again.
+- `frida-server` is running on the device;
+- its version matches the Frida Python package on your computer;
+- for Attach, the process is still running, and you chose the right name or PID.
 
-## `noxen` command is not found
+## A startup call is missing
 
-Check that the virtual environment is active, then refresh zsh's command cache if
-needed:
+Attaching cannot capture what the app did before you connected. Connect in **Spawn**
+and trigger it again.
 
-```bash
-rehash
-```
+## No Intents appear
 
-You can also launch noxen without relying on the console script:
+- The app may not use the hooked methods for this action. Add hooks with a
+  [hook configuration](../hook-configuration/) or [APK analysis](../apk-analysis/).
+- A hook may have failed to install: Log reports each one.
+- An Intercept filter may be forwarding them: check [History](../history/), which
+  records them anyway.
 
-```bash
-python -m noxen
-```
+## An Intent is in History but was not held
 
-## `script_bundle.js not found`
+Check whether interception was on, whether an Intercept filter matched it, and whether
+another Intent was already held: noxen holds one at a time, and records the rest.
 
-The runtime bundle is missing. This should normally affect only source-tree
-development, because regular package installs include the bundled runtime files.
-Frida 17 support depends on this file.
+## Too many Intents are held
 
-In source-tree development noxen reads `agent/script_bundle.js`; regular package
-installs read the bundled copy inside the Python package.
+Add [Intercept filters](../filters/). Hook configurations add hooks; they cannot
+remove default ones.
 
-Rebuild it:
+## The app is not responding
 
-```bash
-npm install
-npm run build
-```
+Forward or drop the held Intent, or turn interception off. See
+[Android behavior and limits](../android-behavior-and-limits/).
 
-Then run noxen again.
+If Log reports **Auto-forward failed** and the app stays blocked, turn interception
+off to release it. If the connection is lost, restart the app.
 
-If the Log tab mentions `agent/system_server_bundle.js`, rebuild the same way. That
-bundle is only used by the optional `Input ANR bypass (experimental)` switch.
+## A custom hook does not install
 
-## Frida 17 Java errors
+Check the class name, method name and argument types against the overload, and the
+device's API level. See [Hook configuration](../hook-configuration/#installation-report).
 
-If errors mention `Java`, `require`, or `frida-java-bridge`, confirm that:
+## Errors about `Java`, `require` or `frida-java-bridge`
 
-- `agent/script_bundle.js` exists if you are running from the source tree.
-- `agent/system_server_bundle.js` exists if you are running from the source tree and
-  `Input ANR bypass (experimental)` is enabled.
-- `src/noxen/runtime/agent/` was synced if you are building a wheel.
-- The relevant bundle was regenerated after editing `agent/script.js` or
-  `agent/system_server.js`.
-- The host Python environment is using the Frida version you expect.
+Check that the Frida Python package is the version you expect, then reinstall noxen.
 
-## No intents appear
+## `noxen-analyze` reports that androguard is missing
 
-Possible causes:
-
-- The selected app is not using the hooked methods.
-- The behavior you are testing happens before attach.
-- The hook signature is wrong.
-- The app uses native code or reflection-heavy paths.
-- Filters are hiding active interceptions.
-
-Try spawn mode from the Home tab and check:
-
-- The Intercept toggle is enabled if you expect blocking behavior.
-- Intercept filters are not hiding the events you want to inspect.
-
-## Too many intents appear
-
-Add Intercept filters to reduce manual blocking, or History filters to reduce the
-rows displayed. Custom hook files are appended to the defaults: selecting a smaller
-file does not disable framework hooks. See [Filters](https://frankheat.github.io/noxen-docs/filters/)
-for rule examples.
-
-## An event appears in History but not Intercept
-
-The hook captured the event. Check whether interception was enabled at that moment,
-whether an Intercept filter auto-forwarded it, and whether another event was already
-held. While one event is held, additional hooked events are recorded without waiting
-for another decision. History and Intercept filters are independent.
-
-A null Intent is not intentionally hidden: new captures show
-`Intent: null (no Intent object)`. Edit is disabled for that event, but Forward and
-Drop remain available when it is the active block.
-
-If Log reports **Auto-forward failed** and the target stays blocked, turn interception
-off to attempt release. If the connection has already been lost, the target may need
-a restart.
-
-## App becomes not responding
-
-This usually means a hooked thread was blocked too long.
-
-Immediate actions:
-
-- Forward or drop the active intent.
-- Turn interception off from the Intercept toggle.
-- Add filters to auto-forward noisy events.
-- Avoid unnecessary custom hooks; they are added to the defaults.
-- Use app-specific hooks when useful, but do not assume their callbacks are free of timeouts.
-- On rooted test devices, the optional `Input ANR bypass (experimental)` switch can
-  reduce input-dispatch ANRs while noxen holds an event, but it cannot guarantee a
-  later ANR dialog on every Android build.
-
-See [Android behavior and limits](https://frankheat.github.io/noxen-docs/android-behavior-and-limits/).
-
-## Need more runtime details
-
-The Log tab shows system and Frida session messages with aligned source and level
-columns. DEBUG messages are stored but hidden by default to keep the view readable.
-
-Enable `Verbose logs` in the Log tab when you need detailed diagnostics such as
-individual hook paths, skipped `system_server` hooks, or Input ANR hold start/end
-events. The switch only changes which stored messages are visible; it does not add
-extra status lines to the log.
-
-## Custom hook does not work
-
-Check:
-
-- Class name is fully qualified.
-- Method name is correct.
-- Argument types exactly match the overload.
-- The method exists on the device API level.
-- The code path is actually executed.
-
-## APK analysis fails
-
-APK analysis uses optional `androguard` support. If the command reports that
-`androguard` is missing, install the analysis extra:
+Install the analysis extra:
 
 ```bash
 pip install ".[analyze]"
 ```
 
-If `androguard` is installed and analysis still fails, the APK may use structures the
-analyzer does not understand. You can write hooks manually.
+## The interface looks wrong
 
-## UI looks broken
-
-Terminal UI rendering depends on terminal size and capabilities.
-
-Try:
-
-- Increase terminal width.
-- Use a modern terminal emulator.
-- Toggle the theme from the UI or command bar.
-- Restart the session if the terminal was resized aggressively.
-
-If a key combination acts on the terminal window, check the terminal or desktop
-keyboard bindings. They may be intercepting it before it reaches noxen.
-
-If a command bar is missing, press `Ctrl+B` in Intercept or History. Visibility is
-saved independently for the two tabs in the user's settings, including across restarts.
+- Use a terminal with true color and Unicode, and make it wider.
+- On Windows, use Windows Terminal.
+- If the command bar is missing, press `Ctrl+B`.
+- If a shortcut does nothing, your terminal or desktop may be using it first.

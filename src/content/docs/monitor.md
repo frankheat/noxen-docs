@@ -1,97 +1,108 @@
 ---
 title: "Monitor"
+description: Record selected Java calls in the target without stopping them.
 ---
 
-Monitor records selected Java calls without stopping them. If an Intent contains
-a value you want to follow, use Monitor to look for related calls in the target
-process before or after the capture.
+The **Monitor** tab records Java calls in the target, such as SQL queries, file opens
+and WebView loads, without stopping them. Use it to follow a value from an Intent into
+what the app does with it.
+
+Monitor has two views: **Events**, the recorded calls, and **Profiles**, the groups of
+hooks that produce them.
 
 ## Profiles
 
-Open **Monitor → Profiles** and enable the profiles you need. Built-in profiles
-start disabled. Select a profile to see the exact Java signatures it covers.
-If a hook fails to install, select the hook and open **Details**.
+Open **Profiles** and enable the ones you need; they all start disabled. Select a
+profile to see the exact methods it hooks.
 
-| Profile | What to look for |
-|---|---|
-| WebView | Page loads, JavaScript evaluation and bridges, and changes to WebView settings. Load events show settings previously observed for that WebView. Settings applied before observation remain unknown. |
-| Content Resolver | Calls the app makes to providers through `ContentResolver`: queries, calls, edits, and opens. Inspect URIs, modes, returned insert URIs, and update or delete counts. Streams and cursors stay opaque. |
-| Incoming Provider | Calls at the transport of providers in the target process, with the provider class, attributed package, and Binder UID. Standard SQL arguments are shown when already decoded at return. Other `Bundle` contents and `ContentValues` stay opaque. Requires Android 12 or later. |
-| URI Grants | Explicit grant, revoke, and persistable permission calls. A return records the call's outcome. It does not verify the resulting grant or cover grants made during Intent delivery. |
-| File | Path-based stream, random-access, and `ParcelFileDescriptor` opens, deletion, rename, copy, and move. A successful non-append open may truncate a file. Stream I/O and native file access are outside this profile. |
-| SQLite | SQL and bindings from `execSQL` and standard queries through `rawQueryWithFactory`. Monitor does not read cursor rows or cover alternate drivers. |
-| Android Log | Tag, message, priority, and throwable type from calls to `android.util.Log` in the target. Android controls which messages reach Logcat. |
-| SharedPreferences | Staged edits, `apply`, and `commit` in the standard editor. `commit` reports a synchronous result. The disk write scheduled by `apply` is not verified. |
-| Java Network | Endpoints from `URL.openConnection` and Java socket connects. HTTP(S) URLs exclude credentials, query, and fragment. Traffic, request bodies, and TLS handshakes are outside this profile. |
-| Crypto | Cipher selection and initialization. Keys and parameters are represented by type. Cryptographic payloads are outside this profile. |
-| Process Execution | Commands and working directories passed to `Runtime.exec` or `ProcessBuilder.start()`. A returned process indicates launch, with exit status and I/O outside this profile. |
-| Dynamic Code Loading | DEX paths, buffer sizes, and package context requests. Creating a loader does not establish that code ran. |
-| Intent | Selected URI and extra reads and edits to component, package, or flags. Reads through `Bundle` are outside this profile. Monitor excludes noxen's own Intent inspection and edits. |
+| Profile | Records |
+| --- | --- |
+| WebView | Page loads, JavaScript evaluation, JavaScript bridges and changes to WebView settings |
+| Content Resolver | The app's calls to providers: queries, calls, edits and opens, with URIs, modes and results |
+| Incoming Provider | Calls to the app's own providers, with the provider, calling package and Binder UID. Android 12 or later |
+| URI Grants | Explicit grant, revoke and persistable permission calls |
+| File | Path-based opens, deletes, renames, copies and moves |
+| SQLite | SQL and bindings from `execSQL` and standard queries |
+| Android Log | Calls to `android.util.Log`: tag, message, priority and throwable type |
+| SharedPreferences | Edits, `apply` and `commit` |
+| Java Network | Endpoints from `URL.openConnection` and socket connects |
+| Crypto | Cipher selection and initialization; keys are shown by type only |
+| Process Execution | Commands passed to `Runtime.exec` and `ProcessBuilder.start()` |
+| Dynamic Code Loading | DEX paths, buffers and package context requests |
+| Intent | URI and extra reads, and changes to component, package or flags |
+
+Each profile records calls, not their effects. For example, Monitor does not read
+cursor rows, stream contents or network traffic, and a `commit` or a grant records
+the call's result, not what was written to disk.
 
 ### Custom profiles
 
-Create a profile and add hooks using the fully qualified Java class, method name, and argument types in signature order. Use `$init` for a constructor and leave arguments empty for a no-argument method. For example, use `java.lang.String, boolean` for a two-argument overload. Select whether to capture arguments, return values, or a stack.
+Create a profile and add hooks with the fully qualified class, the method name and the
+argument types in order, such as `java.lang.String, boolean`. Use `$init` for a
+constructor and leave the arguments empty for a method without any. Choose whether to
+capture arguments, the return value and a stack.
 
-Profile changes are saved in the project. Use **Restore missing hooks** to add default hooks missing from a built-in profile. Use **Restore profiles** in the profile menu to recover deleted built-in profiles.
+Profiles are saved in the project. **Restore missing hooks** adds back default hooks
+removed from a built-in profile; **Restore profiles** in the profile menu brings back
+deleted built-in profiles.
 
-### Following a call into a provider
-
-Enable **Incoming Provider** together with **SQLite** or **File**, then call
-an exported provider from `adb shell content` or another app. The incoming event
-shows the calling context and the arguments available to Monitor. Look for SQL
-or file operations on the same **Thread** around the call. A shared thread and
-nearby timestamps are clues to investigate.
-
-Android can reject a request before it reaches the hooked transport. If the
-transport itself rejects it, Monitor can record that outcome. Seeing a transport
-event alone does not establish that the provider implementation ran. A provider
-declared in another process is outside the hooked process. The calling UID is the Binder
-caller at that moment. For a call the app makes to its own provider, it is the
-app's UID, or the UID of an earlier incoming caller the app is still serving.
-Android checks only that the caller may access the provider before `call()`,
-without the read or write check applied to the other methods. The provider must
-check the command itself. [ContentProvider.call](https://developer.android.com/reference/android/content/ContentProvider#call(java.lang.String,%20java.lang.String,%20android.os.Bundle))
-
-## Coverage states
+### Hook states
 
 | State | Meaning |
-|---|---|
-| Active | The overload was installed. Verify important hooks with a known call. |
-| Not found | The class or overload was unavailable in the default app class loader. Retry after the code loads. |
-| Error | Installation failed or noxen detected a hook conflict. See **Details**. |
+| --- | --- |
+| Active | The hook is installed |
+| Not found | The class or overload was not found in the app's class loader. Retry once the code that defines it has loaded |
+| Error | The hook could not be installed, or it conflicts with another. Select it and open **Details** |
 
-Pending hooks can wait for the app class loader or, for WebView settings, a call to `getSettings()`. Attach cannot recover earlier calls. Monitor sees the hooked process and overload, so an override that skips the base method or runs in another process can be missed.
+An installed hook can still miss calls: an override that does not call the hooked
+method, or code in another process, bypasses it. Check important hooks with a known
+call.
 
-Profiles that share an overload produce one event with the combined capture options. noxen reports detectable conflicts with existing Intercept or extra-script hooks. Conflicts with hooks installed by another Frida script can go undetected.
+## Events
 
-## Events and limits
+Each event shows the call when it returns or throws; **Time** is when it started. A
+call that never returns produces no event. A method that schedules background work
+records only the scheduling.
 
-Monitor records **Time** when a call starts and shows the event when the method
-returns or throws. If the method never completes, you may see no event. For
-example, when a method schedules background work, the event shows the result
-of scheduling it. Check the later work separately.
+Values longer than 2,048 UTF-16 code units are truncated, and objects Monitor cannot
+read are shown as opaque. Monitor never changes the method's result.
 
-Arguments and results can be truncated or unavailable. General string capture is limited to 2,048 UTF-16 code units, and some profiles have smaller limits for individual fields, such as SQLite bindings. Unsupported objects remain opaque. Monitor preserves the original method result or exception. Use only relevant profiles to reduce overhead, especially with stack capture.
+Search covers every saved event, including those outside the current view. **⊟** shows
+columns such as **Class** or **Capture order**. `Ctrl+L` clears the events from the
+project.
+
+**To Sender** (`Ctrl+R`) copies a content provider call into a
+[Sender](../sender/#copy-a-capture-to-sender) request when every argument was captured.
+
+If calls arrive faster than noxen can save them, some are dropped. A loss counter or
+an incomplete-recording notice reports it.
 
 ## Correlating History and Monitor events
 
-Use **Capture order** to compare when History and Monitor observed two events.
-In `Session 4 · #281`, the session identifies the connection and `#281` identifies
-the observation. This number keeps its place in the sequence even if the device
-clock changes or a slow call is saved later. History and Monitor assign their
-row IDs independently. If a capture number is marked **session only**, compare
-it with observations from the same connection.
+**Capture order**, such as `Session 4 · #281`, numbers observations within a
+connection, in the order the agent saw them, across History and Monitor. A number
+marked **session only** can be compared only within the same connection.
 
-For example, find a distinctive `report_id` in a History Intent, then search for it in Monitor and inspect the matching argument. If Intercept held the Intent, compare its **Released at** with the call's **Time** to exclude the pause. Both use device time in UTC for new captures. Older History rows may use host receipt time.
+For example, find a distinctive value in a History Intent, search for it in Monitor,
+and compare the calls around it. If the Intent was held, compare its **Released at**
+with the call's **Time**, so that the pause does not count.
 
-A matching value and time are leads to investigate. Repeated values, asynchronous work, unavailable hooks, and lost captures can leave ambiguity.
+A matching value and time are leads, not proof: repeated values, background work and
+missed calls can all mislead.
 
-## Project history
+### Following a call into a provider
 
-Monitor saves events in the current project. Search covers all saved events, including rows outside the current view. Use **⊟** to show columns such as **Class** or **Capture order**. Clearing Events deletes the project's Monitor events.
+Enable **Incoming Provider** with **SQLite** or **File**, then call an exported
+provider, for example with `adb shell content`. The incoming event shows the caller;
+SQL or file events on the same **Thread** around it show what followed.
 
-If calls arrive faster than noxen can save them, the capture queue can fill and
-drop events. Check the loss counter or an incomplete-recording notice for known
-gaps. A target that exits abruptly can lose its last batch before reporting it.
-When you quit normally, noxen tries to save buffered events and offers a retry
-if saving fails.
+An incoming event shows that the call reached the provider's transport, not that the
+provider ran it: Android or the transport can reject it. For `call()`, Android checks
+only that the caller may access the provider; the provider must check the method
+itself. See
+[`ContentProvider.call`](https://developer.android.com/reference/android/content/ContentProvider#call(java.lang.String,%20java.lang.String,%20android.os.Bundle)).
+
+## See also
+
+- [History](../history/)
+- [noxen playground](../noxen-playground/#follow-a-call-into-a-provider)

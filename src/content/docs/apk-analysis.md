@@ -1,109 +1,53 @@
 ---
 title: "APK analysis"
+description: Generate hooks for an app's receivers and services from its APK with noxen-analyze.
 ---
 
-`noxen-analyze` is an optional helper that scans an APK and creates app-specific hook
-definitions. It does not run Frida and it does not connect to a device. Its job is to
-produce a JSON hook file that can later be loaded from noxen's Home tab.
+`noxen-analyze` scans an APK and writes a [hook configuration](../hook-configuration/)
+for the receivers and services the app implements. Load it in Home to capture the
+Intents those components receive, in addition to the default hooks.
 
-Use it to add receiver and service entry points implemented by the target app.
-It complements the framework hooks; loading its output does not remove them.
+## Install
 
-## Install the analyzer
-
-APK analysis uses `androguard`, which is optional. Install the analysis extra from the
-noxen repository:
+`noxen-analyze` needs the analysis extra:
 
 ```bash
 pip install ".[analyze]"
 ```
 
-This adds the `noxen-analyze` command.
+## Syntax
 
-## Run it
+```bash
+noxen-analyze <apk> [-o <file>]
+```
+
+| Argument | Value |
+| --- | --- |
+| `<apk>` | The APK to analyze |
+| `-o <file>` | Output file. Defaults to `customHooks.json` |
+
+## Example
 
 ```bash
 noxen-analyze app.apk -o hooks.json
 ```
 
-The first argument is the APK path. The `-o` option controls where the generated hook
-configuration is written. If `-o` is omitted, the default output file is:
+Then, in [Home](../home/#hook-config), select `hooks.json` with **Hook config** and
+connect.
 
-```text
-customHooks.json
-```
+## What it generates
 
-After generating the file:
+| Component | Hooks |
+| --- | --- |
+| Broadcast receivers | `onReceive(Context, Intent)` |
+| Services | `onStartCommand(Intent, int, int)`, `onBind(Intent)` |
 
-1. Launch noxen.
-2. Select device, mode, and target from the Home tab.
-3. Use **Hook config** to select the generated JSON file.
-4. Connect to the app.
+A class counts as a receiver or service if it inherits from one, following superclasses
+within the APK.
 
-The generated hooks are appended to noxen's bundled default hooks.
+## Limits
 
-## Output format
-
-The output is the same hook configuration format accepted by the Home tab:
-
-```json
-[
-  {
-    "clazz": "com.example.MyReceiver",
-    "method": "onReceive",
-    "args": ["android.content.Context", "android.content.Intent"]
-  }
-]
-```
-
-Each entry tells noxen which Java class, method, and overload signature should be
-hooked by the Frida agent.
-
-## What it finds today
-
-The analyzer looks for Android component classes such as:
-
-- Broadcast receivers.
-- Services.
-
-For receivers, it emits hooks for:
-
-- `onReceive(android.content.Context, android.content.Intent)`
-
-For services, it emits hooks for:
-
-- `onStartCommand(android.content.Intent, int, int)`
-- `onBind(android.content.Intent)`
-
-## When to use it
-
-Use APK analysis when:
-
-- You want app-specific callback captures alongside the default framework hooks.
-- You want to inspect receiver or service entry points implemented by the target app.
-- You already know the APK and want a starting hook file before runtime testing.
-
-The generated hooks are especially useful together with Intercept filters: the hook
-file adds app-specific observation points, while filters decide what should stop
-for manual review. Filters do not uninstall hooks or remove captures from History.
-
-## Limitations
-
-Static APK analysis cannot guarantee that every runtime path is covered.
-The analyzer follows superclass chains found in the APK's DEX files. It emits the
-known callback signatures for matching subclasses; it does not prove that each
-callback is declared by that class, available at runtime, or actually invoked.
-Validate the installation report and exercise the behavior you need to observe.
-
-It may miss:
-
-- Activities and arbitrary methods that read intents internally.
-- Dynamically loaded code.
-- Reflection-heavy code.
-- Native paths.
-- Obfuscated logic that does not preserve obvious inheritance structure.
-- Intent usage that happens entirely through framework methods already covered by default hooks.
-
-It also does not decide whether a component is exploitable. Treat generated hooks as a
-starting point for runtime exploration, then validate behavior in Intercept and
-History.
+The analysis is static. It does not cover activities, code loaded at runtime, native
+code, or classes whose inheritance obfuscation hides. A generated hook means the class
+could receive that call, not that the app calls it or that it is exploitable. Check the
+installation report in Log, and exercise the components you want to observe.

@@ -4,6 +4,13 @@ import starlight from "@astrojs/starlight";
 export default defineConfig({
   site: "https://frankheat.github.io",
   base: "/noxen-docs",
+  // Pages renamed to match the interface: old links keep working.
+  redirects: {
+    "/running-noxen": "/noxen-docs/home/",
+    "/intercepting-and-modifying": "/noxen-docs/intercept/",
+    "/history-and-projects": "/noxen-docs/history/",
+    "/frida-compatibility": "/noxen-docs/installation/",
+  },
   integrations: [
     starlight({
       title: "noxen",
@@ -23,7 +30,7 @@ export default defineConfig({
       ],
       sidebar: [
         {
-          label: "Start here",
+          label: "Getting started",
           items: [
             { label: "Overview", slug: "index" },
             { label: "Installation", slug: "installation" },
@@ -32,32 +39,35 @@ export default defineConfig({
           ],
         },
         {
-          label: "Using noxen",
+          label: "Tabs",
           items: [
-            { label: "The interface", slug: "running-noxen" },
-            { label: "Intercepting and modifying", slug: "intercepting-and-modifying" },
-            { label: "Info app", slug: "info-app" },
+            { label: "Home", slug: "home" },
+            { label: "Intercept", slug: "intercept" },
+            { label: "History", slug: "history" },
             { label: "Monitor", slug: "monitor" },
             { label: "Sender", slug: "sender" },
-            { label: "Filters", slug: "filters" },
-            { label: "History and projects", slug: "history-and-projects" },
-            { label: "Commands", slug: "commands" },
+            { label: "Info app", slug: "info-app" },
+            { label: "MCP", slug: "mcp" },
+            { label: "Log", slug: "log" },
+            { label: "Settings", slug: "settings" },
           ],
         },
         {
-          label: "Reliability",
+          label: "Reference",
+          items: [
+            { label: "Commands", slug: "commands" },
+            { label: "Keyboard shortcuts", slug: "keyboard-shortcuts" },
+            { label: "Filters", slug: "filters" },
+            { label: "Hook configuration", slug: "hook-configuration" },
+            { label: "APK analysis", slug: "apk-analysis" },
+            { label: "Projects", slug: "projects" },
+          ],
+        },
+        {
+          label: "Troubleshooting",
           items: [
             { label: "Troubleshooting", slug: "troubleshooting" },
             { label: "Android behavior and limits", slug: "android-behavior-and-limits" },
-          ],
-        },
-        {
-          label: "Advanced",
-          items: [
-            { label: "Hook configuration", slug: "hook-configuration" },
-            { label: "MCP", slug: "mcp" },
-            { label: "APK analysis", slug: "apk-analysis" },
-            { label: "Frida compatibility", slug: "frida-compatibility" },
           ],
         },
       ],

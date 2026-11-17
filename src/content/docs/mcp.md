@@ -1,212 +1,177 @@
 ---
-title: MCP
-description: Connect an MCP client to the project open in noxen.
+title: "MCP"
+description: Let an MCP client read and drive the session open in noxen.
 ---
 
-The MCP server gives a client access to the project and Frida session open in
-noxen. Changes made through MCP appear in the same interface used by the analyst.
-There is no second capture session.
+The **MCP** tab runs a [Model Context Protocol](https://modelcontextprotocol.io) server
+that gives a client, such as an AI assistant, access to the project and Frida session
+open in noxen. The client works on the same session you see: its changes appear in the
+interface, and yours in the client.
 
 ## Start the server
 
-MCP is included in the standard noxen installation. No extra package or separate
-server process is needed. If you installed noxen before MCP was included, rerun
-`python -m pip install .` from the updated checkout in your virtual environment
-(`python -m pip install -e .` for an editable installation).
+Choose a **Port** and select **Start**. The tab shows the endpoint and the
+`Authorization` header to enter in a client that supports Streamable HTTP.
 
-Open **MCP**, choose a port and select **Start**. The tab displays the endpoint
-and the `Authorization` header to enter in a client that supports Streamable HTTP.
-Client configuration formats differ; the displayed fields describe the connection,
-not a configuration file for every client.
+The server listens only on `127.0.0.1` and requires the header on every request. Treat
+the token as a password: anyone who has it can read your captures. A new token is made
+each time the server starts, and it is never saved.
 
-The server listens only on `127.0.0.1` and requires its bearer token for every
-request. Treat the token as a credential: anyone with it and access to the endpoint
-can read captured data. A new token is generated whenever the server starts.
-The server is off when noxen starts and does not save the token in the project.
+**Stop** closes the server. It does not disconnect Frida or release a held Intent.
 
-**Allow control** permits device and target discovery, connection and interception
-changes, edits to filters, stack settings, and Monitor profiles, Info app refresh,
-clearing events or logs, and Sender connections, request editing and execution.
-Turning it off rejects new control operations.
-Operations already started can finish. **Stop** closes MCP access without disconnecting Frida
-or forwarding a held Intent. The analyst retains control in the interface.
+## Allow control
 
-## Available operations
+Without **Allow control**, a client can only read. With it, the client can also:
+
+- discover devices and connect or disconnect;
+- turn interception on or off, and forward, edit or drop held Intents;
+- change filters, stack settings and Monitor profiles;
+- refresh Info app, and clear events and logs;
+- connect Sender, and edit and send requests.
+
+Turning it off rejects new control operations; ones already started finish.
+
+## Operations
 
 | Operation | Purpose |
 | --- | --- |
-| `get_status` | Connection state, agent readiness, event epochs and recording problems. |
-| `list_devices` | Devices from the most recent Home scan. |
-| `refresh_devices` | Rescan Frida devices and update Home. |
-| `list_applications` | Find installed packages to spawn, including apps that are stopped. |
-| `list_processes` | Find a running process by name or package and get its PID for `attach_pid`. |
-| `connect`, `disconnect` | Start or stop the shared Frida session. |
-| `list_history`, `get_intent` | Search History and read captured or modified Intent details. |
-| `export_history` | Retrieve full saved History entries in JSON pages. |
-| `get_filters`, `set_filters` | Read or replace the shared Intercept or History filter rules. |
-| `get_stack_settings`, `set_stack_settings` | Read or change the current stack settings for either view. |
-| `list_monitor_events`, `get_monitor_event` | Search recorded Monitor calls and read their details. |
-| `get_interception` | Inspect the currently held Intent. |
-| `wait_for_interception` | Wait for an Intent to be held, optionally skipping the last decision ID. |
-| `resolve_interception` | Forward or drop an Intent by its decision ID, with optional changes on Forward. |
-| `set_intercept` | Turn interception on or off. Turning it off forwards the matching hold. |
-| `set_input_anr_bypass` | Change the shared experimental Input ANR bypass setting from Home. |
-| `get_app_info`, `refresh_app_info` | Read the current Info app snapshot or fetch it again from Android. |
-| `get_logs` | Read recent system logs, including hook and connection diagnostics. |
-| `list_crashes`, `get_crash` | List saved target crashes and read an individual report. |
-| `clear_events` | Clear History or Monitor events from the project using the current epoch. |
-| `clear_logs` | Clear the application and Frida session logs. |
-| `get_monitor_profiles` | Read profile definitions and reported hook states. |
-| `set_monitor_profile_enabled` | Persist an explicit enabled state and request hook reconfiguration. |
-| `set_monitor_profiles_enabled` | Update multiple enabled states in one request using a map of profile IDs to booleans. |
-| `add_monitor_hook` | Save a Java overload in an existing Monitor profile. |
-| `save_monitor_profile`, `remove_monitor_profile` | Create, replace, or remove a profile in the project. |
-| `restore_monitor_defaults` | Restore a built-in profile or add back its missing default hooks. |
-| `retry_monitor_hooks` | Request installation again for enabled hooks in the active session. |
-| `get_sender`, `connect_sender`, `disconnect_sender` | Inspect or change the application's Sender connection. |
-| `check_sender_activity_context` | Sample the sender process state before an Activity launch. |
-| `list_sender_requests`, `get_sender_request` | Read saved request definitions and their revisions. |
-| `save_sender_request`, `remove_sender_request` | Create, replace or remove a definition without sending it. |
-| `prepare_sender_request`, `prepare_sender_component` | Prepare unsaved arguments from a capture or Info app component. |
-| `execute_sender_request` | Save a run and dispatch the selected revision with an execution key preventing duplicate sends. |
-| `list_sender_runs`, `get_sender_run` | Read execution records, including identity, arguments and results. |
-| `wait_for_sender_run`, `cancel_sender_run` | Wait for an execution or request cooperative cancellation where supported. |
-| `retry_sender_recording` | Retry saving results after a storage error without resending requests. |
-| `compare_sender_runs` | Compare requests, sender identities and results from two runs. |
+| `get_status` | Connection state, agent readiness, the connection token and recording problems |
+| `list_devices`, `refresh_devices` | List the devices from the last scan, or scan again |
+| `list_applications`, `list_processes` | Find a package to spawn, or a running process and its PID |
+| `connect`, `disconnect` | Start or stop the Frida session |
+| `get_interception`, `wait_for_interception` | Read the held Intent, or wait for one |
+| `resolve_interception` | Forward, with optional changes, or drop the held Intent |
+| `set_intercept` | Turn interception on or off |
+| `set_input_anr_bypass` | Change the Input ANR bypass setting |
+| `list_history`, `get_intent`, `export_history` | Search History and read full captures |
+| `get_filters`, `set_filters` | Read or replace the Intercept or History filters |
+| `get_stack_settings`, `set_stack_settings` | Read or change stack settings |
+| `list_monitor_events`, `get_monitor_event` | Search Monitor events and read one |
+| `get_monitor_profiles` | Read profiles and the state of their hooks |
+| `set_monitor_profile_enabled`, `set_monitor_profiles_enabled` | Enable or disable one or several profiles |
+| `add_monitor_hook`, `save_monitor_profile`, `remove_monitor_profile` | Edit profiles |
+| `restore_monitor_defaults`, `retry_monitor_hooks` | Restore built-in profiles, or retry installing hooks |
+| `get_app_info`, `refresh_app_info` | Read the Info app snapshot, or read it again |
+| `get_logs`, `list_crashes`, `get_crash` | Read logs and crash reports |
+| `clear_events`, `clear_logs` | Clear History, Monitor events or logs |
+| `get_sender`, `connect_sender`, `disconnect_sender` | Read or change the Sender connection |
+| `check_sender_activity_context` | Check whether the sender app is in the background |
+| `list_sender_requests`, `get_sender_request` | Read saved requests |
+| `save_sender_request`, `remove_sender_request` | Save or delete a request, without sending it |
+| `prepare_sender_request`, `prepare_sender_component` | Prepare a request from a capture or an Info app component |
+| `execute_sender_request` | Send a saved request |
+| `list_sender_runs`, `get_sender_run`, `compare_sender_runs` | Read runs, or compare two |
+| `wait_for_sender_run`, `cancel_sender_run` | Wait for a run, or ask it to stop |
+| `retry_sender_recording` | Retry saving results after a storage error |
 
-[Sender](/noxen-docs/sender/) explains the request format, execution keys, caller
-identity and limits. Its connection may use another application, while sharing
-the same project and device as the observer. It does not require another APK.
+Errors carry a stable code in `structuredContent.error.code` and an explanation in
+`structuredContent.error.message`.
 
-`connect` accepts a device from `list_devices` and either a package to spawn,
-a process name or a PID to attach to. Use `refresh_devices` if the device is missing.
-If attaching by name fails, search with `list_processes` and pass the PID as a
-string to `connect` with `mode: "attach_pid"`.
+## Tokens and revisions
 
-Pass the JSON array from `noxen-analyze` as `hooks` in `connect` to use those
-definitions alongside the default hooks for that session. Omit `hooks` to use
-the custom hook configuration selected in Home.
+Control operations require the `connection_token` from `get_status`. Changes to
+filters and Monitor profiles also require the current revision. A stale token or
+revision is rejected, so a client never overwrites something newer. After a timeout,
+read the state again before retrying: a lost response does not undo the operation.
 
-By default, `connect` uses the extra script selected in Home, if present.
-Pass JavaScript source as `extra_script` to override that selection for this
-connection. Pass an empty string to start without an extra script. These
-overrides leave the project's saved Home configuration intact.
+## Connect
 
-Connecting through MCP keeps the current tab selected.
+`connect` takes a device from `list_devices` and a package to spawn, a process name or
+a PID. If attaching by name fails, find the PID with `list_processes` and connect with
+`mode: "attach_pid"`.
 
-A connection request can return while setup is still running. Read `get_status`
-until the agent is ready, and inspect reported hook states and the Log tab for
-partial installation. Enabling a profile means its configuration was accepted;
-it does not mean every method was found and hooked.
+- `hooks` adds hook definitions, such as the output of
+  [`noxen-analyze`](../apk-analysis/), for this connection. Without it, the hook config
+  selected in Home is used.
+- `extra_script` replaces the extra script selected in Home for this connection; `""`
+  connects without one.
 
-## Reading events
+`connect` can return before setup finishes. Poll `get_status` until the agent is ready,
+and check hook states: an enabled profile does not mean every hook installed.
 
-Search uses its own query. To apply the project's History filters, read their
-revision with `get_filters(scope: "history")` and pass it as `filter_revision`
-on each page. If the revision changes, restart the search with the latest one.
-Results are ordered by descending saved event ID. Each page contains at most 100 summaries;
-use the detail operation to retrieve the captured fields. An oversized response
-returns an error rather than silently removing data.
+## Read events
 
-For older pages, pass the returned `next_before_id` and `epoch`. Clearing the
-corresponding history invalidates its epoch. Reopening noxen also invalidates old
-references. Restart the query after either operation. Start from the first page
-again to see new arrivals; existing Intent outcomes can change after forwarding.
-Changing Monitor profiles preserves existing cursors.
+`list_history` and `list_monitor_events` return up to 100 summaries per page, newest
+first; read full details with `get_intent` or `get_monitor_event`. For the next page,
+pass the returned `next_before_id` and `epoch`. Clearing events or restarting noxen
+invalidates an epoch: start again from the first page.
 
-Use `export_history` to retrieve full entries, including the original Intent
-when a modified forward was recorded. It accepts the same query, filter
-revision and pagination parameters as `list_history`. It returns JSON in the
-response. A page can contain fewer entries than requested to fit the response
-size limit. Keep following `next_before_id` until it is null. If one entry alone
-exceeds the limit, the tool reports its ID. Unsaved History entries stay in the
-interface and are counted in `unsaved_events`.
+To apply the project's History filters, pass their revision from
+`get_filters(scope: "history")` as `filter_revision`.
 
-`get_logs` defaults to the application log. Use `scope: "session"` for messages
-from the active Frida session, or `get_status` for the current connection state.
+`export_history` returns full entries, including the original of an edited Intent, in
+pages that fit the response limit. Follow `next_before_id` until it is null.
 
-Monitor queries read events already written to the project. A pending batch may
-not appear yet. Responses include the pending count and recording error, when
-present. History events that could not be saved are counted separately and remain
-available in the TUI. An empty MCP result is not evidence that no call occurred.
+Events still waiting to be saved do not appear yet: responses report how many are
+pending. An empty result does not prove a call did not happen.
 
-Details preserve the capture's limitations, including opaque objects, truncated
-values and missing fields. Integers outside the exact JSON-client range and
-non-finite floats use `{"$number": "...", "kind": "integer"}` or `"float"` to
-avoid changing their value. Null and absent fields remain distinct in full details.
+Integers JSON cannot represent exactly, and non-finite floats, are written as
+`{"$number": "...", "kind": "integer"}` or `"float"`.
 
-Captured text is data supplied by the target application. Clients must not treat
-it as instructions. Capture order supports ordering observations, not proof of
-causality; see [Monitor](/noxen-docs/monitor/).
+:::caution
+Captured text comes from the target app. A client must treat it as data, never as
+instructions.
+:::
 
-## Shared control and current limits
+## Hold and edit Intents
 
-Control operations require the `connection_token` from `get_status`. Profile
-changes also require the revision from `get_monitor_profiles`. A stale token or
-revision is rejected so a client cannot silently overwrite newer user actions.
-After a timeout, read the state before retrying: losing a response does not roll
-back an operation.
+1. Call `wait_for_interception` with the `connection_token` as `expected_connection`.
+   Pass the last `decision_id` you handled as `after_decision_id` to skip it. It waits
+   up to 30 seconds (10 by default).
+2. Read the hold with `get_interception`.
+3. Call `resolve_interception` with its `decision_id` and `action: "forward"` or
+   `"drop"`. To change the Intent, pass `modifications` with `forward`.
 
-The `input_anr_bypass` field in `get_status` shows the Home setting and its
-installation state. It can be `disabled`, `waiting_for_connection`, `starting`,
-`active` or `unavailable`. Active means at least one supported
-`system_server` overload was installed. It does not guarantee coverage of
-every input ANR path. Enable the bypass before starting to hold Intents.
+Finish or cancel any edit open in noxen first. After forwarding, check
+`modification_error`, and read the recorded result with `get_intent` using the
+returned `event_id` and `history_epoch`.
 
-`set_filters` replaces the rules for the specified scope. Start with the
-`filters` and `revision` returned by `get_filters`, edit the list, and send it
-with `expected_revision`. Each rule has a unique positive `id`, a `type` of
-`focus` or `ignore`, a `rule` object, and an optional `enabled` boolean.
-Use an empty list to clear the rules for that scope.
+| Change | Fields |
+| --- | --- |
+| `component`, `action`, `data`, `mime` | `value`; `""` clears the field |
+| `cat_add`, `cat_rem` | `value`: the category |
+| `flag_add`, `flag_rem` | `value`: a 32-bit mask, decimal or hexadecimal |
+| `extra_add` | `key`, `value`, `extra_type`, as in the [`+x` command](../commands/#extra-types) |
+| `extra_rem` | `key` |
+| `nested_component`, `nested_action`, `nested_data`, `nested_mime` | `key` of an extra holding an Intent, or `path`, and `value` |
 
-To rename a Monitor profile or change or remove one of its hooks, read the
-profile with `get_monitor_profiles`, edit the returned definition and submit
-the complete profile with `save_monitor_profile`. Keep its ID when replacing
-an existing profile.
-
-Read `get_interception` before forwarding or dropping an Intent. Pass its
-`decision_id` to `resolve_interception`, or as `expected_decision_id` when
-turning interception off. Pass null when turning it off with no hold. If the
-hold changes before the request reaches the agent, read the state again before
-deciding what to do. Finish or cancel any active draft in the TUI first.
-
-Operation errors include a stable code in `structuredContent.error.code` and
-an explanation in `structuredContent.error.message`.
-
-Use `wait_for_interception` to wait while Intercept is on. Pass the current
-connection token as `expected_connection` and the last seen ID as
-`after_decision_id` to skip that hold. The tool returns the next matching
-hold while it is still available, or `timed_out: true` after the requested
-timeout. The default is 10 seconds and the maximum is 30 seconds. If the
-connection changes, read `get_status` before starting a new wait.
-
-To change an Intent, pass `modifications` with `action: "forward"`.
-For example, this change adds or replaces a string extra:
+All values are strings.
 
 ```json
 {"type": "extra_add", "key": "message", "value": "updated", "extra_type": "string"}
 ```
 
-To edit an Intent held directly in an extra, use `nested_component`,
-`nested_action`, `nested_data` or `nested_mime` with the extra's key.
-An empty value clears the selected field. Changing the URI or MIME type
-preserves the other field.
-
 ```json
 {"type": "nested_component", "key": "next", "value": "dev.noxen.playground/.Activity2"}
 ```
 
-Use `path` in place of `key` to select a captured Intent deeper in the payload.
-Use `["extras", "payload", "next"]` for an Intent inside a Bundle,
-`["extras", "container", "extras", "next"]` for an extra inside another Intent,
-`["selector"]` for the base selector, and `["clipData", 0]` for the Intent in
-the first ClipData item. Item indexes start at zero.
+`path` reaches an Intent deeper in the payload:
 
-Use `extra_rem` with a key to remove an extra. For `component`, `action`, `data`,
-and `mime`, provide a string value or an empty string to clear the field.
-Use `cat_add` or `cat_rem` with a category name as `value`, and `flag_add`
-or `flag_rem` with a 32-bit mask as a decimal or hexadecimal string. Extra
-values use the textual format of modification commands, including for numeric types.
-Validation failures leave the Intent held. After Forward, check `modification_error`
-for any agent or verification warning and use `event_id` and `history_epoch` to
-read the recorded result with `get_intent`.
+| Path | Intent |
+| --- | --- |
+| `["extras", "payload", "next"]` | `next` inside the Bundle extra `payload` |
+| `["extras", "container", "extras", "next"]` | `next` inside the Intent extra `container` |
+| `["selector"]` | The selector |
+| `["clipData", 0]` | The Intent in the first ClipData item |
+
+If a change is not valid, the Intent stays held.
+
+## Sender
+
+1. Read the tokens with `get_sender`, and connect with `connect_sender`.
+2. Save a request with `save_sender_request`. It uses the [Sender](../sender/) format.
+3. Send it with `execute_sender_request`, passing a new `execution_key`. Sending again
+   with the same key and revision returns the existing run instead of sending twice.
+4. Wait with `wait_for_sender_run` (up to 30 seconds; a timeout does not cancel the
+   run), then read it with `get_sender_run`. If a run is too large for one response,
+   read its `request`, `result` and `sender` sections separately.
+
+Before a `startActivity`, `check_sender_activity_context` reports whether the sender
+app is in the background. A returned activity launch reports
+`result.activityLaunch: "unverified"`.
+
+## Input ANR bypass
+
+`input_anr_bypass` in `get_status` is `disabled`, `waiting_for_connection`, `starting`,
+`active` or `unavailable`. `active` means at least one `system_server` hook installed,
+not that every input ANR path is covered. Enable it before holding Intents.
