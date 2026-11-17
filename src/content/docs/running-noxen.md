@@ -12,6 +12,8 @@ the agent reports.
 
 Select a device, a connection mode, and a target, then choose **Connect**. Refresh the device list after starting an emulator, or refresh the target list if the app or process you need is missing.
 
+The list shows USB and remote devices, and this computer only when there is nothing else. Frida's **GDB Remote Stub** is never listed, since it has no Java to hook. **Local Socket** is listed only while a frida-server answers on `127.0.0.1:27042`, for example after `adb forward tcp:27042 tcp:27042`.
+
 | Mode | When to use it |
 |---|---|
 | Spawn | Start the app and observe startup behavior |
