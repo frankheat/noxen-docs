@@ -26,8 +26,8 @@ a release, **Released at** shows when the hook was about to give control back to
 the app after any edits. Use **Capture order** to compare the Intent with related
 Monitor calls. [Correlating History and Monitor events](../monitor/#correlating-history-and-monitor-events)
 
-`F4` shows the selected Intent as JSON, in the request format that
-[Sender](../sender/) uses, ready to copy into a request; `F4` again returns to the
+`Ctrl+T` shows the selected Intent as JSON, in the request format that
+[Sender](../sender/) uses, ready to copy into a request; `Ctrl+T` again returns to the
 normal layout. The choice applies to Intercept too.
 [Reading a capture](../intercepting-and-modifying/#reading-a-capture)
 

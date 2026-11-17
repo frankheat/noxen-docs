@@ -4,7 +4,7 @@ title: "Info app"
 
 Info app shows what Android reports about the connected app, including its
 signers, permissions, and manifest components. noxen requests this snapshot when
-you connect and clears it when you disconnect. Select **Refresh** to update the
+you connect and clears it when you disconnect. Select **Refresh** (`Ctrl+G`) to update the
 snapshot after an app state change or to retry a failed lookup.
 
 - **Overview** shows app identity, build settings, signing, and component counts.

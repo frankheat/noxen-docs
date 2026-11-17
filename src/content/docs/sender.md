@@ -58,9 +58,9 @@ The editor helps while you type:
   them all. Accepting one writes its structure: `intent` adds the whole Intent
   skeleton, and a type chosen inside `extras` adds an entry with that type. A
   comma missing on the line above is added.
-- `F2` folds the block that opens on the cursor line, or the one around the
-  cursor, into a placeholder such as `{⋯₁}`, and unfolds it again. `F3` unfolds
-  everything. Folding does not change the request.
+- `Ctrl+O` folds the block that opens on the cursor line, or the one around the
+  cursor, into a placeholder such as `{⋯₁}`, and unfolds it again. `Ctrl+N`
+  unfolds everything. Folding does not change the request.
 
 Edits are saved on their own a moment after you stop typing, whenever the JSON is
 a valid request; saving never sends it. Until then the line under the editor says
@@ -74,8 +74,10 @@ shows that version. Editing a request preserves the snapshots in its earlier run
 **To Sender** (`Ctrl+R`) in History copies the selected Intent into a new request,
 and in Monitor's Events view it copies the selected content provider call. In
 Monitor it is available only for a provider call captured in full, which Sender
-can repeat as it was made; for any other event it stays disabled. The
-source tab stays open; the new request is selected in Sender. Nothing is sent, and
+can repeat as it was made; for any other event it stays disabled. A request
+sent from History, Monitor or Info app is named with the next free number, like
+one created with **+**. The source tab stays open; the new request is selected in
+Sender. Nothing is sent, and
 a held Intent is not forwarded. The request is built from the capture, not from the
 [JSON view](../intercepting-and-modifying/#reading-a-capture): the view's `hook`
 and `notCaptured` fields are not part of it.
@@ -97,9 +99,11 @@ From Monitor, queries, deletes, `call` and file reads can be copied when every
 argument was captured in full. ContentValues and Bundle extras are not recorded by
 Monitor, so inserts, updates and calls with extras must be created in Sender.
 
-In Info app, **Prepare** creates a request for the selected component; provider
-preparation supplies its authority, not a valid resource path or query inferred
-from the manifest. MCP clients can also prepare a request from a captured Intent
+In Info app's Components view, **To Sender** creates a request for the selected
+component; for a provider it supplies the authority, not a valid resource path or
+query inferred from the manifest. It is disabled when no request can be made, for
+example for a provider that declares several authorities. `Ctrl+R` works there
+too, as in History and Monitor. MCP clients can also prepare a request from a captured Intent
 with `prepare_sender_request`.
 
 A capture is reusable only when its fields are complete and supported. Opaque
