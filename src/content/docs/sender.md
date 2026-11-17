@@ -33,34 +33,36 @@ can affect a call.
 ## Prepare and send a request
 
 Below the connection bar, each saved request is a tab labelled with its name.
-**+** creates a request named with the next free number; rename it in the editor
-and its tab follows. Selecting a tab shows the request on the left and its result
-on the right. **Edit** opens the editor; right-click a tab to **Edit**,
-**Duplicate** or **Remove** it. In the editor, choose an operation and enter its
-arguments. **Save** stores the definition; **Send** executes the selected request
-once. Editing a definition preserves the snapshots in its earlier runs.
-`Alt+Left` and `Alt+Right` move the divider between request and result.
+**+** creates a request named with the next free number. Right-click a tab to
+**Rename**, **Duplicate** or **Remove** it. Selecting a tab shows the request on
+the left, as JSON you edit in place, and its result on the right. `Alt+Left` and
+`Alt+Right` move the divider between them.
 
-The request editor has a request explorer on the left and an editing area on the right.
-Select a section in the explorer, or use **Open** on a structured value, to edit it.
-On narrow terminals, **Browse** switches between the explorer and the editing area.
-Navigation preserves the draft; only **Save** stores the request. Add categories
-as list entries, and extras as **Key / Type / Value** rows. A Bundle, Intent or
-array is listed beneath its owning entry in the explorer. Selector and ClipData have their own
-sections; ClipData items can contain text, a URI or an Intent. Provider operations
-show their own fields, lists and typed values. No JSON is required in the editor.
+The JSON is the request itself: an `operation` and its arguments. A field that is
+absent is not set; `null` and `""` are explicit values. A typed value names its
+type, for example `"count": {"type": "int", "value": 3}`, and a `long` is written
+as a decimal string. Control characters use JSON escapes such as `\n` and `\u0000`.
 
-Inline text is literal: entering `\n` there sends a backslash followed by `n`.
-Use a field’s **⋯** (Value options) button to choose an explicit empty string, null or an unset
-field where supported. In that dialog, enter text without surrounding quotes;
-`\n`, `\r`, `\t` and `\u0000` represent special characters, and `\\` represents
-a literal backslash. Saved special characters appear as escaped previews in the
-form. Opening and saving a request preserves them.
+The editor helps while you type:
 
-**Apply** updates the field draft. **Save** validates and stores the request;
-neither action sends it. Duplicate extra keys, incompatible fields and unsupported
-values are rejected rather than silently discarded. Each operation keeps its own
-draft while the request editor is open.
+- An opening brace closes itself on its own indented line; brackets and quotes
+  close themselves too.
+- Names that fit at the cursor are suggested as you type, and `Ctrl+Space` lists
+  them all. Accepting one writes its structure: `intent` adds the whole Intent
+  skeleton, and a type chosen inside `extras` adds an entry with that type. A
+  comma missing on the line above is added.
+- `F2` folds the block that opens on the cursor line, or the one around the
+  cursor, into a placeholder such as `{⋯₁}`, and unfolds it again. `F3` unfolds
+  everything. Folding does not change the request.
+
+**Save** (`Ctrl+S`) validates the JSON and stores it as a new revision; it does not
+send it. Errors appear under the editor with their line and column. Duplicate
+extra keys, incompatible fields and unsupported values are rejected rather than
+silently discarded. **Send** executes the request once, saving what is on screen
+first. **Revert** drops unsaved text. Unsaved text is kept while you look at
+another request. If the request changes elsewhere, for example through MCP,
+saving reports a conflict instead of overwriting it. Editing a request preserves
+the snapshots in its earlier runs.
 
 **To Sender** (`Ctrl+R`) in History copies the selected Intent into a new request,
 and in Monitor's Events view it copies the selected content provider call. The
@@ -72,7 +74,8 @@ sending hook keeps its own operation, `getIntent` and `onNewIntent` become
 `startActivity`, `onReceive` becomes `sendBroadcast`, and PendingIntent creation
 maps to the operation it wraps. For other hooks, such as `bindService` or
 `setResult`, you choose the operation. No field is changed: a captured Activity
-Intent without `FLAG_ACTIVITY_NEW_TASK` opens in the editor so you can add it.
+Intent without `FLAG_ACTIVITY_NEW_TASK` arrives as unsaved text, so you can add the
+flag and save it.
 
 From Monitor, queries, deletes, `call` and file reads can be copied when every
 argument was captured in full. ContentValues and Bundle extras are not recorded by
