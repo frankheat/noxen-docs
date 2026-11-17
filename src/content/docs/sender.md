@@ -55,14 +55,14 @@ The editor helps while you type:
   cursor, into a placeholder such as `{⋯₁}`, and unfolds it again. `F3` unfolds
   everything. Folding does not change the request.
 
-**Save** (`Ctrl+S`) validates the JSON and stores it as a new revision; it does not
-send it. Errors appear under the editor with their line and column. Duplicate
-extra keys, incompatible fields and unsupported values are rejected rather than
-silently discarded. **Send** executes the request once, saving what is on screen
-first. **Revert** drops unsaved text. Unsaved text is kept while you look at
-another request. If the request changes elsewhere, for example through MCP,
-saving reports a conflict instead of overwriting it. Editing a request preserves
-the snapshots in its earlier runs.
+Edits are saved on their own a moment after you stop typing, whenever the JSON is
+a valid request; saving never sends it. Until then the line under the editor says
+why it is not saved yet, for example a missing comma or a duplicate extra key.
+Incompatible fields and unsupported values are rejected rather than silently
+discarded. **Send** executes the request once, with what is on screen. Text that
+is not valid yet is kept while you look at another request, but not after noxen
+closes. If the request is changed elsewhere, for example through MCP, the editor
+shows that version. Editing a request preserves the snapshots in its earlier runs.
 
 **To Sender** (`Ctrl+R`) in History copies the selected Intent into a new request,
 and in Monitor's Events view it copies the selected content provider call. The
@@ -74,8 +74,8 @@ sending hook keeps its own operation, `getIntent` and `onNewIntent` become
 `startActivity`, `onReceive` becomes `sendBroadcast`, and PendingIntent creation
 maps to the operation it wraps. For other hooks, such as `bindService` or
 `setResult`, you choose the operation. No field is changed: a captured Activity
-Intent without `FLAG_ACTIVITY_NEW_TASK` arrives as unsaved text, so you can add the
-flag and save it.
+Intent without `FLAG_ACTIVITY_NEW_TASK` arrives as unsaved text, and is saved once
+you add the flag.
 
 From Monitor, queries, deletes, `call` and file reads can be copied when every
 argument was captured in full. ContentValues and Bundle extras are not recorded by
