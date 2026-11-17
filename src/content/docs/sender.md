@@ -10,7 +10,8 @@ through Intercept, History and Monitor. No additional APK is required.
 ## Choose a sender
 
 Discover the device in Home, then open **Sender** and select the device and a
-running application. Open the application on Android first if it is not listed.
+running application. When only one device is found, Home and Sender select it for
+you. Open the application on Android first if it is not listed.
 Sender attaches to its process without restarting it. The observer and sender
 must use the same device. When both use the same process, noxen shares the
 existing agent; disconnecting Sender leaves the observer attached.
