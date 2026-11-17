@@ -73,6 +73,14 @@ Use **View full key** for shortened keys when available. Values containing line 
 
 ## Reading a capture
 
+**JSON** (`F4`) shows the held Intent in the request format that [Sender](../sender/)
+uses, with the operation implied by the hook; **Details** returns to the layout
+above. The choice applies to History too. The JSON view leaves out what is not part
+of a request, such as the hook, caller and attack-surface labels, and lists under
+`notCaptured` any value that could not be rebuilt, such as an opaque object or a
+truncated string. Sender rejects that list, so a copied request with gaps cannot
+be sent until you have reviewed it.
+
 - **Component permissions.** Export and required permissions describe a named Component, or the manifest declaration of the hooked Class for receiving methods. The base Intent and selector can each name a Component. Neither field confirms where Android delivered the Intent. [Unresolved permissions](../info-app/#unresolved-permissions)
 - **Broadcast permissions.** **Required Permission** describes which senders can reach the component. **Receiver Perm** is a separate argument on a send that restricts which recipients can receive the broadcast. noxen does not enumerate implicit or dynamically registered recipients.
 - **ClipData and URI grants.** ClipData can contain text, HTML, URIs, and nested Intents. When URI grant flags are shown, they describe what the outer Intent requested. noxen does not open the URI or verify access.
