@@ -67,7 +67,9 @@ shows that version. Editing a request preserves the snapshots in its earlier run
 **To Sender** (`Ctrl+R`) in History copies the selected Intent into a new request,
 and in Monitor's Events view it copies the selected content provider call. The
 source tab stays open; the new request is selected in Sender. Nothing is sent, and
-a held Intent is not forwarded.
+a held Intent is not forwarded. The request is built from the capture, not from the
+[JSON view](../intercepting-and-modifying/#reading-a-capture): the view's `hook`
+and `notCaptured` fields are not part of it.
 
 From History, the sending operation follows the hook that captured the Intent: a
 sending hook keeps its own operation, `getIntent` and `onNewIntent` become
@@ -76,6 +78,11 @@ maps to the operation it wraps. For other hooks, such as `bindService` or
 `setResult`, you choose the operation. No field is changed: a captured Activity
 Intent without `FLAG_ACTIVITY_NEW_TASK` arrives as unsaved text, and is saved once
 you add the flag.
+
+If some values were not captured in full, such as an opaque object or a truncated
+string, noxen lists them and asks before copying. **Send without them** creates the
+request with only what was captured; review it before sending, since the app may
+behave differently without those values.
 
 From Monitor, queries, deletes, `call` and file reads can be copied when every
 argument was captured in full. ContentValues and Bundle extras are not recorded by

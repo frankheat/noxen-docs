@@ -74,12 +74,18 @@ Use **View full key** for shortened keys when available. Values containing line 
 ## Reading a capture
 
 **JSON** (`F4`) shows the held Intent in the request format that [Sender](../sender/)
-uses, with the operation implied by the hook; **Details** returns to the layout
-above. The choice applies to History too. The JSON view leaves out what is not part
-of a request, such as the hook, caller and attack-surface labels, and lists under
-`notCaptured` any value that could not be rebuilt, such as an opaque object or a
-truncated string. Sender rejects that list, so a copied request with gaps cannot
-be sent until you have reviewed it.
+uses; **Details** returns to the layout above. The choice applies to History too.
+`hook` comes first and names the hooked call, such as
+`dev.noxen.playground.Activity2.getIntent()`. `operation` appears only when the
+hooked method is itself that call: a receiving hook such as `getIntent` does not
+tell how the Intent was sent. Caller and attack-surface labels are not shown. A
+value that could not be rebuilt, such as an opaque object or a truncated string,
+is left out and listed under `notCaptured`.
+
+`hook` and `notCaptured` are for reading only. **To Sender** converts the capture
+itself into a Sender request without them, so the view is never sent as it is.
+If you paste the view into a Sender request by hand, remove both fields first:
+Sender rejects them.
 
 - **Component permissions.** Export and required permissions describe a named Component, or the manifest declaration of the hooked Class for receiving methods. The base Intent and selector can each name a Component. Neither field confirms where Android delivered the Intent. [Unresolved permissions](../info-app/#unresolved-permissions)
 - **Broadcast permissions.** **Required Permission** describes which senders can reach the component. **Receiver Perm** is a separate argument on a send that restricts which recipients can receive the broadcast. noxen does not enumerate implicit or dynamically registered recipients.
