@@ -41,7 +41,8 @@ sent until it has an operation. Right-click a tab to
 **Rename**, **Duplicate** or **Close** it, or to close several tabs at once with
 **Close other tabs**, **Close tabs to the left** or **Close tabs to the right**.
 Closing a tab deletes its request. When several tabs close, noxen lists them and
-asks first. Selecting a tab shows the request on
+asks first. There is always at least one tab: closing the last one, or opening
+Sender in a new project, leaves an empty request as **+** creates it. Selecting a tab shows the request on
 the left, as JSON you edit in place, and its result on the right. `Alt+Left` and
 `Alt+Right` move the divider between them.
 
