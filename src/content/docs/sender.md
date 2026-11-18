@@ -117,6 +117,17 @@ booleans, numbers, chars, URIs, Bundles, Intents and arrays. Custom `Parcelable`
 `Serializable` objects are not supported. `extras` set to `{}` creates an empty
 Bundle; omitting it creates none.
 
+Use Android flag names in a JSON list, for example:
+
+```json
+"flags": ["FLAG_ACTIVITY_NEW_TASK", "FLAG_GRANT_READ_URI_PERMISSION"]
+```
+
+The editor suggests names inside the list. Type part of a name to narrow the
+suggestions, or press Ctrl+Space to show them again. Sender saves the names as
+written and combines their bits when sending. An unsigned 32-bit decimal mask
+also works, including for bits that noxen does not name.
+
 Android's rules still apply. Before a `startActivity`, noxen checks whether the sender
 app is in the background, where Android may block the launch, and lets you send anyway
 or bring the app to the front first. `startForegroundService` needs a target service

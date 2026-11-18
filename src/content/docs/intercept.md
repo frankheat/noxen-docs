@@ -71,8 +71,10 @@ Everything the JSON shows, with the types that [Sender](../sender/#supported-ope
 supports:
 
 - `component`, `package`, `action`, `data`, `mimeType`, `flags` and `categories`.
-  `null` clears a field; `""` sets an empty string. `flags` is an unsigned 32-bit
-  integer.
+  `null` clears a text field; `""` sets an empty string. For `flags`, use a list of
+  Android flag names or an unsigned 32-bit decimal mask. The editor suggests names
+  inside the list. Captured masks stay numeric when noxen cannot name every bit
+  unambiguously.
 - Extras of every type, including Bundles and Intents. A `long` is written as a
   decimal string.
 - `selector` and `clipData`, which you can also add or remove, and Intents nested in
