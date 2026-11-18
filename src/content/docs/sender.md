@@ -66,8 +66,10 @@ The request is JSON: an `operation` and its arguments.
 | Unfold everything | `Ctrl+N` |
 | Move the divider between request and result | `Alt+Left`, `Alt+Right` |
 
-The request is saved as soon as it is valid; saving never sends it. Until then, the
-line under the editor says what is wrong. **Send** runs what is on screen once.
+Sender saves your edits automatically. If the text is not a valid request, it is
+saved in the project as a draft, separately from the last valid revision. The
+editor restores it when you reopen the project and shows what needs fixing.
+**Send** stays disabled while the draft is invalid. Saving does not send anything.
 
 ## Copy a capture to Sender
 
