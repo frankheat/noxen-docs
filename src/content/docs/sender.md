@@ -37,7 +37,8 @@ the last one leaves an empty request.
 
 Right-click a tab to **Rename**, **Duplicate** or **Close** it, or to close several at
 once with **Close other tabs**, **Close tabs to the left** or **Close tabs to the
-right**. Closing a tab deletes its request; noxen asks first when you close several.
+right**. Closing a tab permanently deletes its request, draft and saved runs.
+A request with a run in progress can be closed once the run finishes.
 
 The request is JSON: an `operation` and its arguments.
 
@@ -137,9 +138,15 @@ that can start in the foreground.
 
 ## Read the result
 
-The panel on the right shows the latest run of the selected request: its state, the
-returned value, timings and the sender identity. **‹** and **›** go through earlier
-runs, each shown with the request as it was sent.
+The result panel summarizes what the operation returned. Queries show a table preview
+and mark omitted or truncated data. File reads show the byte count and whether the
+capture is partial. **Raw** shows the saved response, including Base64 file content;
+**Details** shows timing and sender identity.
+
+**‹** and **›** go through earlier runs, each shown with the request as it was sent.
+A returned call does not confirm that an Activity opened or that an unordered
+broadcast was delivered. If noxen recorded a sender crash, the run shows the crash
+ID without inferring its cause.
 
 | State | Meaning |
 | --- | --- |
