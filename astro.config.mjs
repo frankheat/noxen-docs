@@ -10,6 +10,7 @@ export default defineConfig({
     "/intercepting-and-modifying": "/noxen-docs/intercept/",
     "/history-and-projects": "/noxen-docs/history/",
     "/frida-compatibility": "/noxen-docs/installation/",
+    "/providers": "/noxen-docs/intercept/",
   },
   integrations: [
     starlight({
@@ -45,7 +46,6 @@ export default defineConfig({
             { label: "Intercept", slug: "intercept" },
             { label: "History", slug: "history" },
             { label: "Monitor", slug: "monitor" },
-            { label: "Providers", slug: "providers" },
             { label: "Sender", slug: "sender" },
             { label: "Info app", slug: "info-app" },
             { label: "MCP", slug: "mcp" },

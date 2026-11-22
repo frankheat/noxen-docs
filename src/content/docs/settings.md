@@ -11,6 +11,7 @@ The **Settings** tab holds your preferences. They apply to every project.
 | Stack trace on startup | Show stack traces in Intercept from the start |
 | Stack depth | Number of stack frames to show |
 | Theme | Dark or Light |
+| Capture Cursor previews | Read bounded query results for History and intercepted responses |
 
 **Save** applies the theme at once and stores the rest for the next start. Settings are
 saved in your user configuration directory:

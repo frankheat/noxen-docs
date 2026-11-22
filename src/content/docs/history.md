@@ -1,10 +1,10 @@
 ---
 title: "History"
-description: Search and inspect every Intent noxen captured, held or not.
+description: Search captured Intents and provider calls, including calls that continued without pausing.
 ---
 
-The **History** tab lists every Intent noxen captured: those you held, those
-forwarded automatically by a filter, and those recorded with interception off. It is
+The **History** tab lists captured Intents and provider calls, including those
+forwarded automatically by a filter or recorded with interception off. It is
 saved in the [project](../projects/), so you can review it without connecting again.
 
 ![History tab](/noxen-docs/screenshots/history.png)
@@ -48,6 +48,21 @@ For rules saved in the project, use [Filters](../filters/).
 
 **⊟** shows or hides columns and sets their widths. **Capture order** is hidden by
 default. Columns are saved in the project.
+
+## Provider calls and Cursor previews
+
+To record query results without pausing the app for a decision, enable
+**Settings → Capture Cursor previews** and save. The change applies to
+subsequent queries in the current session. Queries that
+proceed without a response hold show their preview in History. noxen reads up
+to 100 rows and 32 columns within 64 KiB, restores the original position and
+returns the original Cursor. History marks truncated results and omitted
+cells as partial. This option is off by default because moving the Cursor can
+load data and add latency.
+
+History keeps a provider request and its response in one entry. Null Cursors and
+provider exceptions are recorded without a separate response hold. The
+**Response** section shows captured rows or a partial capture marker.
 
 ## JSON view
 

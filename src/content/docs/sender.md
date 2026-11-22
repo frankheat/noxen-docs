@@ -96,6 +96,22 @@ From Info app, a provider request gets the authority; you add the path. To Sende
 disabled when no request can be made, for example for a provider with several
 authorities.
 
+### Copy a provider call from History
+
+**To Sender** in History copies complete query, getType, insert, update,
+delete and call requests. A call with an opaque extras Bundle cannot be
+reconstructed. File-descriptor opens in mode `r`, incoming `openFile` reads and
+`openInputStream` captures become Sender file-read requests. Sender reads
+through `openFileDescriptor` and uses its own capture limits. Write modes,
+typed asset opens and partially captured query Bundles require a request
+authored in Sender.
+
+Query Bundles containing only SQL selection, selection arguments and sort
+order can be copied to Sender when noxen confirms that all keys and types
+were captured. Sender expresses these as its selection fields. Bundles with
+additional keys and older captures without this completeness information
+require a request authored in Sender.
+
 ## Supported operations
 
 | Operation | Arguments and result |

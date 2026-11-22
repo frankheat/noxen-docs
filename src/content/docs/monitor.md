@@ -69,7 +69,7 @@ Search covers every saved event, including those outside the current view. **⊟
 columns such as **Class** or **Capture order**. `Ctrl+L` clears the events from the
 project.
 
-Provider operations are captured in [History and Intercept](../providers/).
+Provider operations are captured in [History](../history/#provider-calls-and-cursor-previews) and [Intercept](../intercept/#intercept-provider-requests).
 
 If calls arrive faster than noxen can save them, some are dropped. A loss counter or
 an incomplete-recording notice reports it.

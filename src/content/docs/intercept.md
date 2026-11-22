@@ -1,14 +1,14 @@
 ---
 title: "Intercept"
-description: Hold an Intent at a hook, then forward it, edit it as JSON, or drop it.
+description: Hold an Intent or provider call, then forward, edit, or drop it.
 ---
 
-The **Intercept** tab shows the Intent held at a hook. While it is held, the hooked
-thread waits: you decide whether the call continues, with or without changes.
+The **Intercept** tab shows an Intent or provider call held at a hook. While it is
+held, the hooked thread waits for your decision.
 
 ![Intercept tab](/noxen-docs/screenshots/intercept.png)
 
-noxen holds one Intent at a time. Other hooked calls continue while you decide, and are
+noxen holds one call at a time. Other hooked calls continue while you decide, and are
 recorded in [History](../history/). To record without holding anything, turn
 interception off; to hold fewer calls, use [Filters](../filters/).
 
@@ -101,6 +101,51 @@ the app reads. A selector affects routing only when the base Intent names no com
 
 After forwarding, the capture in History shows each change as before and after. If it
 shows `!`, open the detail: an edit may have failed, or noxen could not confirm it.
+
+## Intercept provider requests
+
+Outgoing provider calls use `ContentResolver`. Incoming calls reach a provider
+in the attached process on Android 12 and later.
+
+When a request pauses, **Forward** runs it as captured. Use **Edit** and
+**Apply & Forward** to run it with changes. **Drop** skips the operation and
+throws `OperationCanceledException` to the caller. Use [Filters](../filters/)
+to choose which calls pause.
+
+- For a query, you can edit the URI, projection and supported selection
+  arguments. If the query Bundle is already unpacked, you can edit its
+  selection, selection arguments and sort order. Other Bundle keys are preserved.
+- For insert and update, you can edit fully captured `ContentValues` containing
+  strings, integers, longs or booleans. Use decimal strings for long values to
+  preserve all 64 bits.
+- For file opens, you can edit the URI and the mode or MIME type, depending on
+  the method. For `call()`, you can edit the authority or URI, method and string
+  argument. The extras Bundle is read-only.
+
+Opaque or partially captured arguments keep their original values. Keep the
+editable keys and use `null` to clear a nullable value. If an edit is invalid,
+the request stays paused so you can correct it.
+
+## Edit provider responses
+
+When a query you forwarded returns a Cursor, Intercept pauses again before the
+caller receives it. History records both phases in one entry. The query has
+already run by this point, so dropping the response cannot undo its effects.
+
+With **Capture Cursor previews** enabled, the response hold automatically
+shows the captured rows. A complete supported capture enables **Edit** immediately.
+Partial captures show their limit and remain read-only. With automatic previews
+disabled, **Read Cursor** reads the table first. **Edit** opens the columns and typed cells. Change a cell
+and choose **Apply & Forward** to return a new MatrixCursor. Forward without
+changes returns the original Cursor. Turning interception off releases the
+original response without applying the editor draft.
+
+With interception enabled, forwarding a `getType()` request stops again before
+the MIME type reaches the caller. Select **Edit** to change `{"value": "text/plain"}`.
+The value accepts a string, including an empty string, or `null`.
+**Apply & Forward** delivers the edited value. History keeps the original
+value and the sent value when they differ. A provider exception is recorded
+and propagated directly.
 
 ## View as JSON
 

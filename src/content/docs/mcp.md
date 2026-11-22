@@ -158,6 +158,17 @@ All values are strings.
 
 If a change is not valid, the Intent stays held.
 
+## Provider interception
+
+`get_interception` and `wait_for_interception` include provider holds.
+`set_intercept` controls the common interception state. `get_provider_interception`
+returns the current provider connection and hold. `resolve_provider_interception`
+accepts the exact provider connection and phase-specific decision ID: use
+`inspect` to read a held Cursor, `forward` with the complete argument object or
+Cursor table to apply edits, or `drop`. An active TUI draft must be finished or
+cancelled first. `list_history` includes provider entries;
+`list_provider_calls` also reads the persisted provider records.
+
 ## Sender
 
 1. Read the tokens with `get_sender`, and connect with `connect_sender`.
