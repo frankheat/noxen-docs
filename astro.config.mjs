@@ -56,7 +56,6 @@ export default defineConfig({
         {
           label: "Reference",
           items: [
-            { label: "Commands", slug: "commands" },
             { label: "Keyboard shortcuts", slug: "keyboard-shortcuts" },
             { label: "Filters", slug: "filters" },
             { label: "Hook configuration", slug: "hook-configuration" },

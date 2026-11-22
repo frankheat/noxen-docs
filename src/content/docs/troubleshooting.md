@@ -66,5 +66,4 @@ pip install ".[analyze]"
 
 - Use a terminal with true color and Unicode, and make it wider.
 - On Windows, use Windows Terminal.
-- If the command bar is missing, press `Ctrl+B`.
 - If a shortcut does nothing, your terminal or desktop may be using it first.

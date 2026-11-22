@@ -133,7 +133,7 @@ returned `event_id` and `history_epoch`.
 | `component`, `action`, `data`, `mime` | `value`; `""` clears the field |
 | `cat_add`, `cat_rem` | `value`: the category |
 | `flag_add`, `flag_rem` | `value`: a 32-bit mask, decimal or hexadecimal |
-| `extra_add` | `key`, `value`, `extra_type`, as in the [`+x` command](../commands/#extra-types) |
+| `extra_add` | `key`, `value`, `extra_type`, such as `string`, `int` or `string[]` |
 | `extra_rem` | `key` |
 | `nested_component`, `nested_action`, `nested_data`, `nested_mime` | `key` of an extra holding an Intent, or `path`, and `value` |
 

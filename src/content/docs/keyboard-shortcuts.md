@@ -20,8 +20,6 @@ The footer shows the shortcuts available in the current tab.
 | `Ctrl+D` | Drop the held Intent |
 | `Esc` | Cancel the edit and keep the Intent held |
 | `Ctrl+T` | Switch between detail and JSON |
-| `Ctrl+B` | Show or hide the command bar |
-| `Alt+Up`, `Alt+Down` | Resize the panel |
 
 ## History
 
@@ -29,7 +27,6 @@ The footer shows the shortcuts available in the current tab.
 | --- | --- |
 | `Ctrl+T` | Switch between detail and JSON |
 | `Ctrl+R` | Copy the selected Intent to Sender |
-| `Ctrl+B` | Show or hide the command bar |
 | `Alt+Up`, `Alt+Down` | Resize the panels |
 
 ## Monitor

@@ -62,9 +62,6 @@ noxen applies only what you changed. Deleting a field clears it; deleting an ext
 removes it. If the JSON is not valid, or a change cannot be made, the line under the
 editor says why and the Intent stays held.
 
-[Modification commands](../commands/#intent-modifications) typed while the editor is
-open change the JSON; commands entered before opening it are already in the JSON.
-
 ### What you can change
 
 Everything the JSON shows, with the types that [Sender](../sender/#supported-operations)
@@ -163,6 +160,5 @@ markers before treating a capture as complete.
 
 ## See also
 
-- [Commands](../commands/)
 - [Filters](../filters/)
 - [History](../history/)

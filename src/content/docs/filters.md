@@ -1,83 +1,36 @@
 ---
 title: "Filters"
-description: Rules that choose which Intents Intercept holds and which captures History shows.
+description: Choose which Android calls Intercept holds and which captures History shows.
 ---
 
-Filters are rules that match captured Intents. Intercept and History each have their
-own set, saved in the project:
+Open **Filters** in Intercept or History. Each tab saves its own rules in the
+project. Intercept forwards calls excluded by its rules and still records them
+in History. History filters only affect the results shown in its table.
 
-- **Intercept filters** choose which Intents are held. An Intent that does not pass is
-  forwarded automatically, and still recorded in History.
-- **History filters** choose which captures are shown and exported with
-  `/export filtered entries`. They never affect the app.
+## Create a rule
 
-Add rules from **Filters** in either tab, or with [`/filter`](../commands/#filters).
+Choose **Focus** or **Ignore**, then add one or more conditions. An event must
+match every condition in a rule. If any **Focus** rules are active, matching any
+one of them is enough and **Ignore** rules have no effect. Otherwise an event
+that matches any **Ignore** rule is excluded.
 
-## Rule types
+To hold incoming queries to a particular provider, add a **Focus** rule with
+**Event** set to **Provider**, **Direction** to **Incoming**, **Method** to
+`query`, and **Authority** to the provider's authority. Calls already held
+keep the filter decision made for their request.
 
-| Type | Effect |
+| Condition | Matches |
 | --- | --- |
-| `focus` | Only matching Intents pass |
-| `ignore` | Matching Intents do not pass |
+| **Event** | Intent or Provider |
+| **Class**, **Method** | The hooked class or method |
+| **Direction** | Incoming or outgoing provider calls |
+| **Authority**, **URI** | The provider authority or URI in the captured request |
+| **Action**, **Component**, **Data**, **Flags**, **Category** | Intent fields. Existing **Data** rules also match provider URIs. |
 
-If any `focus` rule is enabled, an Intent must match one to pass, and `ignore` rules are
-not used.
+In text conditions, `*` matches any text and `?` matches one character.
+`set` and `unset` match the presence or absence of a value. In **Component**,
+`explicit` and `implicit` match whether the Intent itself names a component.
 
-## Syntax
-
-A rule is one or more `key=value` pairs. An Intent must match every pair.
-
-```text
-/filter add ignore class=*ContextThemeWrapper
-/filter add ignore class=com.example.MainActivity method=getIntent
-```
-
-| Key | Matches |
-| --- | --- |
-| `class` | The hooked class |
-| `method` | The hooked method |
-| `action` | The action |
-| `data` | The data URI |
-| `flags` | The flags |
-| `category` | Any of the categories |
-| `component` | The component of the Intent, not where Android delivered it |
-
-Values are glob patterns: `*` matches any text.
-
-```text
-/filter add focus action=android.intent.action.*
-```
-
-### Presence
-
-`set` matches a field that has a value, and `unset` one that does not. For
-`component`, `explicit` and `implicit` are the same as `set` and `unset`.
-
-```text
-/filter add focus data=set
-/filter add focus component=explicit
-```
-
-`implicit` only means that the Intent names no component. An Intent whose selector
-names one, and a null Intent, are both `implicit`.
-
-Rules do not look into the selector, ClipData or extras; use History search for those.
-
-## Examples
-
-| Goal | Rule |
-| --- | --- |
-| Skip framework wrapper noise | `ignore class=*ContextThemeWrapper` |
-| Hold only broadcasts | `focus method=sendBroadcast` |
-| Hold only Intents with a data URI | `focus data=set` |
-| Hold only explicit Intents | `focus component=explicit` |
-
-## Save filters to a file
-
-`/save intercept filters` and `/save history filters` write the rules to a text file,
-one per line. Lines starting with `#` are comments.
-
-```text
-ignore class=*ContextThemeWrapper
-focus method=sendBroadcast
-```
+Use the **Active** column to toggle a rule. **Edit** replaces its conditions.
+**Copy to History** or **Copy to Intercept** adds an independent copy in the other
+tab. Use History search to look for specific data inside an event.

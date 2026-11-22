@@ -42,8 +42,7 @@ Search does not cover the **Package** field, stack traces or permissions. A very
 capture can exceed the search index; if a search finds nothing, check the detail
 before ruling a value out.
 
-`/search <text>` sets the same query, and `/search` clears it. For rules saved in the
-project, use [Filters](../filters/).
+For rules saved in the project, use [Filters](../filters/).
 
 ## Columns
 
@@ -61,19 +60,11 @@ See [View as JSON](../intercept/#view-as-json).
 **To Sender** (`Ctrl+R`) copies the selected Intent into a new
 [Sender](../sender/#copy-a-capture-to-sender) request.
 
-## Export
-
-| Command | Exports |
-| --- | --- |
-| `/export entries` | All of History, as JSON |
-| `/export filtered entries` | The rows currently shown |
-
-Exports and project files can contain secrets and personal data. Review them before
-sharing.
+Project files can contain secrets and personal data. Review them before sharing.
 
 ## Clear
 
-`/clear history` or `Ctrl+L` deletes the captures from the project. A held Intent stays
+`Ctrl+L` deletes the captures from the project. A held Intent stays
 held in Intercept.
 
 ## Storage warnings
@@ -86,4 +77,3 @@ write.
 
 - [Intercept](../intercept/)
 - [Filters](../filters/)
-- [Commands](../commands/)

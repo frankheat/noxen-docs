@@ -20,5 +20,3 @@ saved in your user configuration directory:
 | Linux | `~/.config/noxen/settings.txt`, or under `$XDG_CONFIG_HOME` |
 | macOS | `~/Library/Application Support/noxen/settings.txt` |
 | Windows | `%APPDATA%\noxen\settings.txt` |
-
-`/theme` switches the theme for the current run only. See [Commands](../commands/).

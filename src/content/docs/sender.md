@@ -187,4 +187,3 @@ values are marked in the result.
 ## See also
 
 - [MCP](../mcp/#sender), to send requests from an MCP client
-- [Commands](../commands/#extra-types), for the value types
