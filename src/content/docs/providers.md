@@ -52,8 +52,11 @@ before the caller receives it. This is the response phase of the same History
 entry, with a separate decision ID. The provider has already executed; dropping
 the response cannot undo its work.
 
-**Read Cursor** explicitly reads a bounded table and restores the original
-Cursor position. **Edit** then opens its columns and typed cells. Change a cell
+With **Capture Cursor previews** enabled, the response hold automatically
+shows the captured rows. A complete supported capture enables **Edit** immediately.
+Partial captures show their limit and remain read-only. With automatic previews
+disabled, **Read Cursor** reads the table first.
+**Edit** opens the columns and typed cells. Change a cell
 and choose **Apply & Forward** to return a new MatrixCursor. Forward without
 changes returns the original Cursor. Turning interception off releases the
 original response without applying the editor draft.
