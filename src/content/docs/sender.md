@@ -143,7 +143,8 @@ and mark omitted or truncated data. File reads show the byte count and whether t
 capture is partial. **Raw** shows the saved response, including Base64 file content;
 **Details** shows timing and sender identity.
 
-**‹** and **›** go through earlier runs, each shown with the request as it was sent.
+**‹** and **›** go through earlier runs and load each run's request into the editor.
+Edits update the current request. The earlier run keeps the request it actually sent.
 A returned call does not confirm that an Activity opened or that an unordered
 broadcast was delivered. If noxen recorded a sender crash, the run shows the crash
 ID without inferring its cause.
