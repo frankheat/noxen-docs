@@ -39,6 +39,7 @@ In [Home](../home/), choose **Spawn** with the package `dev.noxen.playground`, o
 | Nested Intents | **Forward nested Intent → Activity1** sends an Intent carrying another in its `next` extra |
 | Access classes | Components guarded by a `dangerous`, an undefined and a `signature` permission, and a provider with separate read and write permissions, for [Info app](../info-app/) |
 | Open provider | `dev.noxen.playground.open`, exported without permissions, passes input to SQLite and to a file open, for [Monitor](../monitor/) |
+| Provider requests | Query, file, write, call, concurrent and Cursor response cases for [provider interception](../providers/), including a contained filename traversal demonstration |
 
 The permission examples are within one app: they show what noxen captures, not
 Android rejecting another app.
@@ -54,13 +55,13 @@ With Intercept on, a null Intent can be forwarded or dropped, but not edited.
 
 ## Follow a call into a provider
 
-Enable the **Incoming Provider** and **SQLite** profiles in Monitor, then run:
+Connect noxen to the playground, then run:
 
 ```bash
 adb shell content query --uri content://dev.noxen.playground.open/notes --where "1=1"
 ```
 
-Monitor shows the incoming call and the SQL it led to.
+History shows the incoming call. Enable **SQLite** in Monitor to observe SQL operations that follow.
 
 ## See also
 

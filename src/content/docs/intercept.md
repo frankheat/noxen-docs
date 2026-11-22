@@ -107,14 +107,19 @@ shows `!`, open the detail: an edit may have failed, or noxen could not confirm 
 
 ## View as JSON
 
-`Ctrl+T` switches the capture between its detail and JSON in Sender's request format.
-The choice applies to History too.
+`Ctrl+T` switches between the capture detail and its JSON view. The choice
+applies to History too.
 
 The JSON starts with `hook`, the hooked call, such as
 `dev.noxen.playground.Activity2.getIntent()`. `operation` appears only when the hook is
 itself the sending call. Values that could not be captured in full are listed under
 `notCaptured`. These two fields are for reading: remove them before pasting the JSON
 into a Sender request. **To Sender** in History does this for you.
+
+Provider captures start with the same `hook` field. When noxen can reconstruct
+the request, it shows the operation and its Sender fields. Otherwise, it shows
+the captured arguments. The `response` object contains the returned value or
+type and any captured Cursor data.
 
 ## Read the detail
 

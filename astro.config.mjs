@@ -45,6 +45,7 @@ export default defineConfig({
             { label: "Intercept", slug: "intercept" },
             { label: "History", slug: "history" },
             { label: "Monitor", slug: "monitor" },
+            { label: "Providers", slug: "providers" },
             { label: "Sender", slug: "sender" },
             { label: "Info app", slug: "info-app" },
             { label: "MCP", slug: "mcp" },

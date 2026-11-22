@@ -52,8 +52,11 @@ default. Columns are saved in the project.
 
 ## JSON view
 
-`Ctrl+T` shows the selected Intent as JSON, in Sender's request format. See
-[View as JSON](../intercept/#view-as-json).
+`Ctrl+T` shows the selected capture as JSON. Intents use Sender's request
+format. Provider calls use the same request fields when they can be
+reconstructed in Sender. Other provider calls show their captured
+`arguments`. Returned values and Cursor captures appear under `response`.
+See [View as JSON](../intercept/#view-as-json).
 
 **To Sender** (`Ctrl+R`) copies the selected Intent into a new
 [Sender](../sender/#copy-a-capture-to-sender) request.

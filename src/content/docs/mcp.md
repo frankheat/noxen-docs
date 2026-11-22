@@ -35,12 +35,14 @@ Turning it off rejects new control operations; ones already started finish.
 
 | Operation | Purpose |
 | --- | --- |
+| `get_provider_interception` | Read the active provider call and its phase |
+| `resolve_provider_interception`, `list_provider_calls` | Inspect or resolve a provider request or Cursor response; read saved calls |
 | `get_status` | Connection state, agent readiness, the connection token and recording problems |
 | `list_devices`, `refresh_devices` | List the devices from the last scan, or scan again |
 | `list_applications`, `list_processes` | Find a package to spawn, or a running process and its PID |
 | `connect`, `disconnect` | Start or stop the Frida session |
-| `get_interception`, `wait_for_interception` | Read the held Intent, or wait for one |
-| `resolve_interception` | Forward, with optional changes, or drop the held Intent |
+| `get_interception`, `wait_for_interception` | Read or wait for a held Intent or provider call |
+| `resolve_interception` | Forward or drop the current hold; supports Intent modifications |
 | `set_intercept` | Turn interception on or off |
 | `set_input_anr_bypass` | Change the Input ANR bypass setting |
 | `list_history`, `get_intent`, `export_history` | Search History and read full captures |

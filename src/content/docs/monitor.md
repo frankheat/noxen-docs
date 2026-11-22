@@ -18,8 +18,6 @@ profile to see the exact methods it hooks.
 | Profile | Records |
 | --- | --- |
 | WebView | Page loads, JavaScript evaluation, JavaScript bridges and changes to WebView settings |
-| Content Resolver | The app's calls to providers: queries, calls, edits and opens, with URIs, modes and results |
-| Incoming Provider | Calls to the app's own providers, with the provider, calling package and Binder UID. Android 12 or later |
 | URI Grants | Explicit grant, revoke and persistable permission calls |
 | File | Path-based opens, deletes, renames, copies and moves |
 | SQLite | SQL and bindings from `execSQL` and standard queries |
@@ -31,8 +29,8 @@ profile to see the exact methods it hooks.
 | Dynamic Code Loading | DEX paths, buffers and package context requests |
 | Intent | URI and extra reads, and changes to component, package or flags |
 
-Each profile records calls, not their effects. For example, Monitor does not read
-cursor rows, stream contents or network traffic, and a `commit` or a grant records
+Each profile records calls, not their effects. Monitor does not read
+stream contents or network traffic, and a `commit` or a grant records
 the call's result, not what was written to disk.
 
 ### Custom profiles
@@ -71,8 +69,7 @@ Search covers every saved event, including those outside the current view. **⊟
 columns such as **Class** or **Capture order**. `Ctrl+L` clears the events from the
 project.
 
-**To Sender** (`Ctrl+R`) copies a content provider call into a
-[Sender](../sender/#copy-a-capture-to-sender) request when every argument was captured.
+Provider operations are captured in [History and Intercept](../providers/).
 
 If calls arrive faster than noxen can save them, some are dropped. A loss counter or
 an incomplete-recording notice reports it.
@@ -92,12 +89,11 @@ missed calls can all mislead.
 
 ### Following a call into a provider
 
-Enable **Incoming Provider** with **SQLite** or **File**, then call an exported
-provider, for example with `adb shell content`. The incoming event shows the caller;
-SQL or file events on the same **Thread** around it show what followed.
+Connect to the app containing the provider and call it, for example with
+`adb shell content`. The call appears in History; SQL or file events in
+Monitor can show what followed.
 
-An incoming event shows that the call reached the provider's transport, not that the
-provider ran it: Android or the transport can reject it. For `call()`, Android checks
+An incoming event shows that the call reached the provider's transport. Android or the transport can reject it. For `call()`, Android checks
 only that the caller may access the provider; the provider must check the method
 itself. See
 [`ContentProvider.call`](https://developer.android.com/reference/android/content/ContentProvider#call(java.lang.String,%20java.lang.String,%20android.os.Bundle)).
