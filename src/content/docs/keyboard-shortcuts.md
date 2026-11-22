@@ -26,7 +26,7 @@ The footer shows the shortcuts available in the current tab.
 | Shortcut | Action |
 | --- | --- |
 | `Ctrl+T` | Switch between detail and JSON |
-| `Ctrl+R` | Copy the selected Intent to Sender |
+| `Ctrl+R` | Copy the selected Intent or supported provider call to Sender |
 | `Alt+Up`, `Alt+Down` | Resize the panels |
 
 ## Monitor

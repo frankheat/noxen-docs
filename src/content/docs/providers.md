@@ -3,38 +3,32 @@ title: "Content providers"
 description: Inspect and modify provider requests and Cursor responses in Intercept and History.
 ---
 
-Content provider calls use the same **Intercept** and **History** workflow as
-Intents. Supported hooks load when noxen connects. Outgoing events represent
-ContentResolver calls; incoming events represent calls reaching a provider's
-Transport in the attached process. Incoming interception currently supports
-Android 12+ signatures.
-
-With interception off, calls continue and their requests, return descriptions
-and exceptions are recorded in History. With interception on, **Forward** runs
-the original operation, **Edit** changes captured arguments, and **Drop** skips
-the operation and throws `OperationCanceledException` to the caller. The existing
-Intercept filters apply to provider class, method and data URI too.
+Use **Intercept** to pause a content provider call and **History** to review
+its request and outcome, including calls that continued without pausing.
+Outgoing calls use `ContentResolver`. Incoming calls reach a provider in the
+attached process and use the transport signatures available on Android 12
+and later.
 
 ## Requests
 
-History, Intercept, its editor and requests copied to Sender use the same
-field order. Destination and selection fields appear before ContentValues
-and extras. ContentValues keys are sorted by name in both Details and JSON.
-Editor suggestions follow the field and value type. Intercept offers the
-ContentValues types its agent can rebuild; Sender also offers its additional
-supported scalar types.
+When a request pauses, **Forward** runs it as captured. Use **Edit** and
+**Apply & Forward** to run it with changes. **Drop** skips the operation and
+throws `OperationCanceledException` to the caller. Use [Filters](../filters/)
+to choose which calls pause.
 
-Queries expose URI, projection and legacy selection arguments. For an already
-unpacked query Bundle, the standard SQL selection, selection arguments and sort
-order can be edited; other Bundle keys remain unchanged. Still-parcelled Bundles
-stay read-only. Provider `call` exposes authority or URI, method and string
-argument; its extras Bundle stays read-only.
+- For a query, you can edit the URI, projection and supported selection
+  arguments. If the query Bundle is already unpacked, you can edit its
+  selection, selection arguments and sort order. Other Bundle keys are preserved.
+- For insert and update, you can edit fully captured `ContentValues` containing
+  strings, integers, longs or booleans. Use decimal strings for long values to
+  preserve all 64 bits.
+- For file opens, you can edit the URI and the mode or MIME type, depending on
+  the method. For `call()`, you can edit the authority or URI, method and string
+  argument. The extras Bundle is read-only.
 
-Insert and update expose complete ContentValues containing strings, integers,
-longs and booleans. Long values use decimal strings to preserve their precision.
-Unsupported, oversized and opaque arguments remain on the original call. File
-opens expose URI and mode or MIME type. Keep the editable argument keys; `null`
-clears a nullable value. Invalid edits leave the operation held.
+Opaque or partially captured arguments keep their original values. Keep the
+editable keys and use `null` to clear a nullable value. If an edit is invalid,
+the request stays paused so you can correct it.
 
 ## Cursor responses
 
@@ -47,10 +41,9 @@ returns the original Cursor. History marks truncated results and omitted
 cells as partial. This option is off by default because moving the Cursor can
 load data and add latency.
 
-After a forwarded query returns a non-null Cursor, interception stops again
-before the caller receives it. This is the response phase of the same History
-entry, with a separate decision ID. The provider has already executed; dropping
-the response cannot undo its work.
+When a query you forwarded returns a Cursor, Intercept pauses again before the
+caller receives it. History records both phases in one entry. The query has
+already run by this point, so dropping the response cannot undo its effects.
 
 With **Capture Cursor previews** enabled, the response hold automatically
 shows the captured rows. A complete supported capture enables **Edit** immediately.
@@ -68,11 +61,10 @@ code units. Integers use decimal strings. Blob cells, duplicate columns,
 unsupported values, read failures and oversized tables prevent replacement.
 No partial table is presented as an editable complete response.
 
-Reading can load Cursor windows or invoke a custom Cursor implementation. It is
-an explicit test action, not passive observation. Restoring the position does
-not undo that work. Replacement preserves table data and types, but does not
-reproduce the original Cursor's extras, notification configuration, lazy loading
-or subclass behavior. Use it to test consumers of ordinary tabular results.
+Reading can load data or run code in a custom Cursor implementation, even when
+noxen restores the original position. A replacement carries the table's rows
+and types. Features such as notifications, lazy loading and custom Cursor
+behavior require the original Cursor.
 Bundles, streams and file descriptors remain opaque; noxen does not read their
 contents or replace them. Null Cursors and original exceptions are recorded
 without an extra response hold.

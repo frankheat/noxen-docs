@@ -57,8 +57,9 @@ reconstructed in Sender. Other provider calls show their captured
 `arguments`. Returned values and Cursor captures appear under `response`.
 See [View as JSON](../intercept/#view-as-json).
 
-**To Sender** (`Ctrl+R`) copies the selected Intent into a new
-[Sender](../sender/#copy-a-capture-to-sender) request.
+Use **To Sender** to create a [Sender request](../sender/#copy-a-capture-to-sender)
+from a captured Intent or a supported provider call. For provider calls, noxen
+uses the arguments that were forwarded, including any edits, when available.
 
 Project files can contain secrets and personal data. Review them before sharing.
 

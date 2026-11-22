@@ -60,13 +60,6 @@ The request is JSON: an `operation` and its arguments.
   survive.
 - Control characters use JSON escapes, such as `\n` and `\u0000`.
 
-| Action | Shortcut |
-| --- | --- |
-| List suggestions; accepting one writes its structure | `Ctrl+Space` |
-| Fold or unfold the block at the cursor | `Ctrl+O` |
-| Unfold everything | `Ctrl+N` |
-| Move the divider between request and result | `Alt+Left`, `Alt+Right` |
-
 Sender saves your edits automatically. If the text is not a valid request, it is
 saved in the project as a draft, separately from the last valid revision. The
 editor restores it when you reopen the project and shows what needs fixing.
@@ -74,22 +67,26 @@ editor restores it when you reopen the project and shows what needs fixing.
 
 ## Copy a capture to Sender
 
-**To Sender** (`Ctrl+R`) creates a request from what is selected, and switches to it.
-Nothing is sent, and a held Intent stays held.
+Use **To Sender** to open a new request from the current selection. The call
+starts when you choose **Send**.
 
 | From | Creates |
 | --- | --- |
-| [History](../history/) | A request with the selected Intent |
-| [Monitor](../monitor/) | A request repeating the selected content provider call |
+| [History](../history/) | A request based on the selected Intent or supported provider call |
+| [Monitor](../monitor/) | A request based on a provider call recorded by a Monitor hook |
 | [Info app](../info-app/) | A request for the selected component |
 
-From History, the operation follows the hook: a sending hook keeps its operation,
+For an Intent in History, the operation follows the hook. A sending hook keeps its operation,
 `getIntent` and `onNewIntent` become `startActivity`, `onReceive` becomes
 `sendBroadcast`, and a PendingIntent request becomes the operation it wraps. For other
 hooks, such as `bindService`, you choose the operation.
 
 If some values were not captured in full, noxen lists them and asks first. **Send
 without them** creates the request without those values; check it before sending.
+
+For a provider call in History, noxen needs enough captured arguments to recreate
+the operation. If an argument is incomplete or the operation is unsupported,
+create the request directly in Sender.
 
 From Monitor, To Sender is available only for a query, delete, `call` or file read
 whose arguments were all captured. Monitor does not record `ContentValues` or Bundle
@@ -126,9 +123,8 @@ Use Android flag names in a JSON list, for example:
 "flags": ["FLAG_ACTIVITY_NEW_TASK", "FLAG_GRANT_READ_URI_PERMISSION"]
 ```
 
-The editor suggests names inside the list. Type part of a name to narrow the
-suggestions, or press Ctrl+Space to show them again. Sender saves the names as
-written and combines their bits when sending. An unsigned 32-bit decimal mask
+The editor suggests names inside the list. Sender saves the names as written and
+combines their bits when sending. An unsigned 32-bit decimal mask
 also works, including for bits that noxen does not name.
 
 Android's rules still apply. Before a `startActivity`, noxen checks whether the sender
