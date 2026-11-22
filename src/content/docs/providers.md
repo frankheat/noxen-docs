@@ -159,6 +159,12 @@ through `openFileDescriptor` and uses its own capture limits. Write modes,
 typed asset opens and partially captured query Bundles require a request
 authored in Sender.
 
+Query Bundles containing only SQL selection, selection arguments and sort
+order can be copied to Sender when noxen confirms that all keys and types
+were captured. Sender expresses these as its selection fields. Bundles with
+additional keys and older captures without this completeness information
+require a request authored in Sender.
+
 `get_interception` and `wait_for_interception` include provider holds.
 `set_intercept` controls the common interception state. `get_provider_interception`
 returns the current provider connection and hold. `resolve_provider_interception`
